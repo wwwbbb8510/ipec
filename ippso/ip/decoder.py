@@ -1,30 +1,39 @@
 from .core import IPStructure
 from .core import Subnet
 from .core import Interface
+from .core import ip_2_bin_ip
+
+import numpy as np
 
 class Decoder:
     """
     Decoder clss
     """
 
-    def __init__(self, ipStructure, subnet):
+    def __init__(self):
         """
         constructor
-
-        :param ipStructure: ip structure containing the fields and their # of bits
-        :type ipStructure: IPStructure
-        :param subnet: subnet of the specific encoder, e.g. Conv Layer encoder, Pooling Layer encoder
-        :type subnet: Subnet
         """
-        self.ipStruture = ipStructure
-        self.subnet = subnet
 
-    def decode(self, interface):
+    def decode_2_field_values(self, interface):
         """
         decode an interface into a list of values and their corresponding fields
 
         :param interface: an interface including ip and subnet
         :type interface: Interface
-        :return: a list of (field, value) pairs
-        :type return: list
+        :return: (filed, value) dict
+        :rtype: dict
         """
+        fields = interface.ip_structure.fields
+        ip = interface.ip.ip
+        subnet_ip = interface.subnet.ip
+        field_ip = np.subtract(ip, subnet_ip)
+        field_bin_ip = ip_2_bin_ip(field_ip)
+        pos = 0
+        field_values = {}
+        for field_name in fields:
+            num_of_bits = fields[field_name]
+            field_values[field_name] = int(field_bin_ip[pos:pos+num_of_bits], base=2)
+            pos + num_of_bits
+
+        return field_values
