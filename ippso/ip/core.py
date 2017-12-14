@@ -152,6 +152,17 @@ class Interface:
         self.subnet = subnet
         self.ip_structure = ip_structure
 
+    def update_byte(self, pos, value):
+        """
+        update one byte of the decimal IP
+
+        :param pos: byte position
+        :type pos: int
+        :param value: value of the byte
+        :type value: int
+        """
+        self.ip.update_byte(pos, value)
+
 
 class IPStructure:
     """
@@ -196,6 +207,17 @@ class IPAddress:
             self.bin_ip = bin_ip
             self.ip = self._bin_ip_2_ip()
 
+    def update_byte(self, pos, value):
+        """
+        update one byte of the decimal IP
+
+        :param pos: byte position
+        :type pos: int
+        :param value: value of the byte
+        :type value: int
+        """
+        self.ip[pos] = value
+        self.bin_ip = self._ip_2_bin_ip()
 
     def _ip_2_bin_ip(self, ip=None):
         """

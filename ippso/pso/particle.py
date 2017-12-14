@@ -13,18 +13,20 @@ class Particle:
         :type length: int
         :param w: inertia weight
         :type w: float
-        :param c1: a list of acceleration co-efficients for pbest
-        :type c1: list
-        :param c2: a list of acceleration co-efficients for gbest
-        :type c2: list
+        :param c1: an array of acceleration co-efficients for pbest
+        :type c1: numpy.array
+        :param c2: an array of acceleration co-efficients for gbest
+        :type c2: numpy.array
         """
         self.length = length
         self.w = w
         self.c1 = c1
         self.c2 = c2
 
-        # initialise pbest to None
+        # initialise pbest, x, v to None
         self.pbest = None
+        self.x = None
+        self.v = None
 
     def update(self, gbest):
         """
@@ -34,6 +36,24 @@ class Particle:
         :type gbest: Particle
         """
 
+        for i in range(self.length):
+            interface = self.x[i]
+            gbest_interface = gbest.x[i]
+            pbest_interface = self.pbest.x[i]
+            for j in range(interface.ip.length):
+                # calculate the new position and velocity of one byte of the IP address
+                v_ij = self.v[i,j]
+                x_ij = interface.ip.ip[j]
+                gbest_x_ij = gbest_interface.ip.ip[j]
+                pbest_x_ij = pbest_interface.ip.ip[j]
+                r1 = np.random.uniform(0, 1)
+                r2 = np.random.uniform(0, 1)
+                new_v_ij = self.w * v_ij + self.c1[j] * r1 * (pbest_x_ij - x_ij) + self.c2[j] * r2 * (gbest_x_ij - x_ij)
+                new_x_ij = x_ij + new_v_ij
+                new_x_ij if new_x_ij < 256 else new_x_ij - 256
+                # update the IP and velocity of the particle
+                self.x[i].update_byte(j, new_x_ij)
+                self.v[i,j] = new_v_ij
 
 
 class CNNParticle(Particle):
@@ -50,10 +70,10 @@ class CNNParticle(Particle):
         :type max_fully_connected_length: int
         :param w: inertia weight
         :type w: float
-        :param c1: a list of acceleration co-efficients for pbest
-        :type c1: list
-        :param c2: a list of acceleration co-efficients for gbest
-        :type c2: list
+        :param c1: an array of acceleration co-efficients for pbest
+        :type c1: numpy.array
+        :param c2: an array of acceleration co-efficients for gbest
+        :type c2: numpy.array
         :param layers: a dict of (layer_name, layer) pairs; keys: conv, pooling, full, disabled
         :type layers: dict
         """
@@ -61,7 +81,6 @@ class CNNParticle(Particle):
         self.layers = layers
         super(CNNParticle, self).__init__(length, w, c1, c2)
         self.x = np.empty(self.length, dtype=Interface)
-        self.v = None
 
     def initialise(self):
         """

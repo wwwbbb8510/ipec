@@ -34,10 +34,10 @@ def initialise_cnn_population(pop_size=None, particle_length=None, max_fully_con
     :type max_fully_connected_length: int
     :param w: inertia weight
     :type w: float
-    :param c1: a list of acceleration co-efficients for pbest
-    :type c1: list
-    :param c2: a list of acceleration co-efficients for gbest
-    :type c2: list
+    :param c1: an array of acceleration co-efficients for pbest
+    :type c1: numpy.array
+    :param c2: an array of acceleration co-efficients for gbest
+    :type c2: numpy.array
     :param layers: a dict of (layer_name, layer) pairs; keys: conv, pooling, full, disabled
     :type layers: dict
     :return: a cnn population
@@ -73,10 +73,10 @@ class Population:
         :type particle_length: int
         :param w: inertia weight
         :type w: float
-        :param c1: a list of acceleration co-efficients for pbest
-        :type c1: list
-        :param c2: a list of acceleration co-efficients for gbest
-        :type c2: list
+        :param c1: an array of acceleration co-efficients for pbest
+        :type c1: numpy.array
+        :param c2: an array of acceleration co-efficients for gbest
+        :type c2: numpy.array
         """
         self.pop_size = pop_size
         self.pop = np.empty(pop_size, dtype=Particle)
@@ -122,10 +122,10 @@ class CNNPopulation(Population):
         :type max_fully_connected_length: int
         :param w: inertia weight
         :type w: float
-        :param c1: a list of acceleration co-efficients for pbest
-        :type c1: list
-        :param c2: a list of acceleration co-efficients for gbest
-        :type c2: list
+        :param c1: an array of acceleration co-efficients for pbest
+        :type c1: numpy.array
+        :param c2: an array of acceleration co-efficients for gbest
+        :type c2: numpy.array
         :param layers: a dict of (layer_name, layer) pairs; keys: conv, pooling, full, disabled
         :type layers: dict
         """
