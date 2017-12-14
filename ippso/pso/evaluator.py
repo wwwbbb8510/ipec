@@ -1,8 +1,11 @@
+import numpy as np
+import datetime
 import tensorflow as tf
 import tensorflow.contrib.slim as slim
 from tensorflow.python.ops import control_flow_ops
 from tensorflow.python.ops import init_ops
 from ippso.ip.decoder import Decoder
+from .particle import Particle
 
 class Evaluator:
     """
@@ -23,7 +26,16 @@ class CNNEvaluator(Evaluator):
 
         :param training_epoch: the training epoch before evaluation
         :type training_epoch: int
-        :param batch_size:
+        :param batch_size: batch size
+        :type batch_size: int
+        :param training_data: training data
+        :type training_data: numpy.array
+        :param training_label: training label
+        :type training_label: numpy.array
+        :param validation_data: validation data
+        :type validation_data: numpy.array
+        :param validation_label: validation label
+        :type validation_label: numpy.array
         """
         self.training_epoch = training_epoch
         self.batch_size = batch_size
@@ -31,23 +43,81 @@ class CNNEvaluator(Evaluator):
         self.training_label = training_label
         self.validation_data = validation_data
         self.validation_label = validation_label
+
+        self.training_data_length = self.training_data.shape[0]
+        self.validation_data_length = self.validation_data.shape[0]
         self.decoder = Decoder()
 
     def eval(self, particle):
         """
         evaluate the particle
 
-        :param particle:
-        :type particle:
+        :param particle: particle
+        :type particle: Particle
         :return:
         """
+        tf.reset_default_graph()
+        train_data, train_label = ()
+        validate_data, validate_label = ()
+        is_training, train_op, accuracy, cross_entropy, num_connections, merge_summary = self.build_graph(particle)
+        with tf.Session() as sess:
+            sess.run(tf.global_variables_initializer())
+            steps_in_each_epoch = (self.train_data_length // self.batch_size)
+            total_steps = int(self.training_epoch * steps_in_each_epoch)
+            coord = tf.train.Coordinator()
+            # threads = tf.train.start_queue_runners(sess, coord)
+            try:
+                threads = []
+                for qr in tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS):
+                    threads.extend(qr.create_threads(sess, coord=coord, daemon=True, start=True))
+                for i in range(total_steps):
+                    if coord.should_stop():
+                        break
+                    _, accuracy_str, loss_str, _ = sess.run([train_op, accuracy, cross_entropy, merge_summary],
+                                                            {is_training: True})
+                    if i % (2 * steps_in_each_epoch) == 0:
+                        test_total_step = self.validation_data_length // self.batch_size
+                        test_accuracy_list = []
+                        test_loss_list = []
+                        for _ in range(test_total_step):
+                            test_accuracy_str, test_loss_str = sess.run([accuracy, cross_entropy], {is_training: False})
+                            test_accuracy_list.append(test_accuracy_str)
+                            test_loss_list.append(test_loss_str)
+                        mean_test_accu = np.mean(test_accuracy_list)
+                        mean_test_loss = np.mean(test_loss_list)
+                        print('{}, {}, indi:{}, Step:{}/{}, train_loss:{}, acc:{}, test_loss:{}, acc:{}'.format(
+                            datetime.now(), i // steps_in_each_epoch, particle.id, i, total_steps, loss_str,
+                            accuracy_str, mean_test_loss, mean_test_accu))
+                        # print('{}, test_loss:{}, acc:{}'.format(datetime.now(), loss_str, accuracy_str))
+                # validate the last epoch
+                test_total_step = self.validation_data_length // self.batch_size
+                test_accuracy_list = []
+                test_loss_list = []
+                for _ in range(test_total_step):
+                    test_accuracy_str, test_loss_str = sess.run([accuracy, cross_entropy], {is_training: False})
+                    test_accuracy_list.append(test_accuracy_str)
+                    test_loss_list.append(test_loss_str)
+                mean_test_accu = np.mean(test_accuracy_list)
+                mean_test_loss = np.mean(test_loss_list)
+                print('{}, test_loss:{}, acc:{}'.format(datetime.now(), mean_test_loss, mean_test_accu))
+                mean_acc = mean_test_accu
+
+            except Exception as e:
+                print(e)
+                coord.request_stop(e)
+            finally:
+                print('finally...')
+                coord.request_stop()
+                coord.join(threads)
+
+            return mean_test_accu, np.std(test_accuracy_list), num_connections
 
     def build_graph(self, particle):
         """
         evaluate the particle
 
-        :param particle:
-        :type particle:
+        :param particle: particle
+        :type particle: Particle
         :return:
         """
         is_training = tf.placeholder(tf.bool, [])
@@ -55,6 +125,7 @@ class CNNEvaluator(Evaluator):
         y_ = tf.cond(is_training, lambda: self.training_label, lambda: self.validation_label)
         true_Y = tf.cast(y_, tf.int64)
 
+        name_preffix = 'I_{}'.format(particle.id)
         output_list = []
         output_list.append(X)
         num_connections = 0
@@ -69,7 +140,7 @@ class CNNEvaluator(Evaluator):
                 # conv layer
                 field_values = self.decoder.decode_2_field_values(interface)
                 if particle.layers['conv'].check_interface_in_type(interface):
-                    name_scope = 'conv_{}'.format(i)
+                    name_scope = '{}_conv_{}'.format(name_preffix, i)
                     with tf.variable_scope(name_scope):
                         filter_size = field_values['filter_size']
                         mean = field_values['mean']
@@ -85,7 +156,7 @@ class CNNEvaluator(Evaluator):
                         num_connections += feature_map_size * stride_size ^ 2 + feature_map_size
                 # pooling layer
                 elif particle.layers['pooling'].check_interface_in_type(interface):
-                    name_scope = 'pooling_{}'.format(i)
+                    name_scope = '{}_pooling_{}'.format(name_preffix, i)
                     with tf.variable_scope(name_scope):
                         kernel_size = field_values['kernel_size']
                         stride_size = field_values['stride_size']
@@ -102,7 +173,7 @@ class CNNEvaluator(Evaluator):
                         num_connections += last_output_feature_map_size
                 # fully-connected layer
                 elif particle.layers['full'].check_interface_in_type(interface):
-                    name_scope = 'fully-connected_{}'.format(i)
+                    name_scope = '{}_fully-connected_{}'.format(name_preffix, i)
                     with tf.variable_scope(name_scope):
                         last_interface = particle.x[i-1]
                         if not particle.layers['full'].check_interface_in_type(last_interface):  # use the previous setting to calculate this input dimension
@@ -132,7 +203,7 @@ class CNNEvaluator(Evaluator):
                         num_connections += input_dim * hidden_neuron_num + hidden_neuron_num
                 # disabled layer
                 elif particle.layers['disabled'].check_interface_in_type(interface):
-                    name_scope = 'disabled_{}'.format(i)
+                    name_scope = '{}_disabled_{}'.format(name_preffix, i)
                 else:
                     raise Exception('invalid interface')
                 i = i+1
@@ -156,9 +227,9 @@ class CNNEvaluator(Evaluator):
             with tf.name_scope('test'):
                 accuracy = tf.reduce_mean(tf.cast(tf.equal(tf.argmax(logits, 1), true_Y), tf.float32))
 
-            tf.summary.scalar('loss', cross_entropy)
-            tf.summary.scalar('accuracy', accuracy)
-            merge_summary = tf.summary.merge_all()
+        tf.summary.scalar('loss', cross_entropy)
+        tf.summary.scalar('accuracy', accuracy)
+        merge_summary = tf.summary.merge_all()
 
-            return is_training, train_op, accuracy, cross_entropy, num_connections, merge_summary
+        return is_training, train_op, accuracy, cross_entropy, num_connections, merge_summary
 

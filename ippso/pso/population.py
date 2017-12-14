@@ -138,5 +138,5 @@ class CNNPopulation(Population):
         initialise the population
         """
         for i in range(self.pop_size):
-            particle = CNNParticle(self.particle_length, self.max_fully_connected_length, self.w, self.c1, self.c2, self.layers)
+            particle = CNNParticle(i, self.particle_length, self.max_fully_connected_length, self.w, self.c1, self.c2, self.layers)
             self.pop[i] = particle

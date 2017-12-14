@@ -5,10 +5,12 @@ class Particle:
     """
     Particle class
     """
-    def __init__(self, length, w, c1, c2):
+    def __init__(self, id, length, w, c1, c2):
         """
         constructor
 
+        :param id: particle ID
+        :type id: int
         :param length: the length/dimension of the particle
         :type length: int
         :param w: inertia weight
@@ -18,6 +20,7 @@ class Particle:
         :param c2: an array of acceleration co-efficients for gbest
         :type c2: numpy.array
         """
+        self.id = id
         self.length = length
         self.w = w
         self.c1 = c1
@@ -60,10 +63,12 @@ class CNNParticle(Particle):
     """
     CNN Particle class
     """
-    def __init__(self, length, max_fully_connected_length, w, c1, c2, layers):
+    def __init__(self, id, length, max_fully_connected_length, w, c1, c2, layers):
         """
         constructor
 
+        :param id: particle ID
+        :type id: int
         :param length: the length/dimension of the particle
         :type length: int
         :param max_fully_connected_length: the max length of fully-connected layers
@@ -79,7 +84,7 @@ class CNNParticle(Particle):
         """
         self.max_fully_connected_length = max_fully_connected_length
         self.layers = layers
-        super(CNNParticle, self).__init__(length, w, c1, c2)
+        super(CNNParticle, self).__init__(id, length, w, c1, c2)
         self.x = np.empty(self.length, dtype=Interface)
 
     def initialise(self):
