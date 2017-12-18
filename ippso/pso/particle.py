@@ -1,5 +1,7 @@
 import numpy as np
 from ippso.ip.core import Interface
+from ippso.pso.evaluator import Evaluator, CNNEvaluator
+import copy
 
 class Particle:
     """
@@ -30,6 +32,7 @@ class Particle:
         self.pbest = None
         self.x = None
         self.v = None
+        self.fitness = None
 
     def update(self, gbest):
         """
@@ -57,6 +60,43 @@ class Particle:
                 # update the IP and velocity of the particle
                 self.x[i].update_byte(j, new_x_ij)
                 self.v[i,j] = new_v_ij
+
+    def update_pbest(self, fitness):
+        """
+        update pbest
+
+        :param fitness: fitness tuple
+        :type fitness: tuple
+        """
+        self.fitness = fitness
+        flag = self._compare_fitness(self.fitness, self.pbest.fitness)
+        # particle fitness is greater than the pbest fitness
+        if flag > 0:
+            pbest_particle = copy.deepcopy(self)
+            self.pbest = pbest_particle
+
+    def compare_with(self, particle):
+        """
+        compare this particle to the input particle
+
+        :param particle: the input particle
+        :type particle: Particle
+        :return: 0: equal, 1: this particle is greater, -1: this particle is less
+        :rtype: int
+        """
+        return self.compare_with(self.fitness, particle.fitness)
+
+    def _compare_fitness(self, fitness_1, fitness_2):
+        """
+        compare fitness of two particles @abstractmethod
+
+        :param fitness_1: fitness of the first particle
+        :type: tuple
+        :param fitness_2: fitness of the second particle
+        :type tuple
+        :return: 0: equal, 1: greater, -1: less
+        :rtype: int
+        """
 
 
 class CNNParticle(Particle):
@@ -136,3 +176,27 @@ class CNNParticle(Particle):
         if interface is None:
             interface = layers[0].generate_random_interface()
         return interface
+
+    def _compare_fitness(self, fitness_1, fitness_2):
+        """
+        compare fitness of two particles @abstractmethod
+
+        :param fitness_1: fitness of the first particle
+        :type: tuple
+        :param fitness_2: fitness of the second particle
+        :type tuple
+        :return: 0: equal, 1: greater, -1: less
+        :rtype: int
+        """
+        flag = None
+        for i in range(len(fitness_1)):
+            if fitness_1[i] > fitness_2[i]:
+                flag = 1
+                break
+            elif fitness_1[i] < fitness_2[i]:
+                flag = -1
+                break
+            else:
+                flag = 0
+        return flag
+

@@ -5,6 +5,8 @@ from ippso.cnn.layers import ConvLayer
 from ippso.cnn.layers import FullyConnectedLayer
 from ippso.cnn.layers import DisabledLayer
 from ippso.cnn.layers import PoolingLayer
+from .evaluator import Evaluator, CNNEvaluator, initialise_cnn_evaluator
+import copy
 
 POPULATION_DEFAULT_PARAMS = {
     'pop_size': 50,
@@ -63,7 +65,7 @@ class Population:
     """
     Population class
     """
-    def __init__(self, pop_size,  particle_length, w, c1, c2):
+    def __init__(self, pop_size,  particle_length, w, c1, c2, evaluator=None):
         """
         constructor
 
@@ -77,6 +79,8 @@ class Population:
         :type c1: numpy.array
         :param c2: an array of acceleration co-efficients for gbest
         :type c2: numpy.array
+        :param evaluator: evaluator to calculate the fitness
+        :type evaluator: Evaluator
         """
         self.pop_size = pop_size
         self.pop = np.empty(pop_size, dtype=Particle)
@@ -84,6 +88,7 @@ class Population:
         self.w = w
         self.c1 = c1
         self.c2 = c2
+        self.evaluator = evaluator
 
         # initialise gbest to None
         self.gbest = None
@@ -94,6 +99,12 @@ class Population:
         """
         for particle in self.pop:
             particle.update(self.gbest)
+            fitness = self.evaluator.eval(particle)
+            particle.update_pbest(fitness)
+            # pbest is greater than gbest, update gbest
+            if particle.pbest.compare_with(self.gbest) > 0:
+                self.gbest = copy.deepcopy(particle.pbest)
+
 
     def fly_2_end(self, max_steps=None):
         """
@@ -110,7 +121,7 @@ class CNNPopulation(Population):
     """
     CNNPopulation class
     """
-    def __init__(self, pop_size, particle_length, max_fully_connected_length, w, c1, c2, layers):
+    def __init__(self, pop_size, particle_length, max_fully_connected_length, w, c1, c2, layers, evaluator=None):
         """
         constructor
 
@@ -128,15 +139,20 @@ class CNNPopulation(Population):
         :type c2: numpy.array
         :param layers: a dict of (layer_name, layer) pairs; keys: conv, pooling, full, disabled
         :type layers: dict
+        :param evaluator: evaluator to calculate the fitness
+        :type evaluator: CNNEvaluator
         """
         self.max_fully_connected_length = max_fully_connected_length
         self.layers = layers
-        super(CNNPopulation, self).__init__(pop_size, particle_length, w, c1, c2)
+        super(CNNPopulation, self).__init__(pop_size, particle_length, w, c1, c2, evaluator)
 
     def initialise(self):
         """
         initialise the population
         """
+        # set default evaluator
+        if self.evaluator is None:
+            self.evaluator = initialise_cnn_evaluator()
         for i in range(self.pop_size):
-            particle = CNNParticle(i, self.particle_length, self.max_fully_connected_length, self.w, self.c1, self.c2, self.layers)
+            particle = CNNParticle(i, self.particle_length, self.max_fully_connected_length, self.w, self.c1, self.c2, self.layers, self.evaluator)
             self.pop[i] = particle
