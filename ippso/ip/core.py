@@ -49,7 +49,7 @@ def ip_2_bin_ip(ip):
     """
     bin_ip = ''
     for single_byte in np.nditer(ip):
-        bin_ip += np.binary_repr(single_byte)
+        bin_ip += np.binary_repr(single_byte).zfill(8)
     return bin_ip
 
 
@@ -62,7 +62,7 @@ def bin_ip_2_ip(bin_ip):
     :return: a decimal IP address in numpy array
     :rtype: np.array
     """
-    length = len(bin_ip) / 8
+    length = int(len(bin_ip) / 8)
     ip = np.zeros(length, dtype=np.uint8)
     for i in range(length):
         ip[i] = int(bin_ip[i*8: (i+1)*8], base=2)
@@ -79,7 +79,7 @@ def parse_subnet_str(subnet_str):
     """
     arr_subnet = subnet_str.split('/')
     subnet_ip_str = arr_subnet[0]
-    subnet_mask_length = arr_subnet[1]
+    subnet_mask_length = int(arr_subnet[1])
     arr_subnet_ip = subnet_ip_str.split('.')
     subnet_ip = np.asarray(arr_subnet_ip, dtype=np.uint8)
     subnet_mask = SubnetMask(subnet_mask_length, len(subnet_ip) * 8)
@@ -265,7 +265,7 @@ class SubnetMask:
         self.ip_length = ip_length
         self.mask_length = mask_length
         self.mask_binary = self._mask_binary()
-        self.mask_decimal = self.mask_decimal()
+        self.mask_decimal = self._mask_decimal()
 
     def _mask_binary(self):
         """
@@ -293,7 +293,7 @@ class SubnetMask:
         """
         if mask_binary is None:
             mask_binary = self.mask_binary
-        decimal_length = self.ip_length / 8
+        decimal_length = int(self.ip_length / 8)
         mask_decimal = np.zeros(decimal_length, dtype=np.uint8)
         for i in range(decimal_length):
             mask_decimal[i] = int(mask_binary[i*8: (i+1)*8], base=2)
@@ -317,7 +317,7 @@ class Subnet:
         self.bin_ip = self._ip_2_bin_ip()
         self.mask = mask
         self.max_bin_ip = self._max_bin_ip()
-        self.max_ip = self.max_ip
+        self.max_ip = bin_ip_2_ip(self.max_bin_ip)
 
     def _ip_2_bin_ip(self, ip=None):
         """
@@ -344,7 +344,7 @@ class Subnet:
         max_bin_ip = bin_add(self.bin_ip, max_binary)
         return max_bin_ip
 
-    def check_ip_in_subnet(self, ip):
+    def check_ip_in_subnet(self, ip_address):
         """
         check whether an ip is in the subnet
 
@@ -354,6 +354,6 @@ class Subnet:
         :rtype: bool
         """
         flag = False
-        if compare_2_ips(ip.ip, self.ip.ip) >=0 and compare_2_ips(ip.ip, self.max_ip) <= 0:
+        if compare_2_ips(ip_address.ip, self.ip) >=0 and compare_2_ips(ip_address.ip, self.max_ip) <= 0:
             flag = True
         return flag

@@ -1,7 +1,7 @@
 import numpy as np
 from ippso.ip.core import Interface
-from ippso.pso.evaluator import Evaluator, CNNEvaluator
 import copy
+
 
 class Particle:
     """
@@ -41,7 +41,10 @@ class Particle:
         :param gbest: global best
         :type gbest: Particle
         """
-
+        # initialise pbest by copying itself
+        if self.pbest is None:
+            self.pbest = copy.deepcopy(self)
+        # update position and velocity
         for i in range(self.length):
             interface = self.x[i]
             gbest_interface = gbest.x[i]
@@ -69,11 +72,15 @@ class Particle:
         :type fitness: tuple
         """
         self.fitness = fitness
-        flag = self._compare_fitness(self.fitness, self.pbest.fitness)
-        # particle fitness is greater than the pbest fitness
-        if flag > 0:
-            pbest_particle = copy.deepcopy(self)
-            self.pbest = pbest_particle
+        # initialise the pbest with the first evaluated particle
+        if self.pbest.fitness is None:
+            self.pbest = copy.deepcopy(self)
+        else:
+            flag = self._compare_fitness(self.fitness, self.pbest.fitness)
+            # particle fitness is greater than the pbest fitness
+            if flag > 0:
+                pbest_particle = copy.deepcopy(self)
+                self.pbest = pbest_particle
 
     def compare_with(self, particle):
         """
@@ -84,7 +91,7 @@ class Particle:
         :return: 0: equal, 1: this particle is greater, -1: this particle is less
         :rtype: int
         """
-        return self.compare_with(self.fitness, particle.fitness)
+        return self._compare_fitness(self.fitness, particle.fitness)
 
     def _compare_fitness(self, fitness_1, fitness_2):
         """
@@ -156,6 +163,7 @@ class CNNParticle(Particle):
             else:
                 available_layers = [self.layers['conv'], self.layers['pooling'], self.layers['disabled']]
                 self.x[i] = self.initialise_by_chance(available_layers)
+        return self
 
     def initialise_by_chance(self, layers):
         """

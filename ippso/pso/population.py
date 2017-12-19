@@ -9,9 +9,9 @@ from .evaluator import Evaluator, CNNEvaluator, initialise_cnn_evaluator
 import copy
 
 POPULATION_DEFAULT_PARAMS = {
-    'pop_size': 50,
-    'particle_length': 15,
-    'max_full': 5,
+    'pop_size': 5, #50,
+    'particle_length': 5, #15,
+    'max_full': 2, #5,
     'w': 0.1,
     'c1': np.asarray([0.00001, 0.0001, 0.001, 0.01, 0.1]),
     'c2': np.asarray([0.00001, 0.0001, 0.001, 0.01, 0.1]),
@@ -21,8 +21,9 @@ POPULATION_DEFAULT_PARAMS = {
         'full': FullyConnectedLayer(),
         'disabled': DisabledLayer()
     },
-    'max_steps': 50
+    'max_steps': 5, #50
 }
+
 
 def initialise_cnn_population(pop_size=None, particle_length=None, max_fully_connected_length=None, w=None, c1=None, c2=None, layers=None):
     """
@@ -59,7 +60,8 @@ def initialise_cnn_population(pop_size=None, particle_length=None, max_fully_con
         c2 = POPULATION_DEFAULT_PARAMS['c2']
     if layers is None:
         layers = POPULATION_DEFAULT_PARAMS['layers']
-    return CNNPopulation(pop_size, particle_length, max_fully_connected_length, w, c1, c2, layers)
+    return CNNPopulation(pop_size, particle_length, max_fully_connected_length, w, c1, c2, layers).initialise()
+
 
 class Population:
     """
@@ -101,8 +103,11 @@ class Population:
             particle.update(self.gbest)
             fitness = self.evaluator.eval(particle)
             particle.update_pbest(fitness)
+            # gbest has never not been evaluated
+            if self.gbest.fitness is None:
+                self.gbest = copy.deepcopy(particle.pbest)
             # pbest is greater than gbest, update gbest
-            if particle.pbest.compare_with(self.gbest) > 0:
+            elif particle.pbest.compare_with(self.gbest) > 0:
                 self.gbest = copy.deepcopy(particle.pbest)
 
 
@@ -113,6 +118,8 @@ class Population:
         :param max_steps: max fly steps
         :type max_steps: int
         """
+        if max_steps is None:
+            max_steps = POPULATION_DEFAULT_PARAMS['max_steps']
         for i in range(max_steps):
             self.fly_a_step()
         return self.gbest
@@ -154,5 +161,8 @@ class CNNPopulation(Population):
         if self.evaluator is None:
             self.evaluator = initialise_cnn_evaluator()
         for i in range(self.pop_size):
-            particle = CNNParticle(i, self.particle_length, self.max_fully_connected_length, self.w, self.c1, self.c2, self.layers, self.evaluator)
+            particle = CNNParticle(i, self.particle_length, self.max_fully_connected_length, self.w, self.c1, self.c2, self.layers).initialise()
             self.pop[i] = particle
+        self.gbest = self.pop[0]
+        return self
+

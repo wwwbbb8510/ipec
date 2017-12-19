@@ -1,3 +1,5 @@
 EvoCNN
 .idea
 References/duplicated
+MNIST_data
+*.pyc

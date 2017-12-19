@@ -1,15 +1,16 @@
 import numpy as np
-import datetime
+from datetime import datetime
 import tensorflow as tf
 import tensorflow.contrib.slim as slim
 from tensorflow.python.ops import control_flow_ops
 from tensorflow.python.ops import init_ops
 from ippso.ip.decoder import Decoder
 from .particle import Particle
-from ippso.data.mnist import get_training_data, get_validation_data, get_test_data
+from ippso.data.mnist import get_training_data, get_validation_data
 
 
-def initialise_cnn_evaluator(training_epoch=None, batch_size=None, training_data=None, training_label=None, validation_data=None, validation_label=None):
+def initialise_cnn_evaluator(training_epoch=None, batch_size=None, training_data=None, training_label=None, validation_data=None,
+                             validation_label=None):
     training_epoch = 5 if training_epoch is None else training_epoch
     batch_size = 200 if batch_size is None else batch_size
     training_data = get_training_data()['images'] if training_data is None else training_data
@@ -18,6 +19,29 @@ def initialise_cnn_evaluator(training_epoch=None, batch_size=None, training_data
     validation_label = get_validation_data()['labels'] if validation_label is None else validation_label
     return CNNEvaluator(training_epoch, batch_size, training_data, training_label, validation_data, validation_label)
 
+
+def produce_tf_batch_data(images, labels, batch_size):
+    """
+    produce batch data given batch_size
+
+    :param images: images
+    :type images: list
+    :param labels: labels
+    :type labels: list
+    :param batch_size: batch size
+    :type batch_size: int
+    :return: a list of tensor containing the data
+    :rtype: list
+    """
+    train_image = tf.cast(images, tf.float32)
+    train_image = tf.reshape(train_image, [-1, 28, 28, 1])
+    train_label = tf.cast(labels, tf.int32)
+    #create input queues
+    queue_images, queue_labels = tf.train.slice_input_producer([train_image, train_label], shuffle=True)
+    queue_images = tf.image.per_image_standardization(queue_images)
+    image_batch, label_batch = tf.train.batch([queue_images, queue_labels], batch_size=batch_size, num_threads=2,
+                                              capacity=batch_size * 3)
+    return image_batch, label_batch
 
 
 class Evaluator:
@@ -70,12 +94,10 @@ class CNNEvaluator(Evaluator):
         :return:
         """
         tf.reset_default_graph()
-        train_data, train_label = ()
-        validate_data, validate_label = ()
         is_training, train_op, accuracy, cross_entropy, num_connections, merge_summary = self.build_graph(particle)
         with tf.Session() as sess:
             sess.run(tf.global_variables_initializer())
-            steps_in_each_epoch = (self.train_data_length // self.batch_size)
+            steps_in_each_epoch = (self.training_data_length // self.batch_size)
             total_steps = int(self.training_epoch * steps_in_each_epoch)
             coord = tf.train.Coordinator()
             # threads = tf.train.start_queue_runners(sess, coord)
@@ -134,8 +156,10 @@ class CNNEvaluator(Evaluator):
         :return:
         """
         is_training = tf.placeholder(tf.bool, [])
-        X = tf.cond(is_training, lambda: self.training_data, lambda: self.validation_data)
-        y_ = tf.cond(is_training, lambda: self.training_label, lambda: self.validation_label)
+        training_data, training_label = produce_tf_batch_data(self.training_data, self.training_label, self.batch_size)
+        validation_data, validation_label = produce_tf_batch_data(self.validation_data, self.validation_label, self.batch_size)
+        X = tf.cond(is_training, lambda: training_data, lambda: validation_data)
+        y_ = tf.cond(is_training, lambda: training_label, lambda: validation_label)
         true_Y = tf.cast(y_, tf.int64)
 
         name_preffix = 'I_{}'.format(particle.id)
@@ -155,11 +179,7 @@ class CNNEvaluator(Evaluator):
                 if particle.layers['conv'].check_interface_in_type(interface):
                     name_scope = '{}_conv_{}'.format(name_preffix, i)
                     with tf.variable_scope(name_scope):
-                        filter_size = field_values['filter_size']
-                        mean = field_values['mean']
-                        stddev = field_values['std_dev']
-                        feature_map_size = field_values['num_of_feature_maps']
-                        stride_size = field_values['stride_size']
+                        filter_size, mean, stddev, feature_map_size, stride_size = self.decoder.filter_conv_fields(field_values)
                         conv_H = slim.conv2d(output_list[-1], feature_map_size, filter_size,
                                              weights_initializer=tf.truncated_normal_initializer(mean=mean, stddev=stddev),
                                              biases_initializer=init_ops.constant_initializer(0.1, dtype=tf.float32))
@@ -171,14 +191,12 @@ class CNNEvaluator(Evaluator):
                 elif particle.layers['pooling'].check_interface_in_type(interface):
                     name_scope = '{}_pooling_{}'.format(name_preffix, i)
                     with tf.variable_scope(name_scope):
-                        kernel_size = field_values['kernel_size']
-                        stride_size = field_values['stride_size']
-                        kernel_type = field_values['type']
+                        kernel_size, stride_size, kernel_type = self.decoder.filter_pooling_fields(field_values)
                         if kernel_type == 0:
-                            pool_H = slim.max_pool2d(output_list[-1], kernel_size=kernel_size, stride=kernel_size,
+                            pool_H = slim.max_pool2d(output_list[-1], kernel_size=kernel_size, stride=stride_size,
                                                      padding='SAME')
                         else:
-                            pool_H = slim.avg_pool2d(output_list[-1], kernel_size=kernel_size, stride=kernel_size,
+                            pool_H = slim.avg_pool2d(output_list[-1], kernel_size=kernel_size, stride=stride_size,
                                                      padding='SAME')
                         output_list.append(pool_H)
                         # pooling operation does not change the number of channel size, but channge the output size
@@ -195,18 +213,18 @@ class CNNEvaluator(Evaluator):
                         else:  # current input dim should be the number of neurons in the previous hidden layer
                             input_data = output_list[-1]
                             last_filed_values = self.decoder.decode_2_field_values(last_interface)
-                            input_dim = last_filed_values['num_of_neurons']
-                        mean = field_values['mean']
-                        stddev = field_values['std_dev']
-                        hidden_neuron_num = field_values['num_of_neurons']
-                        if i < interface.ip.length - 1:
+                            _, _, input_dim = last_filed_values['num_of_neurons'] + 1
+
+                        mean, stddev, hidden_neuron_num = self.decoder.filter_full_fields(field_values)
+                        if i < particle.length - 1:
                             full_H = slim.fully_connected(input_data, num_outputs=hidden_neuron_num,
                                                           weights_initializer=tf.truncated_normal_initializer(mean=mean,
                                                                                                               stddev=stddev),
                                                           biases_initializer=init_ops.constant_initializer(0.1,
                                                                                                            dtype=tf.float32))
                         else:
-                            full_H = slim.fully_connected(input_data, num_outputs=hidden_neuron_num,
+                            # hard-code the number of units of the last layer to 10 for now
+                            full_H = slim.fully_connected(input_data, num_outputs=10,
                                                           activation_fn=None,
                                                           weights_initializer=tf.truncated_normal_initializer(mean=mean,
                                                                                                               stddev=stddev),
@@ -231,10 +249,6 @@ class CNNEvaluator(Evaluator):
                 if update_ops:
                     updates = tf.group(*update_ops)
                     cross_entropy = control_flow_ops.with_dependencies([updates], cross_entropy)
-                    # global_step = tf.get_variable("global_step", [], initializer=tf.constant_initializer(0.0), trainable=False)
-                    # self.train_data_length//self.batch_size
-                    #                 lr = tf.train.exponential_decay(0.1, step, 550*30, 0.9, staircase=True)
-                    #                 optimizer = tf.train.GradientDescentOptimizer(lr)
                 optimizer = tf.train.AdamOptimizer()
                 train_op = slim.learning.create_train_op(cross_entropy, optimizer)
             with tf.name_scope('test'):

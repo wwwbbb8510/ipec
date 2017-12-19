@@ -51,6 +51,6 @@ class Encoder:
 
         subnet_bin_ip = self.subnet.bin_ip
         bin_ip = bin_add(bin_ip, subnet_bin_ip)
-        ip_addr = IPAddress(length=bin_ip/8, bin_ip=bin_ip)
+        ip_addr = IPAddress(length=int(len(bin_ip)/8), bin_ip=bin_ip)
         interface = Interface(ip=ip_addr, subnet=self.subnet, ip_structure=self.ip_structure)
         return interface

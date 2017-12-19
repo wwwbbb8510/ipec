@@ -17,7 +17,7 @@ CONV_FIELDS = {
 }
 
 # convolutional layer subnet
-CONV_SUBNET = '0.0.0.0.0/2'
+CONV_SUBNET = '0.0.0.0.0/6'
 
 # pooling layer fields
 POOLING_FIELDS = {
@@ -27,7 +27,7 @@ POOLING_FIELDS = {
 }
 
 # pooling layer subnet
-POOLING_SUBNET = '4.32.0.0.0/26'
+POOLING_SUBNET = '4.32.0.0.0/30'
 
 # fully-connected layer fields
 FULLYCONNECTED_FIELDS = {
@@ -37,7 +37,7 @@ FULLYCONNECTED_FIELDS = {
 }
 
 # fully-connected layer subnet
-FULLYCONNECTED_SUBNET = '4.0.0.0.0/7'
+FULLYCONNECTED_SUBNET = '4.0.0.0.0/11'
 
 # disabled layer fields
 DISABLED_FIELDS = {
@@ -45,7 +45,7 @@ DISABLED_FIELDS = {
 }
 
 # disabled layer subnet
-DISABLED_SUBNET = '4.32.0.4.0/26'
+DISABLED_SUBNET = '4.32.0.4.0/30'
 
 
 class BaseCNNLayer:
@@ -156,7 +156,7 @@ class PoolingLayer(BaseCNNLayer):
             str_subnet = POOLING_SUBNET
         if fields is None:
             fields = POOLING_FIELDS
-        super(ConvLayer, self).__init__(str_subnet, fields)
+        super(PoolingLayer, self).__init__(str_subnet, fields)
 
 
 class FullyConnectedLayer(BaseCNNLayer):
@@ -176,7 +176,7 @@ class FullyConnectedLayer(BaseCNNLayer):
             str_subnet = FULLYCONNECTED_SUBNET
         if fields is None:
             fields = FULLYCONNECTED_FIELDS
-        super(ConvLayer, self).__init__(str_subnet, fields)
+        super(FullyConnectedLayer, self).__init__(str_subnet, fields)
 
 
 class DisabledLayer(BaseCNNLayer):
@@ -196,4 +196,4 @@ class DisabledLayer(BaseCNNLayer):
             str_subnet = DISABLED_SUBNET
         if fields is None:
             fields = DISABLED_FIELDS
-        super(ConvLayer, self).__init__(str_subnet, fields)
+        super(DisabledLayer, self).__init__(str_subnet, fields)
