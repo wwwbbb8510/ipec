@@ -1,4 +1,5 @@
 import numpy as np
+import logging
 from .particle import Particle
 from .particle import CNNParticle
 from ippso.cnn.layers import ConvLayer
@@ -60,6 +61,8 @@ def initialise_cnn_population(pop_size=None, particle_length=None, max_fully_con
         c2 = POPULATION_DEFAULT_PARAMS['c2']
     if layers is None:
         layers = POPULATION_DEFAULT_PARAMS['layers']
+    logging.info('===initialise the PSO population with the following parameters===')
+    logging.info('population size: %d, particle length: %d, max fully-connected length: %d, inertia weight: %f, c1: %s and c2: %s', pop_size, particle_length, max_fully_connected_length, w, str(c1), str(c2))
     return CNNPopulation(pop_size, particle_length, max_fully_connected_length, w, c1, c2, layers).initialise()
 
 
@@ -95,20 +98,31 @@ class Population:
         # initialise gbest to None
         self.gbest = None
 
-    def fly_a_step(self):
+    def fly_a_step(self, step):
         """
         train the PSO population for one step
+
+        :param step: the step of the flies
+        :type step: int
         """
+        logging.info('===start updating population at step-%d===', step)
+        i = 0
         for particle in self.pop:
             particle.update(self.gbest)
             fitness = self.evaluator.eval(particle)
             particle.update_pbest(fitness)
+            logging.info('===start updating gbest===')
             # gbest has never not been evaluated
             if self.gbest.fitness is None:
                 self.gbest = copy.deepcopy(particle.pbest)
+                logging.info('gbest is initialised as the first particle in the population')
             # pbest is greater than gbest, update gbest
             elif particle.pbest.compare_with(self.gbest) > 0:
                 self.gbest = copy.deepcopy(particle.pbest)
+                logging.info('gbest is updated by Particle-%d', i)
+            logging.info('===finish updating gbest===')
+            i = i+1
+        logging.info('===finish updating population at step-%d===', step)
 
 
     def fly_2_end(self, max_steps=None):
@@ -121,8 +135,10 @@ class Population:
         if max_steps is None:
             max_steps = POPULATION_DEFAULT_PARAMS['max_steps']
         for i in range(max_steps):
-            self.fly_a_step()
+            self.fly_a_step(i)
         return self.gbest
+
+
 
 class CNNPopulation(Population):
     """
@@ -160,9 +176,11 @@ class CNNPopulation(Population):
         # set default evaluator
         if self.evaluator is None:
             self.evaluator = initialise_cnn_evaluator()
+        logging.info('===start initialising population')
         for i in range(self.pop_size):
             particle = CNNParticle(i, self.particle_length, self.max_fully_connected_length, self.w, self.c1, self.c2, self.layers).initialise()
             self.pop[i] = particle
+        logging.info('===finish initialising population')
         self.gbest = self.pop[0]
         return self
 

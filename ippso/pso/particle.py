@@ -1,7 +1,39 @@
 import numpy as np
+import logging
 from ippso.ip.core import Interface
 import copy
+import pickle
 
+
+DEFAULT_PARTICLE_PATH = 'log/gbest.pkl'
+
+def save_particle(particle, path=None):
+    """
+    save a particle using pickle
+
+    :param particle: the particle to be saved
+    :type particle: Particle
+    :param path: path to write the serialised particle
+    :type path: string
+    """
+    if path is None:
+        path = DEFAULT_PARTICLE_PATH
+    with open(path, 'wb') as output:
+        pickle.dump(particle, output, pickle.HIGHEST_PROTOCOL)
+
+def load_particle(path=None):
+    """
+    load a particle from saved path
+    :param path: path containing the saved particle
+    :type path: string
+    :return: the particle instance loaded from the path
+    :rtype: Particle
+    """
+    if path is None:
+        path = DEFAULT_PARTICLE_PATH
+    with open(path, 'rb') as input:
+        particle = pickle.load(input)
+    return particle
 
 class Particle:
     """
@@ -46,10 +78,16 @@ class Particle:
             self.pbest = copy.deepcopy(self)
         # update position and velocity
         for i in range(self.length):
+            logging.debug('===start updating velocity and position of Interface-%d of Particle-%d===', i, self.id)
+            logging.debug('interface before update: %s', str(self.x[i]))
+            logging.debug('velocity before update: %s', str(self.v[i, :]))
+            logging.debug('interface in pbest: %s', str(self.pbest.x[i]))
+            logging.debug('interface in gbest: %s', str(gbest.x[i]))
             interface = self.x[i]
             gbest_interface = gbest.x[i]
             pbest_interface = self.pbest.x[i]
             for j in range(interface.ip.length):
+                logging.debug('===start updating bytes-%d of Interface-%d of Particle-%d===', j, i, self.id)
                 # calculate the new position and velocity of one byte of the IP address
                 v_ij = self.v[i,j]
                 x_ij = interface.ip.ip[j]
@@ -63,6 +101,10 @@ class Particle:
                 # update the IP and velocity of the particle
                 self.x[i].update_byte(j, new_x_ij)
                 self.v[i,j] = new_v_ij
+                logging.debug('===finish updating bytes-%d of Interface-%d of Particle-%d===', j, i, self.id)
+            logging.debug('interface after update: %s', str(self.x[i]))
+            logging.debug('velocity after update: %s', str(self.v[i, :]))
+            logging.debug('===finish updating velocity and position of Interface-%d of Particle-%d===', i, self.id)
 
     def update_pbest(self, fitness):
         """
@@ -71,16 +113,20 @@ class Particle:
         :param fitness: fitness tuple
         :type fitness: tuple
         """
+        logging.info('===start updating pbest of Particle-%d===', self.id)
         self.fitness = fitness
         # initialise the pbest with the first evaluated particle
         if self.pbest.fitness is None:
             self.pbest = copy.deepcopy(self)
+            logging.info('pbest is initialised as the original particle')
         else:
             flag = self._compare_fitness(self.fitness, self.pbest.fitness)
             # particle fitness is greater than the pbest fitness
             if flag > 0:
                 pbest_particle = copy.deepcopy(self)
                 self.pbest = pbest_particle
+                logging.info('pbest is updated by the updated particle')
+        logging.info('===finish updating pbest of Particle-%d===', self.id)
 
     def compare_with(self, particle):
         """
@@ -129,15 +175,18 @@ class CNNParticle(Particle):
         :param layers: a dict of (layer_name, layer) pairs; keys: conv, pooling, full, disabled
         :type layers: dict
         """
+        logging.info('===initialise CNN particle with ID: %d===', id)
         self.max_fully_connected_length = max_fully_connected_length
         self.layers = layers
         super(CNNParticle, self).__init__(id, length, w, c1, c2)
         self.x = np.empty(self.length, dtype=Interface)
 
+
     def initialise(self):
         """
         initialise a particle with random settings
         """
+        logging.info('===start initialising CNN particle===')
         for i in range(self.length):
             # initialise the first layer which will always be a conv layer
             # and initialise the velocity with zeros
@@ -163,6 +212,8 @@ class CNNParticle(Particle):
             else:
                 available_layers = [self.layers['conv'], self.layers['pooling'], self.layers['disabled']]
                 self.x[i] = self.initialise_by_chance(available_layers)
+            logging.info('Interface of Layer-%d: %s', i, str(self.x[i]))
+        logging.info('===finish initialising CNN particle===')
         return self
 
     def initialise_by_chance(self, layers):

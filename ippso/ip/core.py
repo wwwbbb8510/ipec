@@ -1,5 +1,5 @@
 import numpy as np
-
+import os
 
 def bin_add(x, y):
     """
@@ -163,6 +163,9 @@ class Interface:
         """
         self.ip.update_byte(pos, value)
 
+    def __str__(self):
+        return 'Interface - {}, {}'.format(str(self.ip), str(self.subnet))
+
 
 class IPStructure:
     """
@@ -248,6 +251,9 @@ class IPAddress:
         ip = bin_ip_2_ip(bin_ip)
         return ip
 
+    def __str__(self):
+        return 'IPAddress:{}'.format('.'.join(str(x) for x in self.ip))
+
 
 class SubnetMask:
     """
@@ -298,6 +304,9 @@ class SubnetMask:
         for i in range(decimal_length):
             mask_decimal[i] = int(mask_binary[i*8: (i+1)*8], base=2)
         return mask_decimal
+
+    def __str__(self):
+        return 'SubnetMask: {}'.format('.'.join(str(x) for x in self.mask_decimal))
 
 
 class Subnet:
@@ -357,3 +366,6 @@ class Subnet:
         if compare_2_ips(ip_address.ip, self.ip) >=0 and compare_2_ips(ip_address.ip, self.max_ip) <= 0:
             flag = True
         return flag
+
+    def __str__(self):
+        return 'Subnet: {}/{}'.format('.'.join(str(x) for x in self.ip), self.mask.mask_length)
