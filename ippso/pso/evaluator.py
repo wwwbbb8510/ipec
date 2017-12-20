@@ -1,4 +1,5 @@
 import numpy as np
+import logging
 from datetime import datetime
 import tensorflow as tf
 import tensorflow.contrib.slim as slim
@@ -93,6 +94,7 @@ class CNNEvaluator(Evaluator):
         :type particle: Particle
         :return:
         """
+        logging.info('===start evaluating Particle-%d===', particle.id)
         tf.reset_default_graph()
         is_training, train_op, accuracy, cross_entropy, num_connections, merge_summary = self.build_graph(particle)
         with tf.Session() as sess:
@@ -120,10 +122,9 @@ class CNNEvaluator(Evaluator):
                             test_loss_list.append(test_loss_str)
                         mean_test_accu = np.mean(test_accuracy_list)
                         mean_test_loss = np.mean(test_loss_list)
-                        print('{}, {}, indi:{}, Step:{}/{}, train_loss:{}, acc:{}, test_loss:{}, acc:{}'.format(
+                        logging.debug('{}, {}, indi:{}, Step:{}/{}, train_loss:{}, acc:{}, test_loss:{}, acc:{}'.format(
                             datetime.now(), i // steps_in_each_epoch, particle.id, i, total_steps, loss_str,
                             accuracy_str, mean_test_loss, mean_test_accu))
-                        # print('{}, test_loss:{}, acc:{}'.format(datetime.now(), loss_str, accuracy_str))
                 # validate the last epoch
                 test_total_step = self.validation_data_length // self.batch_size
                 test_accuracy_list = []
@@ -134,17 +135,18 @@ class CNNEvaluator(Evaluator):
                     test_loss_list.append(test_loss_str)
                 mean_test_accu = np.mean(test_accuracy_list)
                 mean_test_loss = np.mean(test_loss_list)
-                print('{}, test_loss:{}, acc:{}'.format(datetime.now(), mean_test_loss, mean_test_accu))
+                logging.debug('{}, test_loss:{}, acc:{}'.format(datetime.now(), mean_test_loss, mean_test_accu))
                 mean_acc = mean_test_accu
 
             except Exception as e:
                 print(e)
                 coord.request_stop(e)
             finally:
-                print('finally...')
+                logging.debug('finally...')
                 coord.request_stop()
                 coord.join(threads)
-
+            logging.info('fitness of the particle: mean accuracy - %f, standard deviation of accuracy - %f, # of connections - %d', mean_test_accu, np.std(test_accuracy_list), num_connections)
+            logging.info('===finish evaluating Particle-%d===', particle.id)
             return mean_test_accu, np.std(test_accuracy_list), num_connections
 
     def build_graph(self, particle):
@@ -236,6 +238,7 @@ class CNNEvaluator(Evaluator):
                 elif particle.layers['disabled'].check_interface_in_type(interface):
                     name_scope = '{}_disabled_{}'.format(name_preffix, i)
                 else:
+                    logging.error('Invalid Interface: %s', str(interface))
                     raise Exception('invalid interface')
                 i = i+1
 

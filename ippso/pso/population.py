@@ -7,6 +7,7 @@ from ippso.cnn.layers import FullyConnectedLayer
 from ippso.cnn.layers import DisabledLayer
 from ippso.cnn.layers import PoolingLayer
 from .evaluator import Evaluator, CNNEvaluator, initialise_cnn_evaluator
+from ippso.ip.decoder import Decoder
 import copy
 
 POPULATION_DEFAULT_PARAMS = {
@@ -22,7 +23,7 @@ POPULATION_DEFAULT_PARAMS = {
         'full': FullyConnectedLayer(),
         'disabled': DisabledLayer()
     },
-    'max_steps': 5, #50
+    'max_steps': 3, #50
 }
 
 
@@ -94,6 +95,7 @@ class Population:
         self.c1 = c1
         self.c2 = c2
         self.evaluator = evaluator
+        self.decoder = Decoder()
 
         # initialise gbest to None
         self.gbest = None
@@ -110,6 +112,7 @@ class Population:
         for particle in self.pop:
             particle.update(self.gbest)
             fitness = self.evaluator.eval(particle)
+            logging.info('===fitness of Particle-%d: %s===', i, str(fitness))
             particle.update_pbest(fitness)
             logging.info('===start updating gbest===')
             # gbest has never not been evaluated
@@ -136,6 +139,10 @@ class Population:
             max_steps = POPULATION_DEFAULT_PARAMS['max_steps']
         for i in range(max_steps):
             self.fly_a_step(i)
+        logging.info('===gbest found Particle-%d===', self.gbest.id)
+        for i in range(self.gbest.length):
+            logging.info('Interface-%d of the particle: %s', i, str(self.gbest.x[i]))
+            logging.info('Layer-%d of the CNN: %s', i, str(self.decoder.decode_2_field_values(self.gbest.x[i])))
         return self.gbest
 
 
