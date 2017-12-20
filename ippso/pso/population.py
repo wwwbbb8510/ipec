@@ -112,7 +112,7 @@ class Population:
         for particle in self.pop:
             particle.update(self.gbest)
             fitness = self.evaluator.eval(particle)
-            logging.info('===fitness of Particle-%d: %s===', i, str(fitness))
+            logging.info('===fitness of Particle-%d at step-%d: %s===', i, step, str(fitness))
             particle.update_pbest(fitness)
             logging.info('===start updating gbest===')
             # gbest has never not been evaluated
@@ -125,6 +125,7 @@ class Population:
                 logging.info('gbest is updated by Particle-%d', i)
             logging.info('===finish updating gbest===')
             i = i+1
+        logging.info('===fitness of gbest at step-%d: %s===', step, str(self.gbest.fitness))
         logging.info('===finish updating population at step-%d===', step)
 
 
