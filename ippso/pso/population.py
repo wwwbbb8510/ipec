@@ -27,7 +27,7 @@ POPULATION_DEFAULT_PARAMS = {
 }
 
 
-def initialise_cnn_population(pop_size=None, particle_length=None, max_fully_connected_length=None, w=None, c1=None, c2=None, layers=None):
+def initialise_cnn_population(pop_size=None, particle_length=None, max_fully_connected_length=None, w=None, c1=None, c2=None, layers=None, evaluator=None):
     """
     initialise a cnn population
 
@@ -64,7 +64,7 @@ def initialise_cnn_population(pop_size=None, particle_length=None, max_fully_con
         layers = POPULATION_DEFAULT_PARAMS['layers']
     logging.info('===initialise the PSO population with the following parameters===')
     logging.info('population size: %d, particle length: %d, max fully-connected length: %d, inertia weight: %f, c1: %s and c2: %s', pop_size, particle_length, max_fully_connected_length, w, str(c1), str(c2))
-    return CNNPopulation(pop_size, particle_length, max_fully_connected_length, w, c1, c2, layers).initialise()
+    return CNNPopulation(pop_size, particle_length, max_fully_connected_length, w, c1, c2, layers, evaluator).initialise()
 
 
 class Population:

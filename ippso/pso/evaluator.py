@@ -7,17 +7,17 @@ from tensorflow.python.ops import control_flow_ops
 from tensorflow.python.ops import init_ops
 from ippso.ip.decoder import Decoder
 from .particle import Particle
-from ippso.data.mnist import get_training_data, get_validation_data
-
 
 def initialise_cnn_evaluator(training_epoch=None, batch_size=None, training_data=None, training_label=None, validation_data=None,
                              validation_label=None):
     training_epoch = 5 if training_epoch is None else training_epoch
     batch_size = 200 if batch_size is None else batch_size
-    training_data = get_training_data()['images'] if training_data is None else training_data
-    training_label = get_training_data()['labels'] if training_label is None else training_label
-    validation_data = get_validation_data()['images'] if validation_data is None else validation_data
-    validation_label = get_validation_data()['labels'] if validation_label is None else validation_label
+    if training_data is None and training_label is None and validation_data is None and validation_label is None:
+        from ippso.data.mnist import get_training_data, get_validation_data
+        training_data = get_training_data()['images'] if training_data is None else training_data
+        training_label = get_training_data()['labels'] if training_label is None else training_label
+        validation_data = get_validation_data()['images'] if validation_data is None else validation_data
+        validation_label = get_validation_data()['labels'] if validation_label is None else validation_label
     return CNNEvaluator(training_epoch, batch_size, training_data, training_label, validation_data, validation_label)
 
 
