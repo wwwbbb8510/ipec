@@ -3,4 +3,7 @@ EvoCNN
 References/duplicated
 MNIST_data
 *.pyc
-log
+log/*
+!log/placeholder.txt
+datasets/*
+!datasets/placeholder.txt
