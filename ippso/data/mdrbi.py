@@ -1,7 +1,7 @@
 from .core import DataLoader
 import os
 
-train_path = os.path.join('mnist_background_images', 'mnist_background_images_test.amat')
-test_path = os.path.join('mnist_background_images', 'mnist_background_images_train.amat')
+train_path = os.path.join('mnist_rotation_back_image_new', 'mnist_all_background_images_rotation_normalized_test.amat')
+test_path = os.path.join('mnist_rotation_back_image_new', 'mnist_all_background_images_rotation_normalized_train_valid.amat')
 
-loaded_data = DataLoader.load_image_data_with_label_at_end(train_path=train_path, test_path=test_path)
+loaded_data = DataLoader.load(train_path=train_path, test_path=test_path)
