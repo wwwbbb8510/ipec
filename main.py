@@ -15,8 +15,8 @@ def main(args):
                                          validation_data=loaded_data.test['images'], validation_label=loaded_data.test['labels'])
     else:
         evaluator = None
-    pso_pop = initialise_cnn_population(pop_size=args.pop_size, particle_length=args.particle_length, evaluator=evaluator)
-    best_particle = pso_pop.fly_2_end(max_steps=args.max_steps)
+    pso_pop = initialise_cnn_population(pop_size=int(args.pop_size), particle_length=int(args.particle_length), evaluator=evaluator)
+    best_particle = pso_pop.fly_2_end(max_steps=int(args.max_steps))
     save_particle(best_particle)
     logging.info('===Finished===')
 
