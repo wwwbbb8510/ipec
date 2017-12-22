@@ -104,7 +104,7 @@ class CNNEvaluator(Evaluator):
             is_training, train_op, accuracy, cross_entropy, num_connections, merge_summary = self.build_graph(particle)
         else:
             for i in range(self.max_gpu):
-                with tf.device('/gpu:%d' % i):
+                with tf.device('/device:GPU:%d' % i):
                     is_training, train_op, accuracy, cross_entropy, num_connections, merge_summary = self.build_graph(
                         particle)
         with tf.Session(config=tf.ConfigProto(log_device_placement=True)) as sess:
