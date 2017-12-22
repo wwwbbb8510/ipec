@@ -17,25 +17,25 @@ Go to the root folder of the repository
 #### get help
 
 ```bash
-python main.py -h
+python3 main.py -h
 ```
 
 #### run program in debug mode
 
 ```bash
-python main.py -d mb -s 30 -l 15 --max_steps 30 -e 5 -g 1
+python3 main.py -d mb -s 30 -l 15 --max_steps 30 -e 5 -g 1
 ```
 
 #### run program in production mode
  
 ```bash
-python main.py -d mb -m 1 -s 30 -l 15 --max_steps 30 -e 5 -g 1
+python3 main.py -d mb -m 1 -s 30 -l 15 --max_steps 30 -e 5 -g 1
 ``` 
 
 #### run program in production mode in background
  
 ```bash
-nohup python main.py -d mb -m 1 -s 30 -l 15 --max_steps 30 -e 5 -g 1 &
+nohup python3 main.py -d mb -m 1 -s 30 -l 15 --max_steps 30 -e 5 -g 1 &
 ```
 
 After the program run, all the main steps can be checked in the log/ippso_cnn.log file and the global best particle will be persisted into log/gbest.pkl file.

@@ -46,8 +46,8 @@ if __name__ == '__main__':
     parser.add_argument('-s', '--pop_size', help='population size')
     parser.add_argument('-l', '--particle_length', help='particle max length')
     parser.add_argument('--max_steps', help='max fly steps')
-    parser.add_argument('e', '--training_epoch', help='training epoch for the evaluation')
-    parser.add_argument('g', '--max_gpus', help='max number of gpu')
+    parser.add_argument('-e', '--training_epoch', help='training epoch for the evaluation')
+    parser.add_argument('-g', '--max_gpus', help='max number of gpu')
 
     args = parser.parse_args()
     main(args)
