@@ -15,7 +15,7 @@ def main(args):
         evaluator = initialise_cnn_evaluator(training_epoch=args.training_epoch, training_data=loaded_data.train['images'], training_label=loaded_data.train['labels'],
                                          validation_data=loaded_data.test['images'], validation_label=loaded_data.test['labels'],max_gpu=args.max_gpu)
     else:
-        evaluator = None
+        evaluator = initialise_cnn_evaluator(training_epoch=args.training_epoch, max_gpu=args.max_gpu)
     pso_pop = initialise_cnn_population(pop_size=args.pop_size, particle_length=args.particle_length, evaluator=evaluator)
     best_particle = pso_pop.fly_2_end(max_steps=args.max_steps)
     save_particle(best_particle)
