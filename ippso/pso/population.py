@@ -112,6 +112,8 @@ class Population:
         for particle in self.pop:
             particle.update(self.gbest)
             fitness = self.evaluator.eval(particle)
+            fitness[1] = - fitness[1] # use minus standard deviation which is the less the better
+            fitness[2] = - fitness[2] # use minus number of connections which is the less the better
             logging.info('===fitness of Particle-%d at step-%d: %s===', i, step, str(fitness))
             particle.update_pbest(fitness)
             logging.info('===start updating gbest===')

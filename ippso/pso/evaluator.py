@@ -9,8 +9,9 @@ from ippso.ip.decoder import Decoder
 from .particle import Particle
 
 def initialise_cnn_evaluator(training_epoch=None, batch_size=None, training_data=None, training_label=None, validation_data=None,
-                             validation_label=None):
+                             validation_label=None, max_gpu=None):
     training_epoch = 5 if training_epoch is None else training_epoch
+    max_gpu = None if max_gpu is None else max_gpu
     batch_size = 200 if batch_size is None else batch_size
     if training_data is None and training_label is None and validation_data is None and validation_label is None:
         from ippso.data.mnist import get_training_data, get_validation_data
@@ -18,7 +19,7 @@ def initialise_cnn_evaluator(training_epoch=None, batch_size=None, training_data
         training_label = get_training_data()['labels'] if training_label is None else training_label
         validation_data = get_validation_data()['images'] if validation_data is None else validation_data
         validation_label = get_validation_data()['labels'] if validation_label is None else validation_label
-    return CNNEvaluator(training_epoch, batch_size, training_data, training_label, validation_data, validation_label)
+    return CNNEvaluator(training_epoch, batch_size, training_data, training_label, validation_data, validation_label, max_gpu)
 
 
 def produce_tf_batch_data(images, labels, batch_size):
@@ -58,7 +59,7 @@ class CNNEvaluator(Evaluator):
     """
     CNN evaluator
     """
-    def __init__(self, training_epoch, batch_size, training_data, training_label, validation_data, validation_label):
+    def __init__(self, training_epoch, batch_size, training_data, training_label, validation_data, validation_label, max_gpu):
         """
         constructor
 
@@ -74,6 +75,8 @@ class CNNEvaluator(Evaluator):
         :type validation_data: numpy.array
         :param validation_label: validation label
         :type validation_label: numpy.array
+        :param max_gpu: max number of gpu to be used
+        :type max_gpu: int
         """
         self.training_epoch = training_epoch
         self.batch_size = batch_size
@@ -81,6 +84,7 @@ class CNNEvaluator(Evaluator):
         self.training_label = training_label
         self.validation_data = validation_data
         self.validation_label = validation_label
+        self.max_gpu = max_gpu
 
         self.training_data_length = self.training_data.shape[0]
         self.validation_data_length = self.validation_data.shape[0]
@@ -96,7 +100,13 @@ class CNNEvaluator(Evaluator):
         """
         logging.info('===start evaluating Particle-%d===', particle.id)
         tf.reset_default_graph()
-        is_training, train_op, accuracy, cross_entropy, num_connections, merge_summary = self.build_graph(particle)
+        if self.max_gpu is None:
+            is_training, train_op, accuracy, cross_entropy, num_connections, merge_summary = self.build_graph(particle)
+        else:
+            for i in range(self.max_gpu):
+                with tf.device('/gpu:%d' % i):
+                    is_training, train_op, accuracy, cross_entropy, num_connections, merge_summary = self.build_graph(
+                        particle)
         with tf.Session() as sess:
             sess.run(tf.global_variables_initializer())
             steps_in_each_epoch = (self.training_data_length // self.batch_size)
