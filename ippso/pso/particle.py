@@ -40,7 +40,7 @@ class Particle:
     """
     Particle class
     """
-    def __init__(self, id, length, w, c1, c2):
+    def __init__(self, id, length, w, c1, c2, layers=None):
         """
         constructor
 
@@ -54,12 +54,15 @@ class Particle:
         :type c1: numpy.array
         :param c2: an array of acceleration co-efficients for gbest
         :type c2: numpy.array
+        :param layers: a dict of (layer_name, layer) pairs; keys: conv, pooling, full, disabled
+        :type layers: dict
         """
         self.id = id
         self.length = length
         self.w = w
         self.c1 = c1
         self.c2 = c2
+        self.layers = layers
         self.decoder = Decoder()
 
         # initialise pbest, x, v to None
@@ -105,6 +108,8 @@ class Particle:
                 self.x[i].update_byte(j, new_x_ij)
                 self.v[i,j] = new_v_ij
                 logging.debug('===finish updating bytes-%d of Interface-%d of Particle-%d===', j, i, self.id)
+            if self.layers is not None:
+                self.x[i].update_subnet_and_structure(self.layers)
             logging.debug('interface after update: %s', str(self.x[i]))
             logging.debug('velocity after update: %s', str(self.v[i, :]))
             logging.debug('Layer-%d of the CNN after update: %s', i, str(self.decoder.decode_2_field_values(self.x[i])))
@@ -181,8 +186,7 @@ class CNNParticle(Particle):
         """
         logging.info('===initialise CNN particle with ID: %d===', id)
         self.max_fully_connected_length = max_fully_connected_length
-        self.layers = layers
-        super(CNNParticle, self).__init__(id, length, w, c1, c2)
+        super(CNNParticle, self).__init__(id, length, w, c1, c2, layers)
         self.x = np.empty(self.length, dtype=Interface)
 
     def update(self, gbest):

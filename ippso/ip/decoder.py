@@ -25,10 +25,13 @@ class Decoder:
         :rtype: dict
         """
         fields = interface.ip_structure.fields
+        fields_length = interface.ip_structure.fields_length
         ip = interface.ip.ip
+        bin_ip_length = interface.ip.length * 8
         subnet_ip = interface.subnet.ip
         field_ip = np.subtract(ip, subnet_ip)
         field_bin_ip = ip_2_bin_ip(field_ip)
+        field_bin_ip = field_bin_ip[bin_ip_length-fields_length:]
         pos = 0
         field_values = {}
         for field_name in fields:

@@ -163,6 +163,18 @@ class Interface:
         """
         self.ip.update_byte(pos, value)
 
+    def update_subnet_and_structure(self, layers):
+        """
+        update the ip structure and subnet after the IP changed
+
+        :param layers: a dict of (layer_name, layer) pairs; keys: conv, pooling, full, disabled
+        :type layers: dict
+        """
+        for layer_name in layers:
+            if layers[layer_name].check_interface_in_type(self):
+                self.subnet = layers[layer_name].subnet
+                self.ip_structure = layers[layer_name].ip_structure
+
     def __str__(self):
         return 'Interface - {}, {}'.format(str(self.ip), str(self.subnet))
 
@@ -181,6 +193,19 @@ class IPStructure:
         :type fields: dict
         """
         self.fields = fields
+        self.fields_length = self._fileds_length()
+
+    def _fileds_length(self):
+        """
+        calculate the length of all fields
+
+        :return: the length
+        :rtype: int
+        """
+        fields_length = 0
+        for field_name in self.fields:
+            fields_length += self.fields[field_name]
+        return fields_length
 
 
 class IPAddress:

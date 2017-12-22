@@ -20,8 +20,13 @@ Go to the root folder of the repository
 python main.py -h
 ```
 
+#### run program in debug mode
 
-#### run program
+```bash
+python main.py -d mb -s 30 -l 15 --max_steps 30
+```
+
+#### run program in production mode
  
 ```bash
 python main.py -d mb -m 1 -s 30 -l 15 --max_steps 30

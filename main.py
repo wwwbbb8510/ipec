@@ -5,6 +5,7 @@ from ippso.pso.evaluator import initialise_cnn_evaluator
 from ippso.pso.particle import save_particle
 
 def main(args):
+    _filter_args(args)
     logging.basicConfig(filename='log/ippso_cnn.log', level=logging.DEBUG)
     logging.info('===Load data - dataset:%s, mode:%s===', args.dataset, args.mode)
     loaded_data = _load_data(args.dataset, args.mode)
@@ -15,8 +16,8 @@ def main(args):
                                          validation_data=loaded_data.test['images'], validation_label=loaded_data.test['labels'])
     else:
         evaluator = None
-    pso_pop = initialise_cnn_population(pop_size=int(args.pop_size), particle_length=int(args.particle_length), evaluator=evaluator)
-    best_particle = pso_pop.fly_2_end(max_steps=int(args.max_steps))
+    pso_pop = initialise_cnn_population(pop_size=args.pop_size, particle_length=args.particle_length, evaluator=evaluator)
+    best_particle = pso_pop.fly_2_end(max_steps=args.max_steps)
     save_particle(best_particle)
     logging.info('===Finished===')
 
@@ -31,6 +32,11 @@ def _load_data(dataset_name, mode):
     elif dataset_name == 'convex':
         from ippso.data.convex import loaded_data
     return loaded_data
+
+def _filter_args(args):
+    args.pop_size = int(args.pop_size) if args.pop_size is not None else None
+    args.particle_length = int(args.particle_length) if args.particle_length is not None else None
+    args.max_steps = int(args.max_steps) if args.max_steps is not None else None
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
