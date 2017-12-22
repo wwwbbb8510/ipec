@@ -107,7 +107,7 @@ class CNNEvaluator(Evaluator):
                 with tf.device('/gpu:%d' % i):
                     is_training, train_op, accuracy, cross_entropy, num_connections, merge_summary = self.build_graph(
                         particle)
-        with tf.Session() as sess:
+        with tf.Session(config=tf.ConfigProto(log_device_placement=True)) as sess:
             sess.run(tf.global_variables_initializer())
             steps_in_each_epoch = (self.training_data_length // self.batch_size)
             total_steps = int(self.training_epoch * steps_in_each_epoch)
