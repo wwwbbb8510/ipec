@@ -32,4 +32,10 @@ python main.py -d mb -s 30 -l 15 --max_steps 30
 python main.py -d mb -m 1 -s 30 -l 15 --max_steps 30
 ``` 
 
+#### run program in production mode in background
+ 
+```bash
+nohup python main.py -d mb -m 1 -s 30 -l 15 --max_steps 30 &
+```
+
 After the program run, all the main steps can be checked in the log/ippso_cnn.log file and the global best particle will be persisted into log/gbest.pkl file.
