@@ -94,8 +94,8 @@ class CNNEvaluator(Evaluator):
         # set visible cuda devices
         if self.max_gpu is not None:
             for i in range(self.max_gpu):
-                print('CUDA DEVICES-%d enabled'.format(i))
-                os.environ['CUDA_VISIBLE_DEVICES'] = '%d'.format(i)
+                print('CUDA DEVICES-{} enabled'.format(i))
+                os.environ['CUDA_VISIBLE_DEVICES'] = '{}'.format(i)
 
     def eval(self, particle):
         """
