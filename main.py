@@ -13,7 +13,7 @@ def main(args):
     logging.info('===Started===')
     if loaded_data is not None:
         evaluator = initialise_cnn_evaluator(training_epoch=args.training_epoch, training_data=loaded_data.train['images'], training_label=loaded_data.train['labels'],
-                                         validation_data=loaded_data.test['images'], validation_label=loaded_data.test['labels'])
+                                         validation_data=loaded_data.test['images'], validation_label=loaded_data.test['labels'],max_gpu=args.max_gpu)
     else:
         evaluator = None
     pso_pop = initialise_cnn_population(pop_size=args.pop_size, particle_length=args.particle_length, evaluator=evaluator)
@@ -38,6 +38,7 @@ def _filter_args(args):
     args.particle_length = int(args.particle_length) if args.particle_length is not None else None
     args.max_steps = int(args.max_steps) if args.max_steps is not None else None
     args.training_epoch = int(args.training_epoch) if args.training_epoch is not None else None
+    args.max_gpu = int(args.max_gpu) if args.max_gpu is not None else None
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -47,7 +48,7 @@ if __name__ == '__main__':
     parser.add_argument('-l', '--particle_length', help='particle max length')
     parser.add_argument('--max_steps', help='max fly steps')
     parser.add_argument('-e', '--training_epoch', help='training epoch for the evaluation')
-    parser.add_argument('-g', '--max_gpus', help='max number of gpu')
+    parser.add_argument('-g', '--max_gpu', help='max number of gpu')
 
     args = parser.parse_args()
     main(args)
