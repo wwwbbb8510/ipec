@@ -7,6 +7,7 @@ from tensorflow.python.ops import control_flow_ops
 from tensorflow.python.ops import init_ops
 from ippso.ip.decoder import Decoder
 from .particle import Particle
+import os
 
 def initialise_cnn_evaluator(training_epoch=None, batch_size=None, training_data=None, training_label=None, validation_data=None,
                              validation_label=None, max_gpu=None):
@@ -90,6 +91,12 @@ class CNNEvaluator(Evaluator):
         self.validation_data_length = self.validation_data.shape[0]
         self.decoder = Decoder()
 
+        # set visible cuda devices
+        if self.max_gpu is not None:
+            for i in range(self.max_gpu):
+                print('CUDA DEVICES-%d enabled'.format(i))
+                os.environ['CUDA_VISIBLE_DEVICES'] = '%d'.format(i)
+
     def eval(self, particle):
         """
         evaluate the particle
@@ -100,14 +107,8 @@ class CNNEvaluator(Evaluator):
         """
         logging.info('===start evaluating Particle-%d===', particle.id)
         tf.reset_default_graph()
-        if self.max_gpu is None:
-            is_training, train_op, accuracy, cross_entropy, num_connections, merge_summary = self.build_graph(particle)
-        else:
-            for i in range(self.max_gpu):
-                with tf.device('/device:GPU:%d' % i):
-                    is_training, train_op, accuracy, cross_entropy, num_connections, merge_summary = self.build_graph(
-                        particle)
-        with tf.Session(config=tf.ConfigProto(log_device_placement=True)) as sess:
+        is_training, train_op, accuracy, cross_entropy, num_connections, merge_summary = self.build_graph(particle)
+        with tf.Session() as sess:
             sess.run(tf.global_variables_initializer())
             steps_in_each_epoch = (self.training_data_length // self.batch_size)
             total_steps = int(self.training_epoch * steps_in_each_epoch)
