@@ -41,7 +41,7 @@ FULLYCONNECTED_SUBNET = '4.0.0.0.0/11'
 
 # disabled layer fields
 DISABLED_FIELDS = {
-    'size': 10,
+    'disabled': 10,
 }
 
 # disabled layer subnet

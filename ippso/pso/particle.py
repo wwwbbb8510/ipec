@@ -21,6 +21,23 @@ def save_particle(particle, path=None):
         path = DEFAULT_PARTICLE_PATH
     with open(path, 'wb') as output:
         pickle.dump(particle, output, pickle.HIGHEST_PROTOCOL)
+    output.close()
+
+def load_particle(path=None):
+    """
+    load particle from persisted pickle file
+
+    :param path: pickle file path
+    :type path: string
+    :return: loaded particle
+    :rtype: Particle
+    """
+    if path is None:
+        path = DEFAULT_PARTICLE_PATH
+    with open(path, 'rb') as input:
+        particle = pickle.load(input)
+    input.close()
+    return particle
 
 def load_particle(path=None):
     """

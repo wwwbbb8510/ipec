@@ -4,6 +4,7 @@ from .core import Interface
 from .core import ip_2_bin_ip
 
 import numpy as np
+import logging
 
 class Decoder:
     """
@@ -54,6 +55,8 @@ class Decoder:
         stddev = (field_values['std_dev'] + 1) / 100
         feature_map_size = field_values['num_of_feature_maps'] + 1
         stride_size = field_values['stride_size'] + 1
+        logging.debug('Filtered Conv field values(filter_size, mean, stddev, feature_map_size, stride_size):%s', str((filter_size, mean, stddev, feature_map_size, stride_size)))
+
         return filter_size, mean, stddev, feature_map_size, stride_size
 
     def filter_pooling_fields(self, field_values):
@@ -67,6 +70,7 @@ class Decoder:
         kernel_size = field_values['kernel_size'] + 1
         stride_size = field_values['stride_size'] + 1
         kernel_type = field_values['type']
+        logging.debug('Filtered Pooling field values(kernel_size, stride_size, kernel_type):%s', str((kernel_size, stride_size, kernel_type)))
         return kernel_size, stride_size, kernel_type
 
     def filter_full_fields(self, field_values):
@@ -80,5 +84,7 @@ class Decoder:
         mean = (field_values['mean'] - 256) / 100
         stddev = (field_values['std_dev'] + 1) / 100
         hidden_neuron_num = field_values['num_of_neurons'] + 1
+        logging.debug('Filtered Fully Connected field values(mean, stddev, hidden_neuron_num):%s',
+                      str((mean, stddev, hidden_neuron_num)))
         return mean, stddev, hidden_neuron_num
 
