@@ -51,8 +51,7 @@ class Decoder:
         :rtype: tuple
         """
         filter_size = field_values['filter_size'] + 1
-        mean = (field_values['mean'] - 256) / 100
-        stddev = (field_values['std_dev'] + 1) / 100
+        mean, stddev = self._normalise_mean_stddev(field_values['mean'], field_values['std_dev'])
         feature_map_size = field_values['num_of_feature_maps'] + 1
         stride_size = field_values['stride_size'] + 1
         logging.debug('Filtered Conv field values(filter_size, mean, stddev, feature_map_size, stride_size):%s', str((filter_size, mean, stddev, feature_map_size, stride_size)))
@@ -81,10 +80,22 @@ class Decoder:
         :return: mean, stddev, hidden_neuron_num
         :rtype: tuple
         """
-        mean = (field_values['mean'] - 256) / 100
-        stddev = (field_values['std_dev'] + 1) / 100
+        mean, stddev = self._normalise_mean_stddev(field_values['mean'], field_values['std_dev'])
         hidden_neuron_num = field_values['num_of_neurons'] + 1
         logging.debug('Filtered Fully Connected field values(mean, stddev, hidden_neuron_num):%s',
                       str((mean, stddev, hidden_neuron_num)))
         return mean, stddev, hidden_neuron_num
 
+    def _normalise_mean_stddev(self, mean, stddev):
+        """
+        normalise mean and stddev from 512 to decimal value
+        :param mean: IP value represent mean
+        :type mean: int
+        :param stddev: IP value represent stddev
+        :type stddev: int
+        :return: (mean, stddev) tuple
+        :rtype: tuple
+        """
+        mean = (mean - 255) / 256
+        stddev = (stddev + 1) / 512
+        return mean, stddev
