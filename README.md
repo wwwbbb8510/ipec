@@ -20,6 +20,31 @@ Go to the root folder of the repository
 python3 main.py -h
 ```
 
+```text
+usage: main.py [-h] [-d DATASET] [-m MODE] [-s POP_SIZE] [-l PARTICLE_LENGTH]
+               [--max_steps MAX_STEPS] [-e TRAINING_EPOCH] [-g MAX_GPU]
+               [-o OPTIMISE]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -d DATASET, --dataset DATASET
+                        choose a dataset among mb, mdrbi, or convex
+  -m MODE, --mode MODE  default:None, 1: production (load full data)
+  -s POP_SIZE, --pop_size POP_SIZE
+                        population size
+  -l PARTICLE_LENGTH, --particle_length PARTICLE_LENGTH
+                        particle max length
+  --max_steps MAX_STEPS
+                        max fly steps
+  -e TRAINING_EPOCH, --training_epoch TRAINING_EPOCH
+                        training epoch for the evaluation
+  -g MAX_GPU, --max_gpu MAX_GPU
+                        max number of gpu
+  -o OPTIMISE, --optimise OPTIMISE
+                        optimise the learned CNN architecture. Default: None.
+                        1: optimise; otherwise IPPSO search
+```
+
 #### run program in debug mode
 
 ```bash
