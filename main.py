@@ -19,7 +19,10 @@ def _optimise_learned_particle(args):
 
     :param args: arguments
     """
-    logging.basicConfig(filename='log/ippso_cnn_optimise.log', level=logging.DEBUG)
+    if args.log_file is None:
+        logging.basicConfig(filename='log/ippso_cnn_optimise.log', level=logging.DEBUG)
+    else:
+        logging.basicConfig(filename=args.log_file, level=logging.DEBUG)
     logging.info('===Load data - dataset:%s, mode:%s===', args.dataset, args.mode)
     loaded_data = _load_data(args.dataset, args.mode)
     logging.info('===Data loaded===')
@@ -29,10 +32,11 @@ def _optimise_learned_particle(args):
                                              training_data=loaded_data.train['images'],
                                              training_label=loaded_data.train['labels'],
                                              validation_data=loaded_data.test['images'],
-                                             validation_label=loaded_data.test['labels'], max_gpu=args.max_gpu)
+                                             validation_label=loaded_data.test['labels'], max_gpu=args.max_gpu,
+                                             first_gpu_id=args.first_gpu_id)
     else:
-        evaluator = initialise_cnn_evaluator(training_epoch=args.training_epoch, max_gpu=args.max_gpu)
-    loaded_particle = load_particle()
+        evaluator = initialise_cnn_evaluator(training_epoch=args.training_epoch, max_gpu=args.max_gpu, first_gpu_id=args.first_gpu_id)
+    loaded_particle = load_particle(args.gbest_file)
     evaluator.eval(loaded_particle)
     logging.info('===Finished===')
 
@@ -43,7 +47,10 @@ def _pso_search(args):
 
     :param args: arguments
     """
-    logging.basicConfig(filename='log/ippso_cnn.log', level=logging.DEBUG)
+    if args.log_file is None:
+        logging.basicConfig(filename='log/ippso_cnn.log', level=logging.DEBUG)
+    else:
+        logging.basicConfig(filename=args.log_file, level=logging.DEBUG)
     logging.info('===Load data - dataset:%s, mode:%s===', args.dataset, args.mode)
     loaded_data = _load_data(args.dataset, args.mode)
     logging.info('===Data loaded===')
@@ -53,13 +60,14 @@ def _pso_search(args):
                                              training_data=loaded_data.train['images'],
                                              training_label=loaded_data.train['labels'],
                                              validation_data=loaded_data.test['images'],
-                                             validation_label=loaded_data.test['labels'], max_gpu=args.max_gpu)
+                                             validation_label=loaded_data.test['labels'], max_gpu=args.max_gpu,
+                                             first_gpu_id=args.first_gpu_id)
     else:
-        evaluator = initialise_cnn_evaluator(training_epoch=args.training_epoch, max_gpu=args.max_gpu)
+        evaluator = initialise_cnn_evaluator(training_epoch=args.training_epoch, max_gpu=args.max_gpu,first_gpu_id=args.first_gpu_id)
     pso_pop = initialise_cnn_population(pop_size=args.pop_size, particle_length=args.particle_length,
                                         evaluator=evaluator)
     best_particle = pso_pop.fly_2_end(max_steps=args.max_steps)
-    save_particle(best_particle)
+    save_particle(best_particle, args.gbest_file)
     logging.info('===Finished===')
 
 
@@ -93,6 +101,7 @@ def _filter_args(args):
     args.particle_length = int(args.particle_length) if args.particle_length is not None else None
     args.max_steps = int(args.max_steps) if args.max_steps is not None else None
     args.training_epoch = int(args.training_epoch) if args.training_epoch is not None else None
+    args.first_gpu_id = int(args.first_gpu_id) if args.first_gpu_id is not None else None
     args.max_gpu = int(args.max_gpu) if args.max_gpu is not None else None
     args.optimise = int(args.optimise) if args.optimise is not None else 0
 
@@ -105,8 +114,12 @@ if __name__ == '__main__':
     parser.add_argument('-l', '--particle_length', help='particle max length')
     parser.add_argument('--max_steps', help='max fly steps')
     parser.add_argument('-e', '--training_epoch', help='training epoch for the evaluation')
+    parser.add_argument('-f', '--first_gpu_id', help='first gpu id')
     parser.add_argument('-g', '--max_gpu', help='max number of gpu')
-    parser.add_argument('-o', '--optimise', help='optimise the learned CNN architecture. Default: None. 1: optimise; otherwise IPPSO search')
+    parser.add_argument('-o', '--optimise',
+                        help='optimise the learned CNN architecture. Default: None. 1: optimise; otherwise IPPSO search')
+    parser.add_argument('--log_file', help='the path of log file')
+    parser.add_argument('--gbest_file', help='the path of gbest file')
 
     args = parser.parse_args()
     main(args)

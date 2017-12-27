@@ -10,7 +10,7 @@ from .particle import Particle
 import os
 
 def initialise_cnn_evaluator(training_epoch=None, batch_size=None, training_data=None, training_label=None, validation_data=None,
-                             validation_label=None, max_gpu=None):
+                             validation_label=None, max_gpu=None, first_gpu_id=None):
     training_epoch = 5 if training_epoch is None else training_epoch
     max_gpu = None if max_gpu is None else max_gpu
     batch_size = 200 if batch_size is None else batch_size
@@ -20,7 +20,8 @@ def initialise_cnn_evaluator(training_epoch=None, batch_size=None, training_data
         training_label = get_training_data()['labels'] if training_label is None else training_label
         validation_data = get_validation_data()['images'] if validation_data is None else validation_data
         validation_label = get_validation_data()['labels'] if validation_label is None else validation_label
-    return CNNEvaluator(training_epoch, batch_size, training_data, training_label, validation_data, validation_label, max_gpu)
+    return CNNEvaluator(training_epoch, batch_size, training_data, training_label,
+                        validation_data, validation_label, max_gpu, first_gpu_id)
 
 
 def produce_tf_batch_data(images, labels, batch_size):
@@ -60,7 +61,8 @@ class CNNEvaluator(Evaluator):
     """
     CNN evaluator
     """
-    def __init__(self, training_epoch, batch_size, training_data, training_label, validation_data, validation_label, max_gpu):
+    def __init__(self, training_epoch, batch_size, training_data, training_label,
+                 validation_data, validation_label, max_gpu, first_gpu_id):
         """
         constructor
 
@@ -78,6 +80,9 @@ class CNNEvaluator(Evaluator):
         :type validation_label: numpy.array
         :param max_gpu: max number of gpu to be used
         :type max_gpu: int
+        :param first_gpu_id: the first gpu ID. The GPUs will start from the first gpu ID
+        and continue using the following GPUs until reaching the max_gpu number
+        :type first_gpu_id: int
         """
         self.training_epoch = training_epoch
         self.batch_size = batch_size
@@ -86,6 +91,7 @@ class CNNEvaluator(Evaluator):
         self.validation_data = validation_data
         self.validation_label = validation_label
         self.max_gpu = max_gpu
+        self.first_gpu_id = first_gpu_id
 
         self.training_data_length = self.training_data.shape[0]
         self.validation_data_length = self.validation_data.shape[0]
@@ -94,8 +100,11 @@ class CNNEvaluator(Evaluator):
         # set visible cuda devices
         if self.max_gpu is not None:
             for i in range(self.max_gpu):
-                print('CUDA DEVICES-{} enabled'.format(i))
-                os.environ['CUDA_VISIBLE_DEVICES'] = '{}'.format(i)
+                gpu_id = i
+                if self.first_gpu_id is not None:
+                    gpu_id = self.first_gpu_id + i
+                print('CUDA DEVICES-{} enabled'.format(gpu_id))
+                os.environ['CUDA_VISIBLE_DEVICES'] = '{}'.format(gpu_id)
 
     def eval(self, particle):
         """

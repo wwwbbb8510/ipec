@@ -38,29 +38,34 @@ optional arguments:
                         max fly steps
   -e TRAINING_EPOCH, --training_epoch TRAINING_EPOCH
                         training epoch for the evaluation
+  -f FIRST_GPU_ID, --first_gpu_id FIRST_GPU_ID
+                        first gpu id
   -g MAX_GPU, --max_gpu MAX_GPU
                         max number of gpu
   -o OPTIMISE, --optimise OPTIMISE
                         optimise the learned CNN architecture. Default: None.
                         1: optimise; otherwise IPPSO search
+  --log_file LOG_FILE   the path of log file
+  --gbest_file GBEST_FILE
+                        the path of gbest file
 ```
 
 #### run program in debug mode
 
 ```bash
-python3 main.py -d mb -s 30 -l 15 --max_steps 30 -e 5 -g 1
+python3 main.py -d mb -s 30 -l 15 --max_steps 30 -e 5 -f 0 -g 1
 ```
 
 #### run program in production mode
  
 ```bash
-python3 main.py -d mb -m 1 -s 30 -l 15 --max_steps 30 -e 5 -g 1
+python3 main.py -d mb -m 1 -s 30 -l 15 --max_steps 30 -e 5 -f 0 -g 1
 ``` 
 
 #### run program in production mode in background
  
 ```bash
-nohup python3 main.py -d mb -m 1 -s 30 -l 15 --max_steps 30 -e 5 -g 1 &
+nohup python3 main.py -d mb -m 1 -s 30 -l 15 --max_steps 30 -e 5 -f 0 -g 1 --log_file=log/ippso_cnn.log --gbest_file=log/gbest.pkl &
 ```
 
 After the program run, all the main steps can be checked in the log/ippso_cnn.log file and the global best particle will be persisted into log/gbest.pkl file.
