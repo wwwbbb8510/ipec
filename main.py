@@ -1,5 +1,6 @@
 import logging
 import argparse
+import numpy as np
 from ippso.pso.population import initialise_cnn_population
 from ippso.pso.evaluator import initialise_cnn_evaluator
 from ippso.pso.particle import save_particle, load_particle
@@ -65,7 +66,7 @@ def _pso_search(args):
     else:
         evaluator = initialise_cnn_evaluator(training_epoch=args.training_epoch, max_gpu=args.max_gpu,first_gpu_id=args.first_gpu_id)
     pso_pop = initialise_cnn_population(pop_size=args.pop_size, particle_length=args.particle_length,
-                                        evaluator=evaluator)
+                                        evaluator=evaluator, w=args.w, c1=args.c1, c2=args.c2)
     best_particle = pso_pop.fly_2_end(max_steps=args.max_steps)
     save_particle(best_particle, args.gbest_file)
     logging.info('===Finished===')
@@ -104,6 +105,9 @@ def _filter_args(args):
     args.first_gpu_id = int(args.first_gpu_id) if args.first_gpu_id is not None else None
     args.max_gpu = int(args.max_gpu) if args.max_gpu is not None else None
     args.optimise = int(args.optimise) if args.optimise is not None else 0
+    args.w = float(args.w) if args.w is not None else None
+    args.c1 = np.asarray(args.c1.split(',')).astype(np.float) if args.c1 is not None else None
+    args.c2 = np.asarray(args.c2.split(',')).astype(np.float) if args.c2 is not None else None
 
 # main entrance
 if __name__ == '__main__':
@@ -120,6 +124,9 @@ if __name__ == '__main__':
                         help='optimise the learned CNN architecture. Default: None. 1: optimise; otherwise IPPSO search')
     parser.add_argument('--log_file', help='the path of log file')
     parser.add_argument('--gbest_file', help='the path of gbest file')
+    parser.add_argument('--w', help='w parameter of PSO')
+    parser.add_argument('--c1', help='c1 parameter of PSO')
+    parser.add_argument('--c2', help='c2 parameter of PSO')
 
     args = parser.parse_args()
     main(args)

@@ -70,6 +70,12 @@ nohup python3 main.py -d mb -m 1 -s 30 -l 15 --max_steps 30 -e 5 -f 0 -g 1 --log
 
 After the program run, all the main steps can be checked in the log/ippso_cnn.log file and the global best particle will be persisted into log/gbest.pkl file.
 
+### tweak PSO parameters in production mode in background
+
+```bash
+nohup python3 main.py -d mb -m 1 --w 0.1 --c1 0.02,0.1,0.1,0.1,0.1 --c2 0.02,0.1,0.1,0.1,0.1 -s 30 -l 15 --max_steps 30 -e 5 -f 0 -g 1 --log_file=log/ippso_cnn.log --gbest_file=log/gbest.pkl &
+```
+
 ### Run your first program to optimise the learned CNN architecture
 
 #### run program in production mode
