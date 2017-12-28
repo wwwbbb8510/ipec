@@ -96,6 +96,6 @@ class Decoder:
         :return: (mean, stddev) tuple
         :rtype: tuple
         """
-        mean = (mean - 255) / 256
+        mean = (mean - 255) / 2560
         stddev = (stddev + 1) / 512
         return mean, stddev
