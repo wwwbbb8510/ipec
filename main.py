@@ -128,7 +128,7 @@ if __name__ == '__main__':
     parser.add_argument('--w', help='w parameter of PSO')
     parser.add_argument('--c1', help='c1 parameter of PSO')
     parser.add_argument('--c2', help='c2 parameter of PSO')
-    parser.add_argument('-v', '--v_max', help='PSO clamping coefficient. V_max = v_max * search_space')
+    parser.add_argument('-v', '--v_max', help='PSO max velocity used by velocity clamping')
 
     args = parser.parse_args()
     main(args)
