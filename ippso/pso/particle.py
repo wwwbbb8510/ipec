@@ -57,7 +57,7 @@ class Particle:
     """
     Particle class
     """
-    def __init__(self, id, length, w, c1, c2, layers=None):
+    def __init__(self, id, length, w, c1, c2, layers=None, v_max=None):
         """
         constructor
 
@@ -79,6 +79,7 @@ class Particle:
         self.w = w
         self.c1 = c1
         self.c2 = c2
+        self.v_max = v_max
         self.layers = layers
         self.decoder = Decoder()
 
@@ -119,6 +120,10 @@ class Particle:
                 r1 = np.random.uniform(0, 1)
                 r2 = np.random.uniform(0, 1)
                 new_v_ij = self.w * v_ij + self.c1[j] * r1 * (pbest_x_ij - x_ij) + self.c2[j] * r2 * (gbest_x_ij - x_ij)
+                # velocity clamping
+                if self.v_max is not None:
+                    if new_v_ij > self.v_max[j]:
+                        new_v_ij = self.v_max[j]
                 new_x_ij = x_ij + new_v_ij
                 new_x_ij if new_x_ij < 256 else new_x_ij - 256
                 # update the IP and velocity of the particle
@@ -131,6 +136,7 @@ class Particle:
             logging.debug('velocity after update: %s', str(self.v[i, :]))
             logging.debug('Layer-%d of the CNN after update: %s', i, str(self.decoder.decode_2_field_values(self.x[i])))
             logging.debug('===finish updating velocity and position of Interface-%d of Particle-%d===', i, self.id)
+
 
     def update_pbest(self, fitness):
         """
@@ -182,7 +188,7 @@ class CNNParticle(Particle):
     """
     CNN Particle class
     """
-    def __init__(self, id, length, max_fully_connected_length, w, c1, c2, layers):
+    def __init__(self, id, length, max_fully_connected_length, w, c1, c2, layers, v_max=None):
         """
         constructor
 
@@ -203,7 +209,7 @@ class CNNParticle(Particle):
         """
         logging.info('===initialise CNN particle with ID: %d===', id)
         self.max_fully_connected_length = max_fully_connected_length
-        super(CNNParticle, self).__init__(id, length, w, c1, c2, layers)
+        super(CNNParticle, self).__init__(id, length, w, c1, c2, layers, v_max)
         self.x = np.empty(self.length, dtype=Interface)
 
     def update(self, gbest):

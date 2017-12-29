@@ -108,6 +108,7 @@ def _filter_args(args):
     args.w = float(args.w) if args.w is not None else None
     args.c1 = np.asarray(args.c1.split(',')).astype(np.float) if args.c1 is not None else None
     args.c2 = np.asarray(args.c2.split(',')).astype(np.float) if args.c2 is not None else None
+    args.v_max = np.asarray(args.v_max.split(',')).astype(np.float) if args.v_max is not None else None
 
 # main entrance
 if __name__ == '__main__':
@@ -127,6 +128,7 @@ if __name__ == '__main__':
     parser.add_argument('--w', help='w parameter of PSO')
     parser.add_argument('--c1', help='c1 parameter of PSO')
     parser.add_argument('--c2', help='c2 parameter of PSO')
+    parser.add_argument('-v', '--v_max', help='PSO clamping coefficient. V_max = v_max * search_space')
 
     args = parser.parse_args()
     main(args)
