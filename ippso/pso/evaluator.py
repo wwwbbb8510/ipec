@@ -2,6 +2,7 @@ import numpy as np
 import logging
 from datetime import datetime
 import tensorflow as tf
+from tensorflow.contrib.layers import l2_regularizer
 import tensorflow.contrib.slim as slim
 from tensorflow.python.ops import control_flow_ops
 from tensorflow.python.ops import init_ops
@@ -116,7 +117,7 @@ class CNNEvaluator(Evaluator):
         """
         logging.info('===start evaluating Particle-%d===', particle.id)
         tf.reset_default_graph()
-        is_training, train_op, accuracy, cross_entropy, num_connections, merge_summary = self.build_graph(particle)
+        is_training, train_op, accuracy, loss, num_connections, merge_summary, regularization_loss = self.build_graph(particle)
         with tf.Session() as sess:
             sess.run(tf.global_variables_initializer())
             steps_in_each_epoch = (self.training_data_length // self.batch_size)
@@ -130,27 +131,29 @@ class CNNEvaluator(Evaluator):
                 for i in range(total_steps):
                     if coord.should_stop():
                         break
-                    _, accuracy_str, loss_str, _ = sess.run([train_op, accuracy, cross_entropy, merge_summary],
-                                                            {is_training: True})
+                    _, accuracy_str, loss_str, regularization_loss_str,  _ = sess.run(
+                        [train_op, accuracy, loss, regularization_loss, merge_summary],
+                        {is_training: True}
+                    )
                     if i % (2 * steps_in_each_epoch) == 0:
                         test_total_step = self.validation_data_length // self.batch_size
                         test_accuracy_list = []
                         test_loss_list = []
                         for _ in range(test_total_step):
-                            test_accuracy_str, test_loss_str = sess.run([accuracy, cross_entropy], {is_training: False})
+                            test_accuracy_str, test_loss_str = sess.run([accuracy, loss], {is_training: False})
                             test_accuracy_list.append(test_accuracy_str)
                             test_loss_list.append(test_loss_str)
                         mean_test_accu = np.mean(test_accuracy_list)
                         mean_test_loss = np.mean(test_loss_list)
-                        logging.debug('{}, {}, indi:{}, Step:{}/{}, train_loss:{}, acc:{}, test_loss:{}, acc:{}'.format(
-                            datetime.now(), i // steps_in_each_epoch, particle.id, i, total_steps, loss_str,
+                        logging.debug('{}, {}, indi:{}, Step:{}/{}, train_loss:{}, reg_loss:{}, acc:{}, test_loss:{}, acc:{}'.format(
+                            datetime.now(), i // steps_in_each_epoch, particle.id, i, total_steps, loss_str, regularization_loss_str,
                             accuracy_str, mean_test_loss, mean_test_accu))
                 # validate the last epoch
                 test_total_step = self.validation_data_length // self.batch_size
                 test_accuracy_list = []
                 test_loss_list = []
                 for _ in range(test_total_step):
-                    test_accuracy_str, test_loss_str = sess.run([accuracy, cross_entropy], {is_training: False})
+                    test_accuracy_str, test_loss_str = sess.run([accuracy, loss], {is_training: False})
                     test_accuracy_list.append(test_accuracy_str)
                     test_loss_list.append(test_loss_str)
                 mean_test_accu = np.mean(test_accuracy_list)
@@ -204,7 +207,9 @@ class CNNEvaluator(Evaluator):
                         filter_size, mean, stddev, feature_map_size, stride_size = self.decoder.filter_conv_fields(field_values)
                         conv_H = slim.conv2d(output_list[-1], feature_map_size, filter_size,
                                              weights_initializer=tf.truncated_normal_initializer(mean=mean, stddev=stddev),
-                                             biases_initializer=init_ops.constant_initializer(0.1, dtype=tf.float32))
+                                             weights_regularizer=l2_regularizer,
+                                             biases_initializer=init_ops.constant_initializer(0.1, dtype=tf.float32),
+                                             biases_regularizer=l2_regularizer)
                         output_list.append(conv_H)
                         # update for next usage
                         last_output_feature_map_size = feature_map_size
@@ -250,8 +255,10 @@ class CNNEvaluator(Evaluator):
                                                           activation_fn=None,
                                                           weights_initializer=tf.truncated_normal_initializer(mean=mean,
                                                                                                               stddev=stddev),
+                                                          weights_regularizer=l2_regularizer,
                                                           biases_initializer=init_ops.constant_initializer(0.1,
-                                                                                                           dtype=tf.float32))
+                                                                                                           dtype=tf.float32),
+                                                          biases_regularizer=l2_regularizer)
                         output_list.append(full_H)
                         num_connections += input_dim * hidden_neuron_num + hidden_neuron_num
                 # disabled layer
@@ -264,22 +271,23 @@ class CNNEvaluator(Evaluator):
 
             with tf.name_scope('loss'):
                 logits = output_list[-1]
-                # regularization_loss = tf.add_n(tf.losses.get_regularization_losses())
+                regularization_loss = tf.add_n(tf.losses.get_regularization_losses())
                 cross_entropy = tf.reduce_mean(
                     tf.nn.sparse_softmax_cross_entropy_with_logits(labels=true_Y, logits=logits))
+                loss = regularization_loss + cross_entropy
             with tf.name_scope('train'):
                 update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
                 if update_ops:
                     updates = tf.group(*update_ops)
-                    cross_entropy = control_flow_ops.with_dependencies([updates], cross_entropy)
+                    loss = control_flow_ops.with_dependencies([updates], loss)
                 optimizer = tf.train.AdamOptimizer()
-                train_op = slim.learning.create_train_op(cross_entropy, optimizer)
+                train_op = slim.learning.create_train_op(loss, optimizer)
             with tf.name_scope('test'):
                 accuracy = tf.reduce_mean(tf.cast(tf.equal(tf.argmax(logits, 1), true_Y), tf.float32))
 
-        tf.summary.scalar('loss', cross_entropy)
+        tf.summary.scalar('loss', loss)
         tf.summary.scalar('accuracy', accuracy)
         merge_summary = tf.summary.merge_all()
 
-        return is_training, train_op, accuracy, cross_entropy, num_connections, merge_summary
+        return is_training, train_op, accuracy, loss, num_connections, merge_summary, regularization_loss
 
