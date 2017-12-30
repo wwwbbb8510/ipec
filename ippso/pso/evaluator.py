@@ -256,7 +256,9 @@ class CNNEvaluator(Evaluator):
                                                                                                               stddev=stddev),
                                                           biases_initializer=init_ops.constant_initializer(0.1,
                                                                                                            dtype=tf.float32))
-                        output_list.append(full_H)
+                        # add dropout
+                        full_dropout_H = slim.dropout(full_H, 0.5)
+                        output_list.append(full_dropout_H)
                         num_connections += input_dim * hidden_neuron_num + hidden_neuron_num
                 # disabled layer
                 elif particle.layers['disabled'].check_interface_in_type(interface):
