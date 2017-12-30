@@ -195,8 +195,9 @@ class CNNEvaluator(Evaluator):
         with slim.arg_scope([slim.conv2d, slim.fully_connected],
                 activation_fn=tf.nn.crelu,
                 normalizer_fn=slim.batch_norm,
-                # weights_regularizer=slim.l2_regularizer(0.005),
-                normalizer_params={'is_training': is_training, 'decay': 0.99}):
+                weights_regularizer=slim.l2_regularizer(0.005),
+                normalizer_params={'is_training': is_training, 'decay': 0.99}
+                            ):
             i = 0
             for interface in particle.x:
                 # conv layer
@@ -207,9 +208,7 @@ class CNNEvaluator(Evaluator):
                         filter_size, mean, stddev, feature_map_size, stride_size = self.decoder.filter_conv_fields(field_values)
                         conv_H = slim.conv2d(output_list[-1], feature_map_size, filter_size,
                                              weights_initializer=tf.truncated_normal_initializer(mean=mean, stddev=stddev),
-                                             weights_regularizer=l2_regularizer,
-                                             biases_initializer=init_ops.constant_initializer(0.1, dtype=tf.float32),
-                                             biases_regularizer=l2_regularizer)
+                                             biases_initializer=init_ops.constant_initializer(0.1, dtype=tf.float32))
                         output_list.append(conv_H)
                         # update for next usage
                         last_output_feature_map_size = feature_map_size
@@ -247,20 +246,16 @@ class CNNEvaluator(Evaluator):
                             full_H = slim.fully_connected(input_data, num_outputs=hidden_neuron_num,
                                                           weights_initializer=tf.truncated_normal_initializer(mean=mean,
                                                                                                               stddev=stddev),
-                                                          weights_regularizer=l2_regularizer,
                                                           biases_initializer=init_ops.constant_initializer(0.1,
-                                                                                                           dtype=tf.float32),
-                                                          biases_regularizer=l2_regularizer)
+                                                                                                           dtype=tf.float32))
                         else:
                             # hard-code the number of units of the last layer to 10 for now
                             full_H = slim.fully_connected(input_data, num_outputs=10,
                                                           activation_fn=None,
                                                           weights_initializer=tf.truncated_normal_initializer(mean=mean,
                                                                                                               stddev=stddev),
-                                                          weights_regularizer=l2_regularizer,
                                                           biases_initializer=init_ops.constant_initializer(0.1,
-                                                                                                           dtype=tf.float32),
-                                                          biases_regularizer=l2_regularizer)
+                                                                                                           dtype=tf.float32))
                         output_list.append(full_H)
                         num_connections += input_dim * hidden_neuron_num + hidden_neuron_num
                 # disabled layer
