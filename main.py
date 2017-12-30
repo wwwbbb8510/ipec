@@ -34,9 +34,10 @@ def _optimise_learned_particle(args):
                                              training_label=loaded_data.train['labels'],
                                              validation_data=loaded_data.test['images'],
                                              validation_label=loaded_data.test['labels'], max_gpu=args.max_gpu,
-                                             first_gpu_id=args.first_gpu_id)
+                                             first_gpu_id=args.first_gpu_id,
+                                             class_num=args.class_num)
     else:
-        evaluator = initialise_cnn_evaluator(training_epoch=args.training_epoch, max_gpu=args.max_gpu, first_gpu_id=args.first_gpu_id)
+        evaluator = initialise_cnn_evaluator(training_epoch=args.training_epoch, max_gpu=args.max_gpu, first_gpu_id=args.first_gpu_id, class_num=args.class_num)
     loaded_particle = load_particle(args.gbest_file)
     evaluator.eval(loaded_particle)
     logging.info('===Finished===')
@@ -62,9 +63,10 @@ def _pso_search(args):
                                              training_label=loaded_data.train['labels'],
                                              validation_data=loaded_data.test['images'],
                                              validation_label=loaded_data.test['labels'], max_gpu=args.max_gpu,
-                                             first_gpu_id=args.first_gpu_id)
+                                             first_gpu_id=args.first_gpu_id,
+                                             class_num=args.class_num)
     else:
-        evaluator = initialise_cnn_evaluator(training_epoch=args.training_epoch, max_gpu=args.max_gpu,first_gpu_id=args.first_gpu_id)
+        evaluator = initialise_cnn_evaluator(training_epoch=args.training_epoch, max_gpu=args.max_gpu,first_gpu_id=args.first_gpu_id, class_num=args.class_num)
     pso_pop = initialise_cnn_population(pop_size=args.pop_size, particle_length=args.particle_length,
                                         evaluator=evaluator, w=args.w, c1=args.c1, c2=args.c2,
                                         max_fully_connected_length=args.max_full)
@@ -99,6 +101,7 @@ def _filter_args(args):
 
     :param args: arguments
     """
+    args.class_num = int(args.class_num) if args.class_num is not None else None
     args.pop_size = int(args.pop_size) if args.pop_size is not None else None
     args.particle_length = int(args.particle_length) if args.particle_length is not None else None
     args.max_full = int(args.max_full) if args.max_full is not None else None
@@ -116,6 +119,7 @@ def _filter_args(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-d', '--dataset', help='choose a dataset among mb, mdrbi, or convex')
+    parser.add_argument('-c', '--class_num', help='# of classes for the classification problem')
     parser.add_argument('-m', '--mode', help='default:None, 1: production (load full data)')
     parser.add_argument('-s', '--pop_size', help='population size')
     parser.add_argument('-l', '--particle_length', help='particle max length')

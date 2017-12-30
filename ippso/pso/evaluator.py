@@ -11,10 +11,11 @@ from .particle import Particle
 import os
 
 def initialise_cnn_evaluator(training_epoch=None, batch_size=None, training_data=None, training_label=None, validation_data=None,
-                             validation_label=None, max_gpu=None, first_gpu_id=None):
+                             validation_label=None, max_gpu=None, first_gpu_id=None, class_num=None):
     training_epoch = 5 if training_epoch is None else training_epoch
     max_gpu = None if max_gpu is None else max_gpu
     batch_size = 200 if batch_size is None else batch_size
+    class_num = 10 if class_num is None else class_num
     if training_data is None and training_label is None and validation_data is None and validation_label is None:
         from ippso.data.mnist import get_training_data, get_validation_data
         training_data = get_training_data()['images'] if training_data is None else training_data
@@ -22,7 +23,7 @@ def initialise_cnn_evaluator(training_epoch=None, batch_size=None, training_data
         validation_data = get_validation_data()['images'] if validation_data is None else validation_data
         validation_label = get_validation_data()['labels'] if validation_label is None else validation_label
     return CNNEvaluator(training_epoch, batch_size, training_data, training_label,
-                        validation_data, validation_label, max_gpu, first_gpu_id)
+                        validation_data, validation_label, max_gpu, first_gpu_id, class_num)
 
 
 def produce_tf_batch_data(images, labels, batch_size):
@@ -63,7 +64,7 @@ class CNNEvaluator(Evaluator):
     CNN evaluator
     """
     def __init__(self, training_epoch, batch_size, training_data, training_label,
-                 validation_data, validation_label, max_gpu, first_gpu_id):
+                 validation_data, validation_label, max_gpu, first_gpu_id, class_num = 10):
         """
         constructor
 
@@ -79,6 +80,8 @@ class CNNEvaluator(Evaluator):
         :type validation_data: numpy.array
         :param validation_label: validation label
         :type validation_label: numpy.array
+        :param class_num: class number
+        :type class_num: int
         :param max_gpu: max number of gpu to be used
         :type max_gpu: int
         :param first_gpu_id: the first gpu ID. The GPUs will start from the first gpu ID
@@ -91,6 +94,7 @@ class CNNEvaluator(Evaluator):
         self.training_label = training_label
         self.validation_data = validation_data
         self.validation_label = validation_label
+        self.class_num = class_num
         self.max_gpu = max_gpu
         self.first_gpu_id = first_gpu_id
 
@@ -195,7 +199,7 @@ class CNNEvaluator(Evaluator):
         with slim.arg_scope([slim.conv2d, slim.fully_connected],
                 activation_fn=tf.nn.crelu,
                 normalizer_fn=slim.batch_norm,
-                weights_regularizer=slim.l2_regularizer(0.0005),
+                #weights_regularizer=slim.l2_regularizer(0.0005),
                 normalizer_params={'is_training': is_training, 'decay': 0.99}
                             ):
             i = 0
@@ -250,14 +254,15 @@ class CNNEvaluator(Evaluator):
                                                                                                            dtype=tf.float32))
                         else:
                             # hard-code the number of units of the last layer to 10 for now
-                            full_H = slim.fully_connected(input_data, num_outputs=10,
+                            full_H = slim.fully_connected(input_data, num_outputs=self.class_num,
                                                           activation_fn=None,
                                                           weights_initializer=tf.truncated_normal_initializer(mean=mean,
                                                                                                               stddev=stddev),
                                                           biases_initializer=init_ops.constant_initializer(0.1,
                                                                                                            dtype=tf.float32))
                         # add dropout
-                        full_dropout_H = slim.dropout(full_H, 0.5)
+                        #full_dropout_H = slim.dropout(full_H, 0.5)
+                        full_dropout_H = full_H
                         output_list.append(full_dropout_H)
                         num_connections += input_dim * hidden_neuron_num + hidden_neuron_num
                 # disabled layer
