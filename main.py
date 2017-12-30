@@ -66,7 +66,8 @@ def _pso_search(args):
     else:
         evaluator = initialise_cnn_evaluator(training_epoch=args.training_epoch, max_gpu=args.max_gpu,first_gpu_id=args.first_gpu_id)
     pso_pop = initialise_cnn_population(pop_size=args.pop_size, particle_length=args.particle_length,
-                                        evaluator=evaluator, w=args.w, c1=args.c1, c2=args.c2)
+                                        evaluator=evaluator, w=args.w, c1=args.c1, c2=args.c2,
+                                        max_fully_connected_length=args.max_full)
     best_particle = pso_pop.fly_2_end(max_steps=args.max_steps)
     save_particle(best_particle, args.gbest_file)
     logging.info('===Finished===')
@@ -100,6 +101,7 @@ def _filter_args(args):
     """
     args.pop_size = int(args.pop_size) if args.pop_size is not None else None
     args.particle_length = int(args.particle_length) if args.particle_length is not None else None
+    args.max_full = int(args.max_full) if args.max_full is not None else None
     args.max_steps = int(args.max_steps) if args.max_steps is not None else None
     args.training_epoch = int(args.training_epoch) if args.training_epoch is not None else None
     args.first_gpu_id = int(args.first_gpu_id) if args.first_gpu_id is not None else None
@@ -117,6 +119,7 @@ if __name__ == '__main__':
     parser.add_argument('-m', '--mode', help='default:None, 1: production (load full data)')
     parser.add_argument('-s', '--pop_size', help='population size')
     parser.add_argument('-l', '--particle_length', help='particle max length')
+    parser.add_argument('--max_full', help='max fully connected layers')
     parser.add_argument('--max_steps', help='max fly steps')
     parser.add_argument('-e', '--training_epoch', help='training epoch for the evaluation')
     parser.add_argument('-f', '--first_gpu_id', help='first gpu id')
