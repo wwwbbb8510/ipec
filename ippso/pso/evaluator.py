@@ -117,7 +117,7 @@ class CNNEvaluator(Evaluator):
         """
         logging.info('===start evaluating Particle-%d===', particle.id)
         tf.reset_default_graph()
-        is_training, train_op, accuracy, loss, num_connections, merge_summary, regularization_loss = self.build_graph(particle)
+        is_training, train_op, accuracy, cross_entropy, num_connections, merge_summary, regularization_loss = self.build_graph(particle)
         with tf.Session() as sess:
             sess.run(tf.global_variables_initializer())
             steps_in_each_epoch = (self.training_data_length // self.batch_size)
@@ -132,7 +132,7 @@ class CNNEvaluator(Evaluator):
                     if coord.should_stop():
                         break
                     _, accuracy_str, loss_str, regularization_loss_str,  _ = sess.run(
-                        [train_op, accuracy, loss, regularization_loss, merge_summary],
+                        [train_op, accuracy, cross_entropy, regularization_loss, merge_summary],
                         {is_training: True}
                     )
                     if i % (2 * steps_in_each_epoch) == 0:
@@ -140,12 +140,12 @@ class CNNEvaluator(Evaluator):
                         test_accuracy_list = []
                         test_loss_list = []
                         for _ in range(test_total_step):
-                            test_accuracy_str, test_loss_str = sess.run([accuracy, loss], {is_training: False})
+                            test_accuracy_str, test_loss_str = sess.run([accuracy, cross_entropy], {is_training: False})
                             test_accuracy_list.append(test_accuracy_str)
                             test_loss_list.append(test_loss_str)
                         mean_test_accu = np.mean(test_accuracy_list)
                         mean_test_loss = np.mean(test_loss_list)
-                        logging.debug('{}, {}, indi:{}, Step:{}/{}, train_loss:{}, reg_loss:{}, acc:{}, test_loss:{}, acc:{}'.format(
+                        logging.debug('{}, {}, indi:{}, Step:{}/{}, ce_loss:{}, reg_loss:{}, acc:{}, test_ce_loss:{}, acc:{}'.format(
                             datetime.now(), i // steps_in_each_epoch, particle.id, i, total_steps, loss_str, regularization_loss_str,
                             accuracy_str, mean_test_loss, mean_test_accu))
                 # validate the last epoch
@@ -153,7 +153,7 @@ class CNNEvaluator(Evaluator):
                 test_accuracy_list = []
                 test_loss_list = []
                 for _ in range(test_total_step):
-                    test_accuracy_str, test_loss_str = sess.run([accuracy, loss], {is_training: False})
+                    test_accuracy_str, test_loss_str = sess.run([accuracy, cross_entropy], {is_training: False})
                     test_accuracy_list.append(test_accuracy_str)
                     test_loss_list.append(test_loss_str)
                 mean_test_accu = np.mean(test_accuracy_list)
@@ -284,9 +284,10 @@ class CNNEvaluator(Evaluator):
             with tf.name_scope('test'):
                 accuracy = tf.reduce_mean(tf.cast(tf.equal(tf.argmax(logits, 1), true_Y), tf.float32))
 
-        tf.summary.scalar('loss', loss)
+        tf.summary.scalar('ce_loss', cross_entropy)
+        tf.summary.scalar('reg_loss', regularization_loss)
         tf.summary.scalar('accuracy', accuracy)
         merge_summary = tf.summary.merge_all()
 
-        return is_training, train_op, accuracy, loss, num_connections, merge_summary, regularization_loss
+        return is_training, train_op, accuracy, cross_entropy, num_connections, merge_summary, regularization_loss
 
