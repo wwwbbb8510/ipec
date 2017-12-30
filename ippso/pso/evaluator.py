@@ -276,7 +276,7 @@ class CNNEvaluator(Evaluator):
             with tf.name_scope('loss'):
                 logits = output_list[-1]
                 #regularization_loss = tf.add_n(tf.losses.get_regularization_losses())
-                regularization_loss = tf.constant(0)
+                regularization_loss = tf.constant(0.0)
                 cross_entropy = tf.reduce_mean(
                     tf.nn.sparse_softmax_cross_entropy_with_logits(labels=true_Y, logits=logits))
                 loss = regularization_loss + cross_entropy
