@@ -247,8 +247,10 @@ class CNNEvaluator(Evaluator):
                             full_H = slim.fully_connected(input_data, num_outputs=hidden_neuron_num,
                                                           weights_initializer=tf.truncated_normal_initializer(mean=mean,
                                                                                                               stddev=stddev),
+                                                          weights_regularizer=l2_regularizer,
                                                           biases_initializer=init_ops.constant_initializer(0.1,
-                                                                                                           dtype=tf.float32))
+                                                                                                           dtype=tf.float32),
+                                                          biases_regularizer=l2_regularizer)
                         else:
                             # hard-code the number of units of the last layer to 10 for now
                             full_H = slim.fully_connected(input_data, num_outputs=10,
