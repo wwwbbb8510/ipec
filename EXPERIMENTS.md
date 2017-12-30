@@ -47,17 +47,17 @@ nohup python3 main.py -d mdrbi -m 1 -e 100 -f 0 -g 1 -o 1 --log_file=log/ippso_c
 **Search the best particle**
 
 ```bash
-nohup python3 main.py -d convex -m 1 --w 0.7298 --c1 1.49618,1.49618,1.49618,1.49618,1.49618 --c2 1.49618,1.49618,1.49618,1.49618,1.49618 -s 30 -l 15 --max_steps 30 -e 10 -f 0 -g 1 --log_file=log/ippso_cnn_405.log --gbest_file=log/gbest_405.pkl &
+nohup python3 main.py -d convex -c 2 -m 1 --w 0.7298 --c1 1.49618,1.49618,1.49618,1.49618,1.49618 --c2 1.49618,1.49618,1.49618,1.49618,1.49618 -s 30 -l 15 --max_steps 30 -e 10 -f 0 -g 1 --log_file=log/ippso_cnn_405.log --gbest_file=log/gbest_405.pkl &
 ```
 
 **Search the best particle with velocity clamping**
 
 ```bash
-nohup python3 main.py -d convex -m 1 --w 0.7298 --c1 1.49618,1.49618,1.49618,1.49618,1.49618 --c2 1.49618,1.49618,1.49618,1.49618,1.49618 -v 0.4,25.6,25.6,25.6,25.6 -s 30 -l 15 --max_steps 30 -e 10 -f 0 -g 1 --log_file=log/ippso_cnn_405.log --gbest_file=log/gbest_405.pkl &
+nohup python3 main.py -d convex -c 2 -m 1 --w 0.7298 --c1 1.49618,1.49618,1.49618,1.49618,1.49618 --c2 1.49618,1.49618,1.49618,1.49618,1.49618 -v 0.4,25.6,25.6,25.6,25.6 -s 30 -l 15 --max_steps 30 -e 10 -f 0 -g 1 --log_file=log/ippso_cnn_405.log --gbest_file=log/gbest_405.pkl &
 ```
 
 **Train the best particle**
 
 ```bash
-nohup python3 main.py -d convex -m 1 -e 100 -f 0 -g 1 -o 1 --log_file=log/ippso_cnn_optimise_405.log --gbest_file=log/gbest_405.pkl &
+nohup python3 main.py -d convex -c 2 -m 1 -e 100 -f 0 -g 1 -o 1 --log_file=log/ippso_cnn_optimise_405.log --gbest_file=log/gbest_405.pkl &
 ```
