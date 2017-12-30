@@ -195,7 +195,7 @@ class CNNEvaluator(Evaluator):
         with slim.arg_scope([slim.conv2d, slim.fully_connected],
                 activation_fn=tf.nn.crelu,
                 normalizer_fn=slim.batch_norm,
-                weights_regularizer=slim.l2_regularizer(0.005),
+                weights_regularizer=slim.l2_regularizer(0.0005),
                 normalizer_params={'is_training': is_training, 'decay': 0.99}
                             ):
             i = 0
