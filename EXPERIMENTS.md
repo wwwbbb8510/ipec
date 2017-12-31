@@ -59,5 +59,5 @@ nohup python3 main.py -d convex -c 2 -m 1 --w 0.7298 --c1 1.49618,1.49618,1.4961
 **Train the best particle**
 
 ```bash
-nohup python3 main.py -d convex -c 2 -m 1 -e 100 -f 0 -g 1 -o 1 --log_file=log/ippso_cnn_optimise_406.log --gbest_file=log/gbest_406.pkl &
+nohup python3 main.py -d convex -c 2 -m 1 -e 100 -r 0.5 --dropout 0.5 -f 0 -g 1 -o 1 --log_file=log/ippso_cnn_optimise_406.log --gbest_file=log/gbest_406.pkl &
 ```
