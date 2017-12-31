@@ -11,7 +11,7 @@ from .particle import Particle
 import os
 
 def initialise_cnn_evaluator(training_epoch=None, batch_size=None, training_data=None, training_label=None, validation_data=None,
-                             validation_label=None, max_gpu=None, first_gpu_id=None, class_num=None, regularise=0):
+                             validation_label=None, max_gpu=None, first_gpu_id=None, class_num=None, regularise=0, dropout=0):
     training_epoch = 5 if training_epoch is None else training_epoch
     max_gpu = None if max_gpu is None else max_gpu
     batch_size = 200 if batch_size is None else batch_size
@@ -23,7 +23,7 @@ def initialise_cnn_evaluator(training_epoch=None, batch_size=None, training_data
         validation_data = get_validation_data()['images'] if validation_data is None else validation_data
         validation_label = get_validation_data()['labels'] if validation_label is None else validation_label
     return CNNEvaluator(training_epoch, batch_size, training_data, training_label,
-                        validation_data, validation_label, max_gpu, first_gpu_id, class_num, regularise)
+                        validation_data, validation_label, max_gpu, first_gpu_id, class_num, regularise, dropout)
 
 
 def produce_tf_batch_data(images, labels, batch_size):
@@ -64,7 +64,7 @@ class CNNEvaluator(Evaluator):
     CNN evaluator
     """
     def __init__(self, training_epoch, batch_size, training_data, training_label,
-                 validation_data, validation_label, max_gpu, first_gpu_id, class_num = 10, regularise=0):
+                 validation_data, validation_label, max_gpu, first_gpu_id, class_num = 10, regularise=0, dropout=0):
         """
         constructor
 
@@ -98,6 +98,7 @@ class CNNEvaluator(Evaluator):
         self.max_gpu = max_gpu
         self.first_gpu_id = first_gpu_id
         self.regularise = regularise
+        self.dropout = dropout
 
         self.training_data_length = self.training_data.shape[0]
         self.validation_data_length = self.validation_data.shape[0]
@@ -266,8 +267,11 @@ class CNNEvaluator(Evaluator):
                                                           biases_initializer=init_ops.constant_initializer(0.1,
                                                                                                            dtype=tf.float32))
                         # add dropout
-                        #full_dropout_H = slim.dropout(full_H, 0.5)
-                        full_dropout_H = full_H
+                        if self.dropout is not None and self.dropout > 0:
+                            full_dropout_H = slim.dropout(full_H, self.dropout)
+                            logging.debug('dropout rate: {}'.format(self.dropout))
+                        else:
+                            full_dropout_H = full_H
                         output_list.append(full_dropout_H)
                         num_connections += input_dim * hidden_neuron_num + hidden_neuron_num
                 # disabled layer

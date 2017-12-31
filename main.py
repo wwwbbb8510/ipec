@@ -36,9 +36,10 @@ def _optimise_learned_particle(args):
                                              validation_label=loaded_data.test['labels'], max_gpu=args.max_gpu,
                                              first_gpu_id=args.first_gpu_id,
                                              class_num=args.class_num,
-                                             regularise=args.regularise)
+                                             regularise=args.regularise,
+                                             dropout=args.dropout)
     else:
-        evaluator = initialise_cnn_evaluator(training_epoch=args.training_epoch, max_gpu=args.max_gpu, first_gpu_id=args.first_gpu_id, class_num=args.class_num, regularise=args.regularise)
+        evaluator = initialise_cnn_evaluator(training_epoch=args.training_epoch, max_gpu=args.max_gpu, first_gpu_id=args.first_gpu_id, class_num=args.class_num, regularise=args.regularise, dropout=args.dropout)
     loaded_particle = load_particle(args.gbest_file)
     evaluator.eval(loaded_particle)
     logging.info('===Finished===')
@@ -66,9 +67,10 @@ def _pso_search(args):
                                              validation_label=loaded_data.test['labels'], max_gpu=args.max_gpu,
                                              first_gpu_id=args.first_gpu_id,
                                              class_num=args.class_num,
-                                             regularise=args.regularise)
+                                             regularise=args.regularise,
+                                             dropout=args.dropout)
     else:
-        evaluator = initialise_cnn_evaluator(training_epoch=args.training_epoch, max_gpu=args.max_gpu,first_gpu_id=args.first_gpu_id, class_num=args.class_num, regularise=args.regularise)
+        evaluator = initialise_cnn_evaluator(training_epoch=args.training_epoch, max_gpu=args.max_gpu,first_gpu_id=args.first_gpu_id, class_num=args.class_num, regularise=args.regularise, dropout=args.dropout)
     pso_pop = initialise_cnn_population(pop_size=args.pop_size, particle_length=args.particle_length,
                                         evaluator=evaluator, w=args.w, c1=args.c1, c2=args.c2,
                                         max_fully_connected_length=args.max_full)
@@ -117,6 +119,7 @@ def _filter_args(args):
     args.c2 = np.asarray(args.c2.split(',')).astype(np.float) if args.c2 is not None else None
     args.v_max = np.asarray(args.v_max.split(',')).astype(np.float) if args.v_max is not None else None
     args.regularise = float(args.regularise) if args.regularise is not None else 0
+    args.dropout = float(args.dropout) if args.dropout is not None else 0
 
 # main entrance
 if __name__ == '__main__':
@@ -140,6 +143,7 @@ if __name__ == '__main__':
     parser.add_argument('--c2', help='c2 parameter of PSO')
     parser.add_argument('-v', '--v_max', help='PSO max velocity used by velocity clamping')
     parser.add_argument('-r', '--regularise',  help='weight regularisation hyper-parameter. ')
+    parser.add_argument('--dropout', help='enable dropout and set dropout rate')
 
     args = parser.parse_args()
     main(args)
