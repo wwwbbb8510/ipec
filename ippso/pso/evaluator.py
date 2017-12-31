@@ -11,7 +11,7 @@ from .particle import Particle
 import os
 
 def initialise_cnn_evaluator(training_epoch=None, batch_size=None, training_data=None, training_label=None, validation_data=None,
-                             validation_label=None, max_gpu=None, first_gpu_id=None, class_num=None):
+                             validation_label=None, max_gpu=None, first_gpu_id=None, class_num=None, regularise=0):
     training_epoch = 5 if training_epoch is None else training_epoch
     max_gpu = None if max_gpu is None else max_gpu
     batch_size = 200 if batch_size is None else batch_size
@@ -23,7 +23,7 @@ def initialise_cnn_evaluator(training_epoch=None, batch_size=None, training_data
         validation_data = get_validation_data()['images'] if validation_data is None else validation_data
         validation_label = get_validation_data()['labels'] if validation_label is None else validation_label
     return CNNEvaluator(training_epoch, batch_size, training_data, training_label,
-                        validation_data, validation_label, max_gpu, first_gpu_id, class_num)
+                        validation_data, validation_label, max_gpu, first_gpu_id, class_num, regularise)
 
 
 def produce_tf_batch_data(images, labels, batch_size):
@@ -64,7 +64,7 @@ class CNNEvaluator(Evaluator):
     CNN evaluator
     """
     def __init__(self, training_epoch, batch_size, training_data, training_label,
-                 validation_data, validation_label, max_gpu, first_gpu_id, class_num = 10):
+                 validation_data, validation_label, max_gpu, first_gpu_id, class_num = 10, regularise=0):
         """
         constructor
 
@@ -97,6 +97,7 @@ class CNNEvaluator(Evaluator):
         self.class_num = class_num
         self.max_gpu = max_gpu
         self.first_gpu_id = first_gpu_id
+        self.regularise = regularise
 
         self.training_data_length = self.training_data.shape[0]
         self.validation_data_length = self.validation_data.shape[0]
@@ -196,10 +197,14 @@ class CNNEvaluator(Evaluator):
         output_list.append(X)
         num_connections = 0
 
+        regulariser = None
+        if self.regularise is not None and self.regularise > 0:
+            regulariser = slim.l2_regularizer(self.regularise)
+
         with slim.arg_scope([slim.conv2d, slim.fully_connected],
                 activation_fn=tf.nn.crelu,
                 normalizer_fn=slim.batch_norm,
-                #weights_regularizer=slim.l2_regularizer(0.0005),
+                weights_regularizer=regulariser,
                 normalizer_params={'is_training': is_training, 'decay': 0.99}
                             ):
             i = 0
@@ -275,8 +280,10 @@ class CNNEvaluator(Evaluator):
 
             with tf.name_scope('loss'):
                 logits = output_list[-1]
-                #regularization_loss = tf.add_n(tf.losses.get_regularization_losses())
-                regularization_loss = tf.constant(0.0)
+                if self.regularise is not None and self.regularise > 0:
+                    regularization_loss = tf.add_n(tf.losses.get_regularization_losses())
+                else:
+                    regularization_loss = tf.constant(0.0)
                 cross_entropy = tf.reduce_mean(
                     tf.nn.sparse_softmax_cross_entropy_with_logits(labels=true_Y, logits=logits))
                 loss = regularization_loss + cross_entropy
