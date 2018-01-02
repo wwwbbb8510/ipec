@@ -2,7 +2,6 @@ import numpy as np
 import logging
 from datetime import datetime
 import tensorflow as tf
-from tensorflow.contrib.layers import l2_regularizer
 import tensorflow.contrib.slim as slim
 from tensorflow.python.ops import control_flow_ops
 from tensorflow.python.ops import init_ops
@@ -12,19 +11,22 @@ import os
 
 def initialise_cnn_evaluator(training_epoch=None, batch_size=None, training_data=None, training_label=None, validation_data=None,
                              validation_label=None, max_gpu=None, first_gpu_id=None, class_num=None, regularise=0, dropout=0,
-                             mean_centre=None, mean_divisor=None, stddev_divisor=None):
+                             mean_centre=None, mean_divisor=None, stddev_divisor=None, test_data=None, test_label=None, optimise=False):
     training_epoch = 5 if training_epoch is None else training_epoch
     max_gpu = None if max_gpu is None else max_gpu
     batch_size = 200 if batch_size is None else batch_size
     class_num = 10 if class_num is None else class_num
     if training_data is None and training_label is None and validation_data is None and validation_label is None:
-        from ippso.data.mnist import get_training_data, get_validation_data
+        from ippso.data.mnist import get_training_data, get_validation_data, get_test_data
         training_data = get_training_data()['images'] if training_data is None else training_data
         training_label = get_training_data()['labels'] if training_label is None else training_label
         validation_data = get_validation_data()['images'] if validation_data is None else validation_data
         validation_label = get_validation_data()['labels'] if validation_label is None else validation_label
+        test_data = get_test_data()['images'] if test_data is None else test_data
+        test_label = get_test_data()['labels'] if test_label is None else test_label
     return CNNEvaluator(training_epoch, batch_size, training_data, training_label,
-                        validation_data, validation_label, max_gpu, first_gpu_id, class_num, regularise, dropout, mean_centre, mean_divisor, stddev_divisor)
+                        validation_data, validation_label, max_gpu, first_gpu_id, class_num, regularise, dropout, mean_centre, mean_divisor, stddev_divisor,
+                        test_data=test_data, test_label=test_label, optimise=optimise)
 
 
 def produce_tf_batch_data(images, labels, batch_size):
@@ -65,8 +67,8 @@ class CNNEvaluator(Evaluator):
     CNN evaluator
     """
     def __init__(self, training_epoch, batch_size, training_data, training_label,
-                 validation_data, validation_label, max_gpu, first_gpu_id, class_num = 10, regularise=0, dropout=0,
-                 mean_centre=None, mean_divisor=None, stddev_divisor=None):
+                 validation_data, validation_label, max_gpu, first_gpu_id, class_num=10, regularise=0, dropout=0,
+                 mean_centre=None, mean_divisor=None, stddev_divisor=None, test_data=None, test_label=None, optimise=False):
         """
         constructor
 
@@ -82,6 +84,10 @@ class CNNEvaluator(Evaluator):
         :type validation_data: numpy.array
         :param validation_label: validation label
         :type validation_label: numpy.array
+        :param test_data: test data
+        :type test_data: numpy.array
+        :param test_label: test label
+        :type test_label: numpy.array
         :param class_num: class number
         :type class_num: int
         :param max_gpu: max number of gpu to be used
@@ -96,14 +102,18 @@ class CNNEvaluator(Evaluator):
         self.training_label = training_label
         self.validation_data = validation_data
         self.validation_label = validation_label
+        self.test_data = test_data
+        self.test_label = test_label
         self.class_num = class_num
         self.max_gpu = max_gpu
         self.first_gpu_id = first_gpu_id
         self.regularise = regularise
         self.dropout = dropout
+        self.optimise = optimise
 
         self.training_data_length = self.training_data.shape[0]
         self.validation_data_length = self.validation_data.shape[0]
+        self.test_data_length = self.test_data.shape[0] if self.test_data is not None else 0
         self.decoder = Decoder(mean_centre=mean_centre, mean_divisor=mean_divisor, stddev_divisor=stddev_divisor)
 
         # set visible cuda devices
@@ -141,33 +151,32 @@ class CNNEvaluator(Evaluator):
                         break
                     _, accuracy_str, loss_str, regularization_loss_str,  _ = sess.run(
                         [train_op, accuracy, cross_entropy, regularization_loss, merge_summary],
-                        {is_training: True}
+                        {is_training: 0}
                     )
                     if i % (2 * steps_in_each_epoch) == 0:
-                        test_total_step = self.validation_data_length // self.batch_size
-                        test_accuracy_list = []
-                        test_loss_list = []
-                        for _ in range(test_total_step):
-                            test_accuracy_str, test_loss_str = sess.run([accuracy, cross_entropy], {is_training: False})
-                            test_accuracy_list.append(test_accuracy_str)
-                            test_loss_list.append(test_loss_str)
-                        mean_test_accu = np.mean(test_accuracy_list)
-                        mean_test_loss = np.mean(test_loss_list)
-                        logging.debug('{}, {}, indi:{}, Step:{}/{}, ce_loss:{}, reg_loss:{}, acc:{}, test_ce_loss:{}, acc:{}'.format(
+                        mean_validation_accu, mean_validation_loss, _ = self.test_one_epoch(sess, accuracy, cross_entropy,
+                                                                                         is_training,
+                                                                                         self.validation_data_length, 1)
+                        logging.debug('{}, {}, indi:{}, Step:{}/{}, ce_loss:{}, reg_loss:{}, acc:{}, validation_ce_loss:{}, acc:{}'.format(
                             datetime.now(), i // steps_in_each_epoch, particle.id, i, total_steps, loss_str, regularization_loss_str,
-                            accuracy_str, mean_test_loss, mean_test_accu))
+                            accuracy_str, mean_validation_loss, mean_validation_accu))
+                        if self.optimise and self.test_data is not None:
+                            mean_test_accu, mean_test_loss, _ = self.test_one_epoch(sess, accuracy,
+                                                                                 cross_entropy, is_training,
+                                                                                 self.test_data_length,
+                                                                                 2)
+                            logging.debug('test_ce_loss:{}, acc:{}'.format(mean_test_loss, mean_test_accu))
                 # validate the last epoch
-                test_total_step = self.validation_data_length // self.batch_size
-                test_accuracy_list = []
-                test_loss_list = []
-                for _ in range(test_total_step):
-                    test_accuracy_str, test_loss_str = sess.run([accuracy, cross_entropy], {is_training: False})
-                    test_accuracy_list.append(test_accuracy_str)
-                    test_loss_list.append(test_loss_str)
-                mean_test_accu = np.mean(test_accuracy_list)
-                mean_test_loss = np.mean(test_loss_list)
-                logging.debug('{}, test_loss:{}, acc:{}'.format(datetime.now(), mean_test_loss, mean_test_accu))
-                mean_acc = mean_test_accu
+                mean_validation_accu, mean_validation_loss, stddev_validation_acccu = self.test_one_epoch(sess, accuracy, cross_entropy,
+                                                                                 is_training,
+                                                                                 self.validation_data_length, 1)
+                if self.optimise and self.test_data is not None:
+                    mean_test_accu, mean_test_loss, _ = self.test_one_epoch(sess, accuracy,
+                                                                         cross_entropy, is_training,
+                                                                         self.test_data_length,
+                                                                         2)
+                    logging.debug('test_ce_loss:{}, acc:{}'.format(mean_test_loss, mean_test_accu))
+                logging.debug('{}, validation_loss:{}, acc:{}'.format(datetime.now(), mean_validation_loss, mean_validation_accu))
 
             except Exception as e:
                 print(e)
@@ -176,9 +185,32 @@ class CNNEvaluator(Evaluator):
                 logging.debug('finally...')
                 coord.request_stop()
                 coord.join(threads)
-            logging.info('fitness of the particle: mean accuracy - %f, standard deviation of accuracy - %f, # of connections - %d', mean_test_accu, np.std(test_accuracy_list), num_connections)
+            logging.info('fitness of the particle: mean accuracy - %f, standard deviation of accuracy - %f, # of connections - %d', mean_validation_accu, stddev_validation_acccu, num_connections)
             logging.info('===finish evaluating Particle-%d===', particle.id)
-            return mean_test_accu, np.std(test_accuracy_list), num_connections
+            return mean_validation_accu, stddev_validation_acccu, num_connections
+
+    def test_one_epoch(self, sess, accuracy, cross_entropy, is_training, data_length, training_mode):
+        """
+        test one epoch on validation data or test data
+        :param sess: tensor session
+        :param data_length: data length of validation or test data
+        :param accuracy: accuracy variable in tensor session
+        :param cross_entropy: cross_entropy variable in tensor session
+        :param is_training: is_training variable in tensor session
+        :param training_mode: training mode. 0:training, 1:validation, 2:test
+        :return:
+        """
+        total_step = data_length // self.batch_size
+        accuracy_list = []
+        loss_list = []
+        for _ in range(total_step):
+            accuracy_str, loss_str = sess.run([accuracy, cross_entropy], {is_training: training_mode})
+            accuracy_list.append(accuracy_str)
+            loss_list.append(loss_str)
+        mean_accu = np.mean(accuracy_list)
+        mean_loss = np.mean(loss_list)
+        stddev_accu = np.std(accuracy_list)
+        return mean_accu, mean_loss, stddev_accu
 
     def build_graph(self, particle):
         """
@@ -188,11 +220,18 @@ class CNNEvaluator(Evaluator):
         :type particle: Particle
         :return:
         """
-        is_training = tf.placeholder(tf.bool, [])
+        is_training = tf.placeholder(tf.int8, [])
         training_data, training_label = produce_tf_batch_data(self.training_data, self.training_label, self.batch_size)
         validation_data, validation_label = produce_tf_batch_data(self.validation_data, self.validation_label, self.batch_size)
-        X = tf.cond(is_training, lambda: training_data, lambda: validation_data)
-        y_ = tf.cond(is_training, lambda: training_label, lambda: validation_label)
+        test_data, test_label = produce_tf_batch_data(self.test_data, self.test_label, self.batch_size)
+        X, y_ = training_data, training_label
+        bool_is_training = True
+        if is_training == 1:
+            X, y_ = (validation_data, validation_label)
+            bool_is_training = False
+        elif is_training == 2:
+            X, y_ = (test_data, test_label)
+            bool_is_training = False
         true_Y = tf.cast(y_, tf.int64)
 
         name_preffix = 'I_{}'.format(particle.id)
@@ -208,7 +247,7 @@ class CNNEvaluator(Evaluator):
                 activation_fn=tf.nn.crelu,
                 normalizer_fn=slim.batch_norm,
                 weights_regularizer=regulariser,
-                normalizer_params={'is_training': is_training, 'decay': 0.99}
+                normalizer_params={'is_training': bool_is_training, 'decay': 0.99}
                             ):
             i = 0
             for interface in particle.x:

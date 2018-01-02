@@ -36,20 +36,30 @@ def _optimise_learned_particle(args):
         evaluator = initialise_cnn_evaluator(training_epoch=args.training_epoch,
                                              training_data=loaded_data.train['images'],
                                              training_label=loaded_data.train['labels'],
-                                             validation_data=loaded_data.test['images'],
-                                             validation_label=loaded_data.test['labels'], max_gpu=args.max_gpu,
+                                             validation_data=loaded_data.validation['images'],
+                                             validation_label=loaded_data.validation['labels'],
+                                             max_gpu=args.max_gpu,
                                              first_gpu_id=args.first_gpu_id,
                                              class_num=args.class_num,
                                              regularise=args.regularise,
                                              dropout=args.dropout,
                                              mean_centre=7,
                                              mean_divisor=80,
-                                             stddev_divisor=16)
+                                             stddev_divisor=16,
+                                             test_data=loaded_data.test['images'],
+                                             test_label=loaded_data.test['labels'],
+                                             optimise=True)
     else:
-        evaluator = initialise_cnn_evaluator(training_epoch=args.training_epoch, max_gpu=args.max_gpu, first_gpu_id=args.first_gpu_id, class_num=args.class_num, regularise=args.regularise, dropout=args.dropout,
+        evaluator = initialise_cnn_evaluator(training_epoch=args.training_epoch,
+                                             max_gpu=args.max_gpu,
+                                             first_gpu_id=args.first_gpu_id,
+                                             class_num=args.class_num,
+                                             regularise=args.regularise,
+                                             dropout=args.dropout,
                                              mean_centre=7,
                                              mean_divisor=80,
-                                             stddev_divisor=16)
+                                             stddev_divisor=16,
+                                             optimise=True)
     loaded_particle = load_particle(args.gbest_file)
     evaluator.eval(loaded_particle)
     logging.info('===Finished===')
@@ -73,8 +83,9 @@ def _pso_search(args):
         evaluator = initialise_cnn_evaluator(training_epoch=args.training_epoch,
                                              training_data=loaded_data.train['images'],
                                              training_label=loaded_data.train['labels'],
-                                             validation_data=loaded_data.test['images'],
-                                             validation_label=loaded_data.test['labels'], max_gpu=args.max_gpu,
+                                             validation_data=loaded_data.validation['images'],
+                                             validation_label=loaded_data.validation['labels'],
+                                             max_gpu=args.max_gpu,
                                              first_gpu_id=args.first_gpu_id,
                                              class_num=args.class_num,
                                              regularise=args.regularise,
@@ -83,7 +94,12 @@ def _pso_search(args):
                                              mean_divisor=80,
                                              stddev_divisor=16)
     else:
-        evaluator = initialise_cnn_evaluator(training_epoch=args.training_epoch, max_gpu=args.max_gpu,first_gpu_id=args.first_gpu_id, class_num=args.class_num, regularise=args.regularise, dropout=args.dropout,
+        evaluator = initialise_cnn_evaluator(training_epoch=args.training_epoch,
+                                             max_gpu=args.max_gpu,
+                                             first_gpu_id=args.first_gpu_id,
+                                             class_num=args.class_num,
+                                             regularise=args.regularise,
+                                             dropout=args.dropout,
                                              mean_centre=7,
                                              mean_divisor=80,
                                              stddev_divisor=16

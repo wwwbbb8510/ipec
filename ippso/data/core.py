@@ -11,7 +11,7 @@ class DataLoader:
     mode = None
 
     @staticmethod
-    def load(train_path=None, validation_path=None, test_path=None, height=28, length=28, mode=None):
+    def load(train_path=None, validation_path=None, test_path=None, height=28, length=28, mode=None, train_validation_split_point=10000):
         DataLoader.mode = mode
         if train_path is not None:
             DataLoader.train = DataLoader.load_image_data_with_label_at_end(
@@ -19,6 +19,19 @@ class DataLoader:
         if validation_path is not None:
             DataLoader.validation = DataLoader.load_image_data_with_label_at_end(
                 os.path.join(DATASET_ROOT_FOLDER, validation_path), height=height, length=length)
+        elif train_validation_split_point is not None and train_validation_split_point > 0:
+            if DataLoader.mode is None:
+                train_validation_split_point = int(DataLoader.train['images'].shape[0] * 0.8)
+            splited_train = {
+                'images': DataLoader.train['images'][0:train_validation_split_point, :, :, :],
+                'labels': DataLoader.train['images'][0:train_validation_split_point]
+            }
+            splited_validation = {
+                'images': DataLoader.train['images'][train_validation_split_point:, :, :, :],
+                'labels': DataLoader.train['images'][train_validation_split_point:]
+            }
+            DataLoader.train = splited_train
+            DataLoader.validation = splited_validation
         if test_path is not None:
             DataLoader.test = DataLoader.load_image_data_with_label_at_end(os.path.join(DATASET_ROOT_FOLDER, test_path), height=height, length=length)
         return DataLoader
@@ -75,7 +88,7 @@ class DataLoader:
             data = data[0:1000, :]
         images = data[:, 0:-1]
         labels = data[:, -1]
-        images = np.reshape(images, [images.shape[0], 28, 28, 1], order='F')
+        images = np.reshape(images, [images.shape[0], height, length, 1], order='F')
 
         return {
             'images': images,
