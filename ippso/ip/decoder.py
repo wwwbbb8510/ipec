@@ -11,10 +11,13 @@ class Decoder:
     Decoder clss
     """
 
-    def __init__(self):
+    def __init__(self, mean_centre=None, mean_divisor=None, stddev_divisor=None):
         """
         constructor
         """
+        self.mean_centre = 255 if mean_centre is None else mean_centre
+        self.mean_divisor = 2560 if mean_divisor is None else mean_divisor
+        self.stddev_divisor = 512 if stddev_divisor is None else stddev_divisor
 
     def decode_2_field_values(self, interface):
         """
@@ -96,6 +99,6 @@ class Decoder:
         :return: (mean, stddev) tuple
         :rtype: tuple
         """
-        mean = (mean - 255) / 2560
-        stddev = (stddev + 1) / 512
+        mean = (mean - self.mean_centre) / self.mean_divisor
+        stddev = (stddev + 1) / self.stddev_divisor
         return mean, stddev

@@ -11,7 +11,8 @@ from .particle import Particle
 import os
 
 def initialise_cnn_evaluator(training_epoch=None, batch_size=None, training_data=None, training_label=None, validation_data=None,
-                             validation_label=None, max_gpu=None, first_gpu_id=None, class_num=None, regularise=0, dropout=0):
+                             validation_label=None, max_gpu=None, first_gpu_id=None, class_num=None, regularise=0, dropout=0,
+                             mean_centre=None, mean_divisor=None, stddev_divisor=None):
     training_epoch = 5 if training_epoch is None else training_epoch
     max_gpu = None if max_gpu is None else max_gpu
     batch_size = 200 if batch_size is None else batch_size
@@ -23,7 +24,7 @@ def initialise_cnn_evaluator(training_epoch=None, batch_size=None, training_data
         validation_data = get_validation_data()['images'] if validation_data is None else validation_data
         validation_label = get_validation_data()['labels'] if validation_label is None else validation_label
     return CNNEvaluator(training_epoch, batch_size, training_data, training_label,
-                        validation_data, validation_label, max_gpu, first_gpu_id, class_num, regularise, dropout)
+                        validation_data, validation_label, max_gpu, first_gpu_id, class_num, regularise, dropout, mean_centre, mean_divisor, stddev_divisor)
 
 
 def produce_tf_batch_data(images, labels, batch_size):
@@ -64,7 +65,8 @@ class CNNEvaluator(Evaluator):
     CNN evaluator
     """
     def __init__(self, training_epoch, batch_size, training_data, training_label,
-                 validation_data, validation_label, max_gpu, first_gpu_id, class_num = 10, regularise=0, dropout=0):
+                 validation_data, validation_label, max_gpu, first_gpu_id, class_num = 10, regularise=0, dropout=0,
+                 mean_centre=None, mean_divisor=None, stddev_divisor=None):
         """
         constructor
 
@@ -102,7 +104,7 @@ class CNNEvaluator(Evaluator):
 
         self.training_data_length = self.training_data.shape[0]
         self.validation_data_length = self.validation_data.shape[0]
-        self.decoder = Decoder()
+        self.decoder = Decoder(mean_centre=mean_centre, mean_divisor=mean_divisor, stddev_divisor=stddev_divisor)
 
         # set visible cuda devices
         if self.max_gpu is not None:
@@ -216,7 +218,7 @@ class CNNEvaluator(Evaluator):
                     name_scope = '{}_conv_{}'.format(name_preffix, i)
                     with tf.variable_scope(name_scope):
                         filter_size, mean, stddev, feature_map_size, stride_size = self.decoder.filter_conv_fields(field_values)
-                        conv_H = slim.conv2d(output_list[-1], feature_map_size, filter_size,
+                        conv_H = slim.conv2d(output_list[-1], feature_map_size, filter_size, stride_size,
                                              weights_initializer=tf.truncated_normal_initializer(mean=mean, stddev=stddev),
                                              biases_initializer=init_ops.constant_initializer(0.1, dtype=tf.float32))
                         output_list.append(conv_H)
