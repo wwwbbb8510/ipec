@@ -154,7 +154,7 @@ class CNNEvaluator(Evaluator):
                         {is_training: 0}
                     )
                     if i % (2 * steps_in_each_epoch) == 0:
-                        mean_validation_accu, mean_validation_loss, _ = self.test_one_epoch(sess, accuracy, cross_entropy,
+                        mean_validation_accu, mean_validation_loss, stddev_validation_acccu = self.test_one_epoch(sess, accuracy, cross_entropy,
                                                                                          is_training,
                                                                                          self.validation_data_length, 1, X, true_Y)
                         logging.debug('{}, {}, indi:{}, Step:{}/{}, ce_loss:{}, reg_loss:{}, acc:{}, validation_ce_loss:{}, acc:{}'.format(
