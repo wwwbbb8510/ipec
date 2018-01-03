@@ -153,7 +153,6 @@ class CNNEvaluator(Evaluator):
                         [train_op, accuracy, cross_entropy, regularization_loss, merge_summary, X, true_Y, is_training],
                         {is_training: 0}
                     )
-                    logging.debug('Training data: is_training: {}, X shape: {}, true_Y shape: {}'.format(is_training_str, str(X_str.shape),str(true_Y_str.shape)))
                     if i % (2 * steps_in_each_epoch) == 0:
                         mean_validation_accu, mean_validation_loss, _ = self.test_one_epoch(sess, accuracy, cross_entropy,
                                                                                          is_training,
@@ -206,7 +205,6 @@ class CNNEvaluator(Evaluator):
         loss_list = []
         for _ in range(total_step):
             accuracy_str, loss_str, X_str, true_Y_str = sess.run([accuracy, cross_entropy, X, true_Y], {is_training: training_mode})
-            logging.debug('Validation or Test data: is_training: {}, X shape: {}, true_Y shape: {}'.format(training_mode, str(X_str.shape), str(true_Y_str.shape)))
             accuracy_list.append(accuracy_str)
             loss_list.append(loss_str)
         mean_accu = np.mean(accuracy_list)
