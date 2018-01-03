@@ -204,8 +204,8 @@ class CNNEvaluator(Evaluator):
         accuracy_list = []
         loss_list = []
         for _ in range(total_step):
-            accuracy_str, loss_str = sess.run([accuracy, cross_entropy, X, true_Y], {is_training: training_mode})
-            logging.debug('is_training: {}, X shape: {}, true_Y shape: {}'.format(training_mode, str(X.shape), str(true_Y.shape)))
+            accuracy_str, loss_str, data_X, data_Y = sess.run([accuracy, cross_entropy, X, true_Y], {is_training: training_mode})
+            logging.debug('is_training: {}, X shape: {}, true_Y shape: {}'.format(training_mode, str(data_X.shape), str(data_Y.shape)))
             accuracy_list.append(accuracy_str)
             loss_list.append(loss_str)
         mean_accu = np.mean(accuracy_list)
