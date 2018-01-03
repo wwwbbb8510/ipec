@@ -93,7 +93,9 @@ def _pso_search(args):
                                              dropout=args.dropout,
                                              mean_centre=7,
                                              mean_divisor=80,
-                                             stddev_divisor=16)
+                                             stddev_divisor=16,
+                                             test_data=loaded_data.test['images'],
+                                             test_label=loaded_data.test['labels'])
     else:
         evaluator = initialise_cnn_evaluator(training_epoch=args.training_epoch,
                                              max_gpu=args.max_gpu,
