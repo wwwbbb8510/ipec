@@ -24,11 +24,11 @@ class DataLoader:
                 train_validation_split_point = int(DataLoader.train['images'].shape[0] * 0.8)
             splited_train = {
                 'images': DataLoader.train['images'][0:train_validation_split_point, :, :, :],
-                'labels': DataLoader.train['images'][0:train_validation_split_point]
+                'labels': DataLoader.train['labels'][0:train_validation_split_point]
             }
             splited_validation = {
                 'images': DataLoader.train['images'][train_validation_split_point:, :, :, :],
-                'labels': DataLoader.train['images'][train_validation_split_point:]
+                'labels': DataLoader.train['labels'][train_validation_split_point:]
             }
             DataLoader.train = splited_train
             DataLoader.validation = splited_validation
