@@ -170,13 +170,13 @@ class CNNEvaluator(Evaluator):
                 mean_validation_accu, mean_validation_loss, stddev_validation_acccu = self.test_one_epoch(sess, accuracy, cross_entropy,
                                                                                  is_training,
                                                                                  self.validation_data_length, 1)
+                logging.debug('{}, validation_loss:{}, acc:{}'.format(datetime.now(), mean_validation_loss, mean_validation_accu))
                 if self.optimise and self.test_data is not None:
                     mean_test_accu, mean_test_loss, _ = self.test_one_epoch(sess, accuracy,
                                                                          cross_entropy, is_training,
                                                                          self.test_data_length,
                                                                          2)
                     logging.debug('test_ce_loss:{}, acc:{}'.format(mean_test_loss, mean_test_accu))
-                logging.debug('{}, validation_loss:{}, acc:{}'.format(datetime.now(), mean_validation_loss, mean_validation_accu))
 
             except Exception as e:
                 print(e)
