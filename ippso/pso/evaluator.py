@@ -228,7 +228,7 @@ class CNNEvaluator(Evaluator):
         test_data, test_label = produce_tf_batch_data(self.test_data, self.test_label, self.batch_size)
         bool_is_training = tf.cond(tf.equal(is_training, tf.constant(0, dtype=tf.int8)), lambda: tf.constant(True, dtype=tf.bool), lambda : tf.constant(False, dtype=tf.bool))
         X, y_ = tf.cond(tf.equal(is_training, tf.constant(0, dtype=tf.int8)), lambda : (training_data, training_label),
-                        tf.cond(tf.equal(is_training, tf.constant(1,dtype=tf.int8)), lambda : (validation_data, validation_label), lambda : (test_data, test_label)))
+                        lambda : tf.cond(tf.equal(is_training, tf.constant(1,dtype=tf.int8)), lambda : (validation_data, validation_label), lambda : (test_data, test_label)))
         true_Y = tf.cast(y_, tf.int64)
 
         name_preffix = 'I_{}'.format(particle.id)
