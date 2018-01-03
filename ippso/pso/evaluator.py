@@ -153,7 +153,7 @@ class CNNEvaluator(Evaluator):
                         [train_op, accuracy, cross_entropy, regularization_loss, merge_summary, X, true_Y, is_training],
                         {is_training: 0}
                     )
-                    logging.debug('is_training: {}, X shape: {}, true_Y shape: {}'.format(is_training_str, str(X_str.shape),str(true_Y_str.shape)))
+                    logging.debug('Training data: is_training: {}, X shape: {}, true_Y shape: {}'.format(is_training_str, str(X_str.shape),str(true_Y_str.shape)))
                     if i % (2 * steps_in_each_epoch) == 0:
                         mean_validation_accu, mean_validation_loss, _ = self.test_one_epoch(sess, accuracy, cross_entropy,
                                                                                          is_training,
