@@ -205,7 +205,7 @@ class CNNEvaluator(Evaluator):
         accuracy_list = []
         loss_list = []
         for _ in range(total_step):
-            accuracy_str, loss_str, X_str, true_Y_str = sess.run([accuracy, cross_entropy, X, true_Y, is_training], {is_training: training_mode})
+            accuracy_str, loss_str, X_str, true_Y_str = sess.run([accuracy, cross_entropy, X, true_Y], {is_training: training_mode})
             logging.debug('Validation or Test data: is_training: {}, X shape: {}, true_Y shape: {}'.format(training_mode, str(X_str.shape), str(true_Y_str.shape)))
             accuracy_list.append(accuracy_str)
             loss_list.append(loss_str)
