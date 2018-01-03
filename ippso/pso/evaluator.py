@@ -149,10 +149,11 @@ class CNNEvaluator(Evaluator):
                 for i in range(total_steps):
                     if coord.should_stop():
                         break
-                    _, accuracy_str, loss_str, regularization_loss_str,  _ = sess.run(
-                        [train_op, accuracy, cross_entropy, regularization_loss, merge_summary],
+                    train_op_str, accuracy_str, loss_str, regularization_loss_str, merge_summary_str, X_str, true_Y_str, is_training_str = sess.run(
+                        [train_op, accuracy, cross_entropy, regularization_loss, merge_summary, X, true_Y, is_training],
                         {is_training: 0}
                     )
+                    logging.debug('is_training: {}, X shape: {}, true_Y shape: {}'.format(is_training_str, str(X_str.shape),str(true_Y_str.shape)))
                     if i % (2 * steps_in_each_epoch) == 0:
                         mean_validation_accu, mean_validation_loss, _ = self.test_one_epoch(sess, accuracy, cross_entropy,
                                                                                          is_training,
@@ -204,8 +205,8 @@ class CNNEvaluator(Evaluator):
         accuracy_list = []
         loss_list = []
         for _ in range(total_step):
-            accuracy_str, loss_str, data_X, data_Y = sess.run([accuracy, cross_entropy, X, true_Y], {is_training: training_mode})
-            logging.debug('is_training: {}, X shape: {}, true_Y shape: {}'.format(training_mode, str(data_X.shape), str(data_Y.shape)))
+            accuracy_str, loss_str, X_str, true_Y_str = sess.run([accuracy, cross_entropy, X, true_Y], {is_training: training_mode})
+            logging.debug('is_training: {}, X shape: {}, true_Y shape: {}'.format(training_mode, str(X_str.shape), str(true_Y_str.shape)))
             accuracy_list.append(accuracy_str)
             loss_list.append(loss_str)
         mean_accu = np.mean(accuracy_list)
@@ -225,14 +226,9 @@ class CNNEvaluator(Evaluator):
         training_data, training_label = produce_tf_batch_data(self.training_data, self.training_label, self.batch_size)
         validation_data, validation_label = produce_tf_batch_data(self.validation_data, self.validation_label, self.batch_size)
         test_data, test_label = produce_tf_batch_data(self.test_data, self.test_label, self.batch_size)
-        X, y_ = training_data, training_label
-        bool_is_training = True
-        if is_training == 1:
-            X, y_ = (validation_data, validation_label)
-            bool_is_training = False
-        elif is_training == 2:
-            X, y_ = (test_data, test_label)
-            bool_is_training = False
+        bool_is_training = tf.cond(tf.equal(is_training, tf.constant(0, dtype=tf.int8)), lambda: tf.constant(True, dtype=tf.bool), lambda : tf.constant(False, dtype=tf.bool))
+        X, y_ = tf.cond(tf.equal(is_training, tf.constant(0, dtype=tf.int8)), lambda : (training_data, training_label),
+                        tf.cond(tf.equal(is_training, tf.constant(1,dtype=tf.int8)), lambda : (validation_data, validation_label), lambda : (test_data, test_label)))
         true_Y = tf.cast(y_, tf.int64)
 
         name_preffix = 'I_{}'.format(particle.id)
