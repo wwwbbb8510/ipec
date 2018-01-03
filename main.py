@@ -8,6 +8,7 @@ from ippso.cnn.layers import ConvLayer
 from ippso.cnn.layers import PoolingLayer
 from ippso.cnn.layers import FullyConnectedLayer
 from ippso.cnn.layers import DisabledLayer
+from ippso.cnn.layers import initialise_cnn_layers_3_bytes
 
 
 def main(args):
@@ -104,11 +105,11 @@ def _pso_search(args):
                                              mean_divisor=80,
                                              stddev_divisor=16
                                              )
-    layers = _init_cnn_layers()
+    layers = initialise_cnn_layers_3_bytes()
     pso_pop = initialise_cnn_population(pop_size=args.pop_size, particle_length=args.particle_length,
                                         evaluator=evaluator, w=args.w, c1=args.c1, c2=args.c2,
                                         max_fully_connected_length=args.max_full,
-                                        layers=layers)
+                                        layers=layers, v_max=args.v_max)
     best_particle = pso_pop.fly_2_end(max_steps=args.max_steps)
     save_particle(best_particle, args.gbest_file)
     logging.info('===Finished===')
@@ -132,57 +133,6 @@ def _load_data(dataset_name, mode):
     elif dataset_name == 'convex':
         from ippso.data.convex import loaded_data
     return loaded_data
-
-def _init_cnn_layers():
-    # convolutional layer fields
-    conv_fields = {
-        'filter_size': 3, #8
-        'num_of_feature_maps': 7, #128
-        'stride_size': 2, #4
-        'mean': 4, #(0~15-7)/8
-        'std_dev': 4 # 0~16/16
-        #total bits: 20
-    }
-
-    # convolutional layer subnet
-    conv_subnet = '0.0.0/4'
-
-    # pooling layer fields
-    pooling_fields = {
-        'kernel_size': 2,
-        'stride_size': 2,
-        'type': 1,
-        'placeholder': 14
-        # total bits: 19
-    }
-
-    # pooling layer subnet
-    pooling_subnet = '16.0.0/5'
-
-    # fully-connected layer fields
-    fullyconnected_fields = {
-        'num_of_neurons': 11,
-        'mean': 4,
-        'std_dev': 4
-        # total bits: 19
-    }
-
-    # fully-connected layer subnet
-    fullyconnected_subnet = '24.0.0/5'
-
-    # disabled layer fields
-    disabled_fields = {
-        'disabled': 19,
-    }
-
-    # disabled layer subnet
-    disabled_subnet = '32.0.0/5'
-    return {
-        'conv': ConvLayer(conv_subnet,conv_fields),
-        'pooling': PoolingLayer(pooling_subnet, pooling_fields),
-        'full': FullyConnectedLayer(fullyconnected_subnet, fullyconnected_fields),
-        'disabled': DisabledLayer(disabled_subnet, disabled_fields)
-    }
 
 
 def _filter_args(args):

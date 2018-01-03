@@ -27,7 +27,7 @@ POPULATION_DEFAULT_PARAMS = {
 }
 
 
-def initialise_cnn_population(pop_size=None, particle_length=None, max_fully_connected_length=None, w=None, c1=None, c2=None, layers=None, evaluator=None):
+def initialise_cnn_population(pop_size=None, particle_length=None, max_fully_connected_length=None, w=None, c1=None, c2=None, layers=None, evaluator=None, v_max=None):
     """
     initialise a cnn population
 
@@ -64,7 +64,7 @@ def initialise_cnn_population(pop_size=None, particle_length=None, max_fully_con
         layers = POPULATION_DEFAULT_PARAMS['layers']
     logging.info('===initialise the PSO population with the following parameters===')
     logging.info('population size: %d, particle length: %d, max fully-connected length: %d, inertia weight: %f, c1: %s and c2: %s', pop_size, particle_length, max_fully_connected_length, w, str(c1), str(c2))
-    return CNNPopulation(pop_size, particle_length, max_fully_connected_length, w, c1, c2, layers, evaluator).initialise()
+    return CNNPopulation(pop_size, particle_length, max_fully_connected_length, w, c1, c2, layers, evaluator, v_max).initialise()
 
 
 class Population:
@@ -155,7 +155,7 @@ class CNNPopulation(Population):
     """
     CNNPopulation class
     """
-    def __init__(self, pop_size, particle_length, max_fully_connected_length, w, c1, c2, layers, evaluator=None):
+    def __init__(self, pop_size, particle_length, max_fully_connected_length, w, c1, c2, layers, evaluator=None, v_max=None):
         """
         constructor
 
@@ -175,10 +175,13 @@ class CNNPopulation(Population):
         :type layers: dict
         :param evaluator: evaluator to calculate the fitness
         :type evaluator: CNNEvaluator
+        :param v_max: max velocity
+        :type v_max: string
         """
         self.max_fully_connected_length = max_fully_connected_length
         self.layers = layers
         super(CNNPopulation, self).__init__(pop_size, particle_length, w, c1, c2, evaluator)
+        self.v_max = v_max
 
     def initialise(self):
         """
@@ -189,7 +192,7 @@ class CNNPopulation(Population):
             self.evaluator = initialise_cnn_evaluator()
         logging.info('===start initialising population')
         for i in range(self.pop_size):
-            particle = CNNParticle(i, self.particle_length, self.max_fully_connected_length, self.w, self.c1, self.c2, self.layers).initialise()
+            particle = CNNParticle(i, self.particle_length, self.max_fully_connected_length, self.w, self.c1, self.c2, self.layers, self.v_max).initialise()
             self.pop[i] = particle
         logging.info('===finish initialising population')
         self.gbest = self.pop[0]
