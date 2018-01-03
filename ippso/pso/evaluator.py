@@ -135,7 +135,7 @@ class CNNEvaluator(Evaluator):
         """
         logging.info('===start evaluating Particle-%d===', particle.id)
         tf.reset_default_graph()
-        is_training, train_op, accuracy, cross_entropy, num_connections, merge_summary, regularization_loss = self.build_graph(particle)
+        is_training, train_op, accuracy, cross_entropy, num_connections, merge_summary, regularization_loss, X, true_Y = self.build_graph(particle)
         with tf.Session() as sess:
             sess.run(tf.global_variables_initializer())
             steps_in_each_epoch = (self.training_data_length // self.batch_size)
@@ -189,7 +189,7 @@ class CNNEvaluator(Evaluator):
             logging.info('===finish evaluating Particle-%d===', particle.id)
             return mean_validation_accu, stddev_validation_acccu, num_connections
 
-    def test_one_epoch(self, sess, accuracy, cross_entropy, is_training, data_length, training_mode):
+    def test_one_epoch(self, sess, accuracy, cross_entropy, is_training, data_length, training_mode, X, true_Y):
         """
         test one epoch on validation data or test data
         :param sess: tensor session
@@ -204,7 +204,8 @@ class CNNEvaluator(Evaluator):
         accuracy_list = []
         loss_list = []
         for _ in range(total_step):
-            accuracy_str, loss_str = sess.run([accuracy, cross_entropy], {is_training: training_mode})
+            accuracy_str, loss_str = sess.run([accuracy, cross_entropy, X, true_Y], {is_training: training_mode})
+            logging.debug('is_training: {}, X shape: {}, true_Y shape: {}'.format(training_mode, str(X.shape), str(true_Y.shape)))
             accuracy_list.append(accuracy_str)
             loss_list.append(loss_str)
         mean_accu = np.mean(accuracy_list)
@@ -347,5 +348,5 @@ class CNNEvaluator(Evaluator):
         tf.summary.scalar('accuracy', accuracy)
         merge_summary = tf.summary.merge_all()
 
-        return is_training, train_op, accuracy, cross_entropy, num_connections, merge_summary, regularization_loss
+        return is_training, train_op, accuracy, cross_entropy, num_connections, merge_summary, regularization_loss, X, true_Y
 
