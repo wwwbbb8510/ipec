@@ -294,13 +294,7 @@ class CNNEvaluator(Evaluator):
                                                                                                           stddev=stddev),
                                                       biases_initializer=init_ops.constant_initializer(0.1,
                                                                                                        dtype=tf.float32))
-                        # add dropout
-                        if self.dropout is not None and self.dropout > 0:
-                            full_dropout_H = slim.dropout(full_H, self.dropout)
-                            logging.debug('dropout rate: {}'.format(self.dropout))
-                        else:
-                            full_dropout_H = full_H
-                        output_list.append(full_dropout_H)
+                        output_list.append(self._add_dropout(full_H))
                         num_connections += input_dim * hidden_neuron_num + hidden_neuron_num
                 # disabled layer
                 elif particle.layers['disabled'].check_interface_in_type(interface):
@@ -316,7 +310,7 @@ class CNNEvaluator(Evaluator):
                                                                                               stddev=None),
                                           biases_initializer=init_ops.constant_initializer(0.1,
                                                                                            dtype=tf.float32))
-            output_list.append(full_H)
+            output_list.append(self._add_dropout(full_H))
 
             with tf.name_scope('loss'):
                 logits = output_list[-1]
@@ -357,4 +351,17 @@ class CNNEvaluator(Evaluator):
             initialiser = tf.truncated_normal_initializer(mean=mean,
                                             stddev=stddev)
         return initialiser
+
+    def _add_dropout(self, full_H):
+        """
+        add dropout if needed
+        :param full_H:
+        :return:
+        """
+        if self.dropout is not None and self.dropout > 0:
+            full_dropout_H = slim.dropout(full_H, self.dropout)
+            logging.debug('dropout rate: {}'.format(self.dropout))
+        else:
+            full_dropout_H = full_H
+        return full_dropout_H
 
