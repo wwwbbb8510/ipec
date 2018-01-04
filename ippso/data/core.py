@@ -12,8 +12,7 @@ class DataLoader:
     mode = None
 
     @staticmethod
-    def load(train_path=None, validation_path=None, test_path=None, height=28, length=28, mode=None, train_validation_split_point=10000):
-        DataLoader.mode = mode
+    def load(train_path=None, validation_path=None, test_path=None, height=28, length=28, train_validation_split_point=10000):
         if train_path is not None:
             DataLoader.train = DataLoader.load_image_data_with_label_at_end(
                 os.path.join(DATASET_ROOT_FOLDER, train_path), height=height, length=length)
