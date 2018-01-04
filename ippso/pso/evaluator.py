@@ -2,6 +2,7 @@ import numpy as np
 import logging
 from datetime import datetime
 import tensorflow as tf
+from tensorflow.contrib.layers.python.layers import initializers
 import tensorflow.contrib.slim as slim
 from tensorflow.python.ops import control_flow_ops
 from tensorflow.python.ops import init_ops
@@ -12,7 +13,7 @@ import os
 def initialise_cnn_evaluator(training_epoch=None, batch_size=None, training_data=None, training_label=None, validation_data=None,
                              validation_label=None, max_gpu=None, first_gpu_id=None, class_num=None, regularise=0, dropout=0,
                              mean_centre=None, mean_divisor=None, stddev_divisor=None, test_data=None, test_label=None, optimise=False):
-    training_epoch = 5 if training_epoch is None else training_epoch
+    training_epoch = 2 if training_epoch is None else training_epoch
     max_gpu = None if max_gpu is None else max_gpu
     batch_size = 200 if batch_size is None else batch_size
     class_num = 10 if class_num is None else class_num
@@ -253,7 +254,7 @@ class CNNEvaluator(Evaluator):
                     with tf.variable_scope(name_scope):
                         filter_size, mean, stddev, feature_map_size, stride_size = self.decoder.filter_conv_fields(field_values)
                         conv_H = slim.conv2d(output_list[-1], feature_map_size, filter_size, stride_size,
-                                             weights_initializer=tf.truncated_normal_initializer(mean=mean, stddev=stddev),
+                                             weights_initializer=self._create_weigth_initialiser(mean=mean, stddev=stddev),
                                              biases_initializer=init_ops.constant_initializer(0.1, dtype=tf.float32))
                         output_list.append(conv_H)
                         # update for next usage
@@ -288,20 +289,11 @@ class CNNEvaluator(Evaluator):
                             _, _, input_dim = last_filed_values['num_of_neurons'] + 1
 
                         mean, stddev, hidden_neuron_num = self.decoder.filter_full_fields(field_values)
-                        if i < particle.length - 1:
-                            full_H = slim.fully_connected(input_data, num_outputs=hidden_neuron_num,
-                                                          weights_initializer=tf.truncated_normal_initializer(mean=mean,
-                                                                                                              stddev=stddev),
-                                                          biases_initializer=init_ops.constant_initializer(0.1,
-                                                                                                           dtype=tf.float32))
-                        else:
-                            # hard-code the number of units of the last layer to 10 for now
-                            full_H = slim.fully_connected(input_data, num_outputs=self.class_num,
-                                                          activation_fn=None,
-                                                          weights_initializer=tf.truncated_normal_initializer(mean=mean,
-                                                                                                              stddev=stddev),
-                                                          biases_initializer=init_ops.constant_initializer(0.1,
-                                                                                                           dtype=tf.float32))
+                        full_H = slim.fully_connected(input_data, num_outputs=hidden_neuron_num,
+                                                      weights_initializer=self._create_weigth_initialiser(mean=mean,
+                                                                                                          stddev=stddev),
+                                                      biases_initializer=init_ops.constant_initializer(0.1,
+                                                                                                       dtype=tf.float32))
                         # add dropout
                         if self.dropout is not None and self.dropout > 0:
                             full_dropout_H = slim.dropout(full_H, self.dropout)
@@ -317,6 +309,14 @@ class CNNEvaluator(Evaluator):
                     logging.error('Invalid Interface: %s', str(interface))
                     raise Exception('invalid interface')
                 i = i+1
+            # add the last layer which has the same number of neurons as the class number
+            full_H = slim.fully_connected(output_list[-1], num_outputs=self.class_num,
+                                          activation_fn=None,
+                                          weights_initializer=self._create_weigth_initialiser(mean=None,
+                                                                                              stddev=None),
+                                          biases_initializer=init_ops.constant_initializer(0.1,
+                                                                                           dtype=tf.float32))
+            output_list.append(full_H)
 
             with tf.name_scope('loss'):
                 logits = output_list[-1]
@@ -343,4 +343,18 @@ class CNNEvaluator(Evaluator):
         merge_summary = tf.summary.merge_all()
 
         return is_training, train_op, accuracy, cross_entropy, num_connections, merge_summary, regularization_loss, X, true_Y
+
+    def _create_weigth_initialiser(self, mean=None, stddev=None):
+        """
+        create weight initialiser
+        :param mean:
+        :param stddev:
+        :return:
+        """
+        if mean is None and stddev is None:
+            initialiser = initializers.xavier_initializer()
+        else:
+            initialiser = tf.truncated_normal_initializer(mean=mean,
+                                            stddev=stddev)
+        return initialiser
 

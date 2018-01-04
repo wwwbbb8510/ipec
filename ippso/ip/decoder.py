@@ -54,7 +54,8 @@ class Decoder:
         :rtype: tuple
         """
         filter_size = field_values['filter_size'] + 1
-        mean, stddev = self._normalise_mean_stddev(field_values['mean'], field_values['std_dev'])
+        mean, stddev = self._normalise_mean_stddev(field_values['mean'], field_values[
+            'std_dev']) if 'mean' in field_values.keys() and 'std_dev' in field_values.keys() else (None, None)
         feature_map_size = field_values['num_of_feature_maps'] + 1
         stride_size = field_values['stride_size'] + 1
         logging.debug('Filtered Conv field values(filter_size, mean, stddev, feature_map_size, stride_size):%s', str((filter_size, mean, stddev, feature_map_size, stride_size)))
@@ -83,7 +84,8 @@ class Decoder:
         :return: mean, stddev, hidden_neuron_num
         :rtype: tuple
         """
-        mean, stddev = self._normalise_mean_stddev(field_values['mean'], field_values['std_dev'])
+        mean, stddev = self._normalise_mean_stddev(field_values['mean'], field_values[
+            'std_dev']) if 'mean' in field_values.keys() and 'std_dev' in field_values.keys() else (None, None)
         hidden_neuron_num = field_values['num_of_neurons'] + 1
         logging.debug('Filtered Fully Connected field values(mean, stddev, hidden_neuron_num):%s',
                       str((mean, stddev, hidden_neuron_num)))

@@ -49,6 +49,10 @@ DISABLED_SUBNET = '4.32.0.4.0/30'
 
 
 def initialise_cnn_layers_3_bytes():
+    """
+    initialise cnn layers with 3 bytes IP
+    :return:
+    """
     # convolutional layer fields
     conv_fields = {
         'filter_size': 3, #8
@@ -92,6 +96,57 @@ def initialise_cnn_layers_3_bytes():
 
     # disabled layer subnet
     disabled_subnet = '32.0.0/5'
+    return {
+        'conv': ConvLayer(conv_subnet,conv_fields),
+        'pooling': PoolingLayer(pooling_subnet, pooling_fields),
+        'full': FullyConnectedLayer(fullyconnected_subnet, fullyconnected_fields),
+        'disabled': DisabledLayer(disabled_subnet, disabled_fields)
+    }
+
+def initialise_cnn_layers_with_xavier_weights():
+    """
+    initialise cnn layers with xavier weight initialisation
+    :return:
+    """
+    # convolutional layer fields
+    conv_fields = {
+        'filter_size': 3, #8
+        'num_of_feature_maps': 7, #128
+        'stride_size': 2, #4
+        #total bits: 12
+    }
+
+    # convolutional layer subnet
+    conv_subnet = '0.0/4'
+
+    # pooling layer fields
+    pooling_fields = {
+        'kernel_size': 2,
+        'stride_size': 2,
+        'type': 1,
+        'placeholder': 6
+        # total bits: 11
+    }
+
+    # pooling layer subnet
+    pooling_subnet = '16.0/5'
+
+    # fully-connected layer fields
+    fullyconnected_fields = {
+        'num_of_neurons': 11,
+        # total bits: 11
+    }
+
+    # fully-connected layer subnet
+    fullyconnected_subnet = '24.0/5'
+
+    # disabled layer fields
+    disabled_fields = {
+        'disabled': 11,
+    }
+
+    # disabled layer subnet
+    disabled_subnet = '32.0/5'
     return {
         'conv': ConvLayer(conv_subnet,conv_fields),
         'pooling': PoolingLayer(pooling_subnet, pooling_fields),

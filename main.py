@@ -8,7 +8,7 @@ from ippso.cnn.layers import ConvLayer
 from ippso.cnn.layers import PoolingLayer
 from ippso.cnn.layers import FullyConnectedLayer
 from ippso.cnn.layers import DisabledLayer
-from ippso.cnn.layers import initialise_cnn_layers_3_bytes
+from ippso.cnn.layers import initialise_cnn_layers_3_bytes, initialise_cnn_layers_with_xavier_weights
 
 
 def main(args):
@@ -107,7 +107,10 @@ def _pso_search(args):
                                              mean_divisor=80,
                                              stddev_divisor=16
                                              )
-    layers = initialise_cnn_layers_3_bytes()
+    if args.ip_structure == 1:
+        layers = initialise_cnn_layers_3_bytes()
+    elif args.ip_structure == 2:
+        layers = initialise_cnn_layers_with_xavier_weights()
     pso_pop = initialise_cnn_population(pop_size=args.pop_size, particle_length=args.particle_length,
                                         evaluator=evaluator, w=args.w, c1=args.c1, c2=args.c2,
                                         max_fully_connected_length=args.max_full,
@@ -158,6 +161,7 @@ def _filter_args(args):
     args.v_max = np.asarray(args.v_max.split(',')).astype(np.float) if args.v_max is not None else None
     args.regularise = float(args.regularise) if args.regularise is not None else 0
     args.dropout = float(args.dropout) if args.dropout is not None else 0
+    args.ip_structure = int(args.ip_structure) if args.ip_structure is not None else 0
 
 # main entrance
 if __name__ == '__main__':
@@ -182,6 +186,8 @@ if __name__ == '__main__':
     parser.add_argument('-v', '--v_max', help='PSO max velocity used by velocity clamping')
     parser.add_argument('-r', '--regularise',  help='weight regularisation hyper-parameter. ')
     parser.add_argument('--dropout', help='enable dropout and set dropout rate')
+    parser.add_argument('--ip_structure',
+                        help='IP structure. default: 5 bytes, 1: 3 bytes, 2: 2 bytes with xavier weight initialisation')
 
     args = parser.parse_args()
     main(args)
