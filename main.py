@@ -111,6 +111,8 @@ def _pso_search(args):
         layers = initialise_cnn_layers_3_bytes()
     elif args.ip_structure == 2:
         layers = initialise_cnn_layers_with_xavier_weights()
+    else:
+        layers = None
     pso_pop = initialise_cnn_population(pop_size=args.pop_size, particle_length=args.particle_length,
                                         evaluator=evaluator, w=args.w, c1=args.c1, c2=args.c2,
                                         max_fully_connected_length=args.max_full,
