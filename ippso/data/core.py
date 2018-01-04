@@ -1,5 +1,6 @@
 import numpy as np
 import os
+import logging
 
 DATASET_ROOT_FOLDER = os.path.abspath('datasets')
 
@@ -34,6 +35,10 @@ class DataLoader:
             DataLoader.validation = splited_validation
         if test_path is not None:
             DataLoader.test = DataLoader.load_image_data_with_label_at_end(os.path.join(DATASET_ROOT_FOLDER, test_path), height=height, length=length)
+
+        logging.debug('Training data shape:{}'.format(str(DataLoader.train['images'].shape)))
+        logging.debug('Validation data shape:{}'.format(str(DataLoader.validation['images'].shape)))
+        logging.debug('Test data shape:{}'.format(str(DataLoader.test['images'].shape)))
         return DataLoader
 
     @staticmethod
