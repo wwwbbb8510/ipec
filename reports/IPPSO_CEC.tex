@@ -311,6 +311,9 @@
 % correct bad hyphenation here
 \hyphenation{op-tical net-works semi-conduc-tor}
 
+% *** Algorithm and Algorithmic packages ***
+\usepackage{algorithm, algorithmic}
+
 
 \begin{document}
 %
@@ -320,7 +323,7 @@
 % not capitalized unless they are the first or last word of the title.
 % Linebreaks \\ can be used within to get better formatting as desired.
 % Do not put math or special symbols in the title.
-\title{IP Based Particle Swarm Optimization\\ for Evolving Deep Convolutional Neural Networks\\ for Image Classiﬁcation}
+\title{IP Based Particle Swarm Optimization\\ for Evolving Deep Convolutional Neural Networks\\ for Image Classification}
 
 
 % author names and affiliations
@@ -432,21 +435,377 @@ The overall goal of this paper is to design and develop an effective and efficie
 	\item Develop the associated update equation that can cope with the developed IPPSO encoding strategies of CNN architectures.
 	\item Develop a velocity clamping method that are suitable for the novel IPPSO algorithm
 	\item Propose an effective fitness measure of the individuals representing different CNNs, which does not require intensive computational resources.
+	\item Investigate whether the new approach significantly outperforms the existing methods in classification accuracy
 \end{enumerate} 
 
 \subsection{Organisation}
+The remaining parts of this paper is organised as follows: first of all, the background of the CNNs, the related works on the architecture design and weight initialization approaches of CNNs are
+reviewed in Section II. In addition, the framework and details of each step in the proposed algorithm are elaborated in Section III. Furthermore, the experiment design and experimental results of the proposed algorithm are shown in Sections IV and V, respectively. Next, further discussions are made in Section VI. Last but not least, the conclusions and future work are discussed in Section VII.
 
 
 \section{Background and related work}
 
 
 \section{The proposed algorithm}
+In this section, the IP based PSO (IPPSO) for evolving deep Convolutional Neural Networks for image classification will be documented in details. 
 
+
+\subsection{Algorithm Overview}
+\begin{algorithm}
+	\caption{Framework of IP-PSO}
+	\label{alg:framework}
+	\begin{algorithmic}
+		\renewcommand{\algorithmicrequire}{\textbf{Input:}}
+		\renewcommand{\algorithmicensure}{\textbf{Output:}}
+		\STATE $P \leftarrow \textit{Initialize the population with the proposed particle}\linebreak \textit{ encoding strategy}$
+		\STATE $t \leftarrow 0$
+		\STATE $P_{id} \leftarrow empty$
+		\STATE $P_{gd} \leftarrow empty$
+		\WHILE{$\textit{termination criterion is not satisﬁed}$}
+		\FOR{$\textit{ind in P}$}
+		\STATE $ind \leftarrow \textit{update ind using the particle update equation}$
+		\IF{$\textit{termination criterion is satisfied}$}
+		\STATE $\textbf{break}$
+		\ENDIF
+		\ENDFOR
+		\ENDWHILE		
+	\end{algorithmic}
+\end{algorithm}
+
+Algorithm \ref{alg:framework} outlines the framework of the proposed algorithm. There are mainly three steps which are really straightforward - initialise the population by using the particle encoding strategy which will be described in Part B, update the position and velocity and check whether the termination criterion meets.
+
+\subsection{Particle Encoding Strategy}
+IPPSO encoding strategy is derived from the Network IP addresses. Since CNN is comprised of Convolutional Layer, Pooling Layer, and Fully-Connected Layer and the encoded information of different types of layers varies in terms of both the number of fields and the range in each field shown in Table \ref{table:ConvFields} to Table \ref{table:FullFields}, a fixed length of the Network IP with enough capacity can be designed to accommodate all the types of CNN layers and then the Network IP can be divided into numerous subsets each of which can be used to define one type of CNN layers. 
+
+\begin{table}[!t]
+	%% increase table row spacing, adjust to taste
+	\renewcommand{\arraystretch}{1.3}
+	% if using array.sty, it might be a good idea to tweak the value of
+	% \extrarowheight as needed to properly center the text within the cells
+	\caption{The fields of Convolutional layer with an example in the Example column}
+	\label{table:ConvFields}
+	\centering
+	%% Some packages, such as MDW tools, offer better commands for making tables
+	%% than the plain LaTeX2e tabular which is used here.
+	\begin{tabular}{|c|c|c|c|}
+		\hline
+		Field & Example Value & Range & \# of Bits\\
+		\hline
+		Filter size & 2(001) & 1-8 & 3\\
+		\hline
+		\# of feature maps & 32(000 1111) & 1-128 & 7\\
+		\hline
+		Stride size & 2(01) & 1-4 & 2\\
+		\hline
+		\textbf{Total} & 001 000 1111 01 &  & 12\\
+		\hline
+	\end{tabular}
+\end{table}
+
+
+\begin{table}[!t]
+	%% increase table row spacing, adjust to taste
+	\renewcommand{\arraystretch}{1.3}
+	% if using array.sty, it might be a good idea to tweak the value of
+	% \extrarowheight as needed to properly center the text within the cells
+	\caption{The fields of Pooling layer with an example in the Example column}
+	\label{table:PoolingFields}
+	\centering
+	%% Some packages, such as MDW tools, offer better commands for making tables
+	%% than the plain LaTeX2e tabular which is used here.
+	\begin{tabular}{|c|c|c|c|}
+		\hline
+		Field & Example Value & Range & \# of Bits\\
+		\hline
+		Kernel size & 2(01) & 1-4 & 2\\
+		\hline
+		Stride size & 2(01) & 1-4 & 2\\
+		\hline
+		Type:1(maximal), 2(average) & 2(1) & 1-2 & 1\\
+		\hline
+		Place holder & 32(00 1111) & 1-128 & 6\\
+		\hline
+		\textbf{Total} & 01 01 0 00 1111 &  & 11\\
+		\hline
+	\end{tabular}
+\end{table}
+
+\begin{table}[!t]
+	%% increase table row spacing, adjust to taste
+	\renewcommand{\arraystretch}{1.3}
+	% if using array.sty, it might be a good idea to tweak the value of
+	% \extrarowheight as needed to properly center the text within the cells
+	\caption{The fields of Fully-Connected layer with an example in the Example column}
+	\label{table:FullFields}
+	\centering
+	%% Some packages, such as MDW tools, offer better commands for making tables
+	%% than the plain LaTeX2e tabular which is used here.
+	\begin{tabular}{|c|c|c|c|}
+		\hline
+		Field & Example Value & Range & \# of Bits\\
+		\hline
+		\# of Neurons & 1024(011 11111111) & 1-2048 & 11\\
+		\hline
+		\textbf{Total} & 011 11111111 &  & 11\\
+		\hline
+	\end{tabular}
+\end{table}
+
+\begin{table}[!t]
+	%% increase table row spacing, adjust to taste
+	\renewcommand{\arraystretch}{1.3}
+	% if using array.sty, it might be a good idea to tweak the value of
+	% \extrarowheight as needed to properly center the text within the cells
+	\caption{Disabled layer with an example in the Example column}
+	\label{table:DisabledFields}
+	\centering
+	%% Some packages, such as MDW tools, offer better commands for making tables
+	%% than the plain LaTeX2e tabular which is used here.
+	\begin{tabular}{|c|c|c|c|}
+		\hline
+		Field & Example Value & Range & \# of Bits\\
+		\hline
+		Place holder & 1024(011 11111111) & 1-2048 & 11\\
+		\hline
+		\textbf{Total} & 011 11111111 &  & 11\\
+		\hline
+	\end{tabular}
+\end{table}
+
+First of all, the length of the IP liked encoding binary string needs to be designed. As the largest number of bits to represent a layer is 12, there will be 2 bytes required to accommodate the 12 bits IP. 
+In addition, the subnets for all types of layers need to be defined and CIDR(Classless Inter-Domain Routing) style will be used to represent the subnet. The subnet 0.0/4 with the range from 0.0 to 15.255 which has the capacity of 12 bits will be used to encode the convolutional layer, the subnet 16.0/5 with the range from 16.0 to 23.255 which has the capacity of 11 bits will represent the fully-connected layer, and the subnet 32.0/5 with the range from 32.0 to 39.255 which has the capacity of 11 bits will carry the information of the Pooling layer. 
+Last but not least, as the particle length of PSO is fixed after initialisation,  in order to cope with the variable length of CNN architecture, an alternative way of disabling some of the layers in the encoding vector will be used to accomplish it. Therefore another subnet 32.0/5 with the range from 32.0 to 39.255 will be introduced to mark the layer as not used. 
+To summarise, the subnet table where the subsets designed to represent the different types of CNN layers can be drawn as Table \ref{table:Subnets} and each layer will be encoded into a 2 bytes IP address. Table \ref{table:IPExample} shows how the example in Table \ref{table:ConvFields} to Table \ref{table:FullFields} is encoded into IP addresses. 
+
+\begin{table}[!t]
+	%% increase table row spacing, adjust to taste
+	\renewcommand{\arraystretch}{1.3}
+	% if using array.sty, it might be a good idea to tweak the value of
+	% \extrarowheight as needed to properly center the text within the cells
+	\caption{Four subnets distributed to the three types of CNN layers and the disabled layer}
+	\label{table:Subnets}
+	\centering
+	%% Some packages, such as MDW tools, offer better commands for making tables
+	%% than the plain LaTeX2e tabular which is used here.
+	\begin{tabular}{|c|c|c|}
+		\hline
+		Layer type & Subnet(CIDR) & IP Range\\
+		\hline
+		Convolutional Layer & 0.0/4 & 0.0-15.255\\
+		\hline
+		Fully-Connected Layer & 16.0/5 & 16.0-23.255\\
+		\hline
+		Pooling Layer & 24.0/5 & 24.0-31.255\\
+		\hline
+		Disabled Layer & 32.0/5 & 32.0-39.255\\
+		\hline
+	\end{tabular}
+\end{table}
+
+\begin{table}[!t]
+	%% increase table row spacing, adjust to taste
+	\renewcommand{\arraystretch}{1.3}
+	% if using array.sty, it might be a good idea to tweak the value of
+	% \extrarowheight as needed to properly center the text within the cells
+	\caption{An example of IP addresses - one for each type of CNN layers}
+	\label{table:IPExample}
+	\centering
+	%% Some packages, such as MDW tools, offer better commands for making tables
+	%% than the plain LaTeX2e tabular which is used here.
+	\begin{tabular}{|c|c|c|}
+		\hline
+		Layer type & Binary (filled to 2 bytes) & IP address\\
+		\hline
+		Convolutional Layer & (0000)001 000 1111 01 & 2.61\\
+		\hline
+		Pooling Layer & (00000)01 01 0 00 1111 & 18.143\\
+		\hline
+		Fully-Connected Layer & (00000)011 11111111 & 27.255\\
+		\hline
+		Disabled Layer & (00000)01111111111 & 35.255\\
+		\hline
+	\end{tabular}
+\end{table}
+
+After converting each layer into a 2 bytes IP address, the position and velocity of PSO can be designed. However, there are a few parameters that need to be defined first - max\_length(maximum length of CNN layers), max\_fully\_connected(maximum fully-connected layers with the constraint of at least one fully-connected layer) listed in Table \ref{table:ParameterList}. And then the encoded data type of the position and the velocity will be a byte array with a fixed length of maximum\_length * 2 and each byte will be deemed as one dimension of the particle.
+
+\begin{table}[!t]
+	%% increase table row spacing, adjust to taste
+	\renewcommand{\arraystretch}{1.3}
+	% if using array.sty, it might be a good idea to tweak the value of
+	% \extrarowheight as needed to properly center the text within the cells
+	\caption{Parameter list}
+	\label{table:ParameterList}
+	\centering
+	%% Some packages, such as MDW tools, offer better commands for making tables
+	%% than the plain LaTeX2e tabular which is used here.
+	\begin{tabular}{|p{2.5cm}|p{3cm}|p{2cm}|}
+		\hline
+		Parameter Name & Parameter Meaning & Value\\
+		\hline
+		max\_length & maximum length of CNN layers & 9\\
+		\hline
+		max\_fully\_connected & maximum fully-connected layers given at least there is one fully-connected layer & 3\\
+		\hline
+		N & population size & 30\\
+		\hline
+		k & the training epoch number before evaluating the trained CNN & 10\\
+		\hline
+		num\_of\_batch & the batch size for evaluating the CNN & 200\\
+		\hline
+		c1 & acceleration coefficient array for $P_{id}$ & 1.49618,1.49618\\
+		\hline
+		c2 & acceleration coefficient array for $P_{gd}$ & 1.49618,1.49618\\
+		\hline
+		w & inertia weight for updating velocity & 0.7298\\
+		\hline
+	\end{tabular}
+\end{table}
+
+Here is an example of a particle vector to explain how it can cope with variable-length of CNN architecture. Assume we have the parameter settings - max\_length:5, the particle vector could carry a 5-layer CNN such as $[C, C, P, F, F]$ where C represents Conv layer, P represents Pooling layer, F represents fully-connected layer. After a few PSO updates, the vector could turn the fourth element in the vector from F to D to represents a 4-layer CNN such as $[C, C, P, D, F]$ where D means disabled layer. Therefore, the particle are capable to learn a variable-length CNN architecture with the total number of layers less than 5. 
+
+\subsection{Population Initialisation}
+
+\begin{algorithm}
+	\caption{Population Initialisation}
+	\label{alg:pop_init}
+	\begin{algorithmic}
+		\renewcommand{\algorithmicrequire}{\textbf{Input:}}
+		\renewcommand{\algorithmicensure}{\textbf{Output:}}
+		\REQUIRE $\textit{the population size N,} \newline \textit{the maximum length of CNN layers max\_length,} \newline \textit{the maximum fully-connected layers max\_fully\_connected}$
+		\ENSURE $Initialised population P_{0}$
+		\STATE $P_{0} \leftarrow \textit{initialise an empty byte array}$
+		\WHILE{$\textit{length of }P_{0} < N$}
+			\STATE $particle \leftarrow \textit{Initialise a byte array}$
+			\IF{$\textit{length of particle}==0$}
+				\STATE $L \leftarrow \textit{Initialise a random IP address in the subnet of } \newline \textit{convolutional layer}$
+				\STATE $particle \leftarrow \textit{append L at the end of particle byte array}$
+			\ENDIF
+			\WHILE {$\textit{length of particle} < max\_length - max\_fully\_connected \textbf{ AND } \textit{length of particle} > 0$}
+				\STATE $r \leftarrow \textit{Uniformly generate a number between [0, 1]}$
+				\IF{$r<0.34$}
+					\STATE $L \leftarrow \textit{Initialise a random IP address } \newline \textit{in the subnet of convolutional layer}$
+				\ELSIF{$r<0.68$}
+					\STATE $L \leftarrow \textit{Initialise a random IP address } \newline \textit{in the subnet of pooling layer}$
+				\ELSE
+					\STATE $L \leftarrow \textit{Initialise a random IP address } \newline \textit{in the subnet of disabled layer}$
+				\ENDIF
+				\STATE $particle \leftarrow \textit{append L at the end of particle byte array}$
+			\ENDWHILE
+			\STATE $is\_fully\_connected \leftarrow \textbf{False}$
+			\WHILE {$\textit{length of particle} > max\_length - max\_fully\_connected \textbf{ AND } \textit{length of particle} < max\_length-1$}
+				\IF{$is\_fully\_connected == \textbf{True}$}
+					\STATE $L \leftarrow \textit{Initialise a random IP address } \newline \textit{in the subnet of fully-connected layer}$
+				\ELSE
+					\STATE $r \leftarrow \textit{Uniformly generate a number between [0, 1]}$
+					\IF{$r<0.25$}
+						\STATE $L \leftarrow \textit{Initialise a random IP address } \newline \textit{in the subnet of convolutional layer}$
+					\ELSIF{$r<0.5$}
+						\STATE $L \leftarrow \textit{Initialise a random IP address } \newline \textit{in the subnet of pooling layer}$
+					\ELSIF{$r<0.75$}
+						\STATE $L \leftarrow \textit{Initialise a random IP address } \newline \textit{in the subnet of fully-connected layer}$
+						\STATE $is\_fully\_connected \leftarrow \textbf{True}$
+					\ELSE
+						\STATE $L \leftarrow \textit{Initialise a random IP address } \newline \textit{in the subnet of disabled layer}$
+					\ENDIF
+				\ENDIF
+				\STATE $particle \leftarrow \textit{append L at the end of particle byte array}$
+			\ENDWHILE
+			\STATE $L \leftarrow \textit{Initialise a random IP address in the subnet of } \newline \textit{fully-connected layer}$
+			\STATE $particle \leftarrow \textit{append L at the end of particle byte array}$
+			\STATE $P_{0} \leftarrow \textit{append particle at the end of }P_{0}$
+		\ENDWHILE
+		\RETURN $P_{0}$
+	\end{algorithmic}
+\end{algorithm}
+
+In terms of the population initialisation, as shown in Algorithm \ref{alg:pop_init} we set up the size of the population and randomly create individuals until reaching the population size. 
+For each individual, first we initialise an empty vector and each element in it will be used to store a Network Interface containing the IP address and subnet information. The first element will always be a convolutional layer; From the second to (max\_length-max\_fully\_connected) layer each element can be filled with convolutional layer, pooling layer or disabled layer; From (max\_length-max\_fully\_connected) to (max\_length-1) layer it can be filled with any of the four types of layers; And the last element will always be a fully-connected layer. In addition, each layer will be generated with the random settings, a.k.a a random IP address in a specific subnet.
+
+
+\subsection{Fitness Evaluation}
+\begin{algorithm}
+	\caption{Fitness Evaluation}
+	\label{alg:fitness}
+	\begin{algorithmic}
+		\renewcommand{\algorithmicrequire}{\textbf{Input:}}
+		\renewcommand{\algorithmicensure}{\textbf{Output:}}
+		\REQUIRE $\textit{The population } P_{t}, \newline \textit{the training epoch number k,} \newline \textit{the training set } D_{train}, \newline \textit{the ﬁtness evaluation dataset } D_{fitness}, \newline \textit{the batch size } batch\_size$
+		\ENSURE $The population with ﬁtness P_{t}$
+		\FOR{$individual s \textbf{ in } P_{t}$}
+			\STATE $i \leftarrow 1$
+			\STATE $eval\_steps \leftarrow \textit{size of } D_{fitness} / batch\_size$
+			\WHILE{$i<=k$}
+				\STATE $\textit{Train the connection weights of the CNN } \newline \textit{represented by individual s}$
+				\IF{$i==k$}
+					\STATE $accy\_list \leftarrow \textit{empty array}$
+					\WHILE{$j<eval\_steps$}
+						\STATE $acc\_j \leftarrow \textit{Evaluate the classiﬁcation error on } \newline \textit{the j-th batch data from } D_{fitness}$
+						\STATE $acc\_list \leftarrow \textit{append accy\_j at the end of accy\_list}$
+					\ENDWHILE
+					\STATE $mean \leftarrow \textit{calculate the mean value }\newline \textit{of  acc\_list}$
+					\STATE $stddev \leftarrow \textit{calculate the standard deviation }\newline \textit{of acc\_list}$
+					\STATE $num\_of\_connections \leftarrow \textit{calculate the number }\newline \textit{of connections in s}$
+					\STATE $s.fitness \leftarrow (mean, -stddev, -num\_of\_connections)$
+				\ENDIF
+			\ENDWHILE
+		\ENDFOR	
+		\RETURN $P_{t}$	
+	\end{algorithmic}
+\end{algorithm}
+
+With regard to the fitness evaluation in Algorithm \ref{alg:fitness}, each individual is decoded to a CNN with its settings which will be trained for k epoch on the training dataset, and then the trained CNN will be batch-evaluated on the validation dataset which will produce a set of accuracies. Finally, we calculate the mean and standard deviation of the accuracies for each individual which will be stored as the individual fitness along with the number of connections of the CNN. 
+For comparing the fitness of individuals, the mean value, standard deviation and the number of parameters will be used in order for the comparison, ie. compare mean value first, if mean value is equal compare standard deviation, if standard deviation is the same compare the number of parameters.
+
+
+\subsection{Particle Update Equation with Velocity Clamping}
+\begin{algorithm}
+	\caption{Particle Update Equation with Velocity Clamping}
+	\label{alg:update}
+	\begin{algorithmic}
+		\renewcommand{\algorithmicrequire}{\textbf{Input:}}
+		\renewcommand{\algorithmicensure}{\textbf{Output:}}
+		\REQUIRE $\textit{particle individual vector ind}, \newline \textit{acceleration coefficient array for $P_{id}$ c1,} \newline \textit{acceleration coefficient array for $P_{gd}$ c2}, \newline \textit{inertia weight w}, \newline \textit{max velocity array } v_{max}$
+		\ENSURE $\textit{updated individual vector ind}$
+		\FOR{$\textit{element } interface \textbf{ in } ind$}
+			\STATE $i=0$
+			\FOR{$i < number of bytes of IP address in interface$}
+				\STATE $x \leftarrow \textit{the ith byte of the IP address in the interface}$
+				\STATE $r1 \leftarrow \textit{uniformly generate r1 between [0, 1]}$
+				\STATE $r2 \leftarrow \textit{uniformly generate r2 between [0, 1]}$
+				\STATE $v_{new} \leftarrow w * v + c1[i] * r1 * (P_{id} - x) + c2[i] * r2 * (P_{gd} - x)$
+				\IF{$v_{max}[i] < v_{new}$}
+					\STATE $v_{new} \leftarrow v_{max}[i]$
+				\ENDIF
+				\STATE $x_{new} \leftarrow x + v_{new}$
+				\IF{$x_{new} > 255$}
+					\STATE $x_{new} \leftarrow x_{new}-255$
+				\ENDIF
+			\ENDFOR
+		\ENDFOR
+		\STATE $fitness \leftarrow \textit{evaluate the updated individual ind}$
+		\IF{$P_{id} < fitness$}
+			\STATE $P_{id} \leftarrow fitness$
+		\ENDIF
+		\IF{$P_{gd} < fitness$}
+		\STATE $P_{gd} \leftarrow fitness$
+		\ENDIF
+		\RETURN $ind$
+	\end{algorithmic}
+\end{algorithm}
+
+In Algorithm \ref{alg:update}, as each layer is encoded into a unit with 2 dimensions in the particle vector and we want to control the acceleration coefficients for each dimension, the two acceleration coefficients are two float arrays with the length of 2. 
+After the coefficients defined, we go through each dimension in the individual and update the velocity and position by using the corresponding coefficients for that dimension. Since there are some constraints for each position of the particle vector, e.g. the second element can only be convolutional layer, pooling layer or disabled layer, we need to upgrade the new position by an interface with a random IP address in a valid subnet if the new position does not fall in a valid subnet. And then we evaluate the new position, compare it with its local best and the global best, and then update the two bests if needed.
+
+
+\subsection{Best Individual Selection and Decoding}
+
+Global best of PSO will be reported as the best individual. In terms of the decoding, we can first identify the type of the layer represented by the network interface - stored in every 2 bytes/dimensions from left to right in the particle vector of the global best, according to the subnets in Table \ref{table:Subnets} we can distinguish the type of layer, and then based on Table \ref{table:ConvFields} to Table \ref{table:FullFields} we can decode the IP into different sets of bits which indicate different fields of the layer. After decoding all the interfaces in the global best, the final CNN architecture can be obtained by connecting all of the decoded layers in the same order as the interfaces in the particle vector. 
 
 \section{Experiment design}
 
 
-\section{Experiment results and analysis}
+\section{Experimental results and analysis}
 
 
 \section{Further discussion}
