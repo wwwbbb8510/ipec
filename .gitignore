@@ -7,3 +7,5 @@ log/*
 !log/placeholder.txt
 datasets/*
 !datasets/placeholder.txt
+reports/IPPSO_CEC.*
+!reports/IPPSO_CEC.tex

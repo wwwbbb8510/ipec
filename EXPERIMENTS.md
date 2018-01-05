@@ -1,3 +1,22 @@
+## Quick commands
+
+**Extract gbest in log files**
+
+```bash
+grep 'fitness of gbest' log/ippso_cnn_3132.log log/ippso_cnn_4032.log log/ippso_cnn_3032.log
+grep 'fitness of gbest' log/ippso_cnn_3132.log
+grep 'fitness of gbest' log/ippso_cnn_4032.log
+grep 'fitness of gbest' log/ippso_cnn_3032.log
+```
+
+**Monitor training the final gbest**
+
+```bash
+tail -f log/ippso_cnn_optimise_3132.log
+tail -f log/ippso_cnn_optimise_3032.log
+tail -f log/ippso_cnn_optimise_4032.log
+```
+
 ## IPPSO with 2 bytes Xavier weight initialisation
 
 ## Empirical Settings

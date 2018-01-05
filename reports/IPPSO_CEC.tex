@@ -413,23 +413,44 @@ Convolutional neural network (CNN) is one of the most effective deep learning me
 
 \section{Introduction}
 % no \IEEEPARstart
-Convolutional neural network (CNN) has demonstrated its exceptional superiority in numerous machine learning tasks such as speech recognition [1], sentence classification [2] and image classification [3]. However, designing CNN for specific tasks can be extremely complex which can be seen from some existing efforts done by researchers such as LeNet [4][5], AlexNet[3], VGGNet[6] and GoogLeNet[7]. Since the architecture of CNN gets deeper, the hyper-parameters and weights become more complex which makes the further improvement of the CNN architecture harder. In addition, we cannot expect to get the optimal performance by applying the same architecture on various tasks and we need to adjust the CNN architecture for each specific task which will bring tremendous work as there are thousands of types of machine learning tasks in the industry. 
+Convolutional neural network (CNN) has demonstrated its exceptional superiority in numerous machine learning tasks such as speech recognition \cite{CNNspeech:Ossama}, sentence classification \cite{CNNsentence:Yoon} and image classification \cite{ImageNet:Alex}. However, designing CNN for specific tasks can be extremely complex which can be seen from some existing efforts done by researchers such as LeNet \cite{ZipcodeRecognition:LeCun}\cite{DocumentRecognition:LeCun}, AlexNet \cite{ImageNet:Alex}, VGGNet \cite{CNNverydeep:Simonyan} and GoogLeNet \cite{CNNdeeper:Szegedy}. Since the architecture of CNN gets deeper, the hyper-parameters and weights become more complex which makes the further improvement of the CNN architecture harder. In addition, we cannot expect to get the optimal performance by applying the same architecture on various tasks and we need to adjust the CNN architecture for each specific task which will bring tremendous work as there are thousands of types of machine learning tasks in the industry. 
 
 
 % You must have at least 2 lines in the paragraph with the drop letter
 % (should never be an issue)
-In order to solve the complex problem of the CNN architecture design, evolutionary computation has recently been leveraged to automatically design the architecture without any human effort involved. Interested researchers have done some excellent work on the automatic design of the CNN architecture by using Genetic Programming [8] and Genetic Algorithm [9]. Since PSO is a very simple and effective swarm intelligence algorithm in the evolutionary computation family, in this project, I would like to develop a PSO method to achieve the goal of automatically seeking the optimal CNN architecture. 
-
-\hfill mds
- 
-\hfill August 26, 2015
-
-\subsection{Subsection Heading Here}
-Subsection text here.
+In order to solve the complex problem of the CNN architecture design, evolutionary computation has recently been leveraged to automatically design the architecture without any human effort involved. Interested researchers have done some excellent work on the automatic design of the CNN architecture by using Genetic Programming \cite{CNNGP:Suganuma} and Genetic Algorithm \cite{CNNevolve:Stanley}. Since PSO is a very simple and effective swarm intelligence algorithm in the evolutionary computation family, in this paper, I would like to develop a PSO method with network IP structure as the encoding scheme to achieve the goal of automatically seeking the optimal CNN architecture. 
 
 
-\subsubsection{Subsubsection Heading Here}
-Subsubsection text here.
+
+\subsection{Goal}
+The overall goal of this paper is to design and develop an effective and efficient PSO method - IPPSO to automatically discover good architectures and corresponding weight initialisation values of CNNs. The specific objectives of this paper are to
+
+\begin{enumerate}
+	\item Design an IP based particle encoding scheme of CNN architecture, which does not fix the length of the building blocks in CNNs and consists of Convolution , Pooling and Fully-connected layer. With this PSO encoding scheme, the evolved architecture is expected to achieve good performance in solving different tasks at hand. To be specific, each particle will be comprised of a fix-length network interfaces each of which will carry an IP address and its subnet information, and different subnet will define different type of CNN layer. In addition, in order to learn a variable-length CNN architecture, a disabled subnet, that will represent Disabled layers, will be introduced which means the interface having an IP in the disabled subnet will be hidden when decoding the particle.
+	\item Based on the designed IPPSO encoding scheme, develop the encoding and decoding methods that convert CNN layer to and IP address and vice versa. 
+	\item Design proper subnet ranges for all three types of CNN layers and the disabled layer.  
+	\item Develop the associated update equation that can cope with the developed IPPSO encoding strategies of CNN architectures.
+	\item Develop a velocity clamping method that are suitable for the novel IPPSO algorithm
+	\item Propose an effective fitness measure of the individuals representing different CNNs, which does not require intensive computational resources.
+\end{enumerate} 
+
+\subsection{Organisation}
+
+
+\section{Background and related work}
+
+
+\section{The proposed algorithm}
+
+
+\section{Experiment design}
+
+
+\section{Experiment results and analysis}
+
+
+\section{Further discussion}
+
 
 
 % An example of a floating figure using the graphicx package.
@@ -529,8 +550,7 @@ Subsubsection text here.
 
 
 
-\section{Conclusion}
-The conclusion goes here.
+\section{Conclusion and future work}
 
 
 
@@ -539,7 +559,7 @@ The conclusion goes here.
 
 
 % use section* for acknowledgment
-\section*{Acknowledgment}
+\section*{Acknowledgement}
 
 
 The authors would like to thank...
@@ -570,11 +590,40 @@ The authors would like to thank...
 % <OR> manually copy in the resultant .bbl file
 % set second argument of \begin to the number of references
 % (used to reserve space for the reference number labels box)
-\begin{thebibliography}{1}
+\begin{thebibliography}{11}
 
-\bibitem{IEEEhowto:kopka}
-H.~Kopka and P.~W. Daly, \emph{A Guide to \LaTeX}, 3rd~ed.\hskip 1em plus
-  0.5em minus 0.4em\relax Harlow, England: Addison-Wesley, 1999.
+\bibitem{CNNspeech:Ossama}
+Ossama Abdel-Hamid, Li Deng and Dong Yu, \emph{Exploring Convolutional Neural Network Structures and Optimization Techniques for Speech Recognition}. INTERSPEECH 2013, 5 - 29 August 2013, Lyon, France
+
+\bibitem{CNNsentence:Yoon}
+Yoon Kim, \emph{Convolutional Neural Networks for Sentence Classification}, arXiv:1408.5882v2 [cs.CL] 3 Sep 2014
+
+\bibitem{ImageNet:Alex}
+Alex Krizhevsky, Ilya Sutskever and Geoffrey E. Hinton, \emph{ImageNet Classification with Deep Convolutional Neural Networks}, Advances in Neural Information Processing Systems 25 (NIPS 2012), 2012
+
+\bibitem{ZipcodeRecognition:LeCun}
+Y. LeCun, B. Boser, J. S. Denker, D. Henderson, R. E. Howard, W. Hubbard, and L. D. Jackel, \emph{Backpropagation applied to handwritten zip code recognition}, Neural Computation, vol. 1, no. 4, pp. 541–551, 1989. 
+
+\bibitem{DocumentRecognition:LeCun}
+Y. LeCun, L. Bottou, Y. Bengio, and P. Haffner, \emph{Gradient-based learning applied to document recognition}, Proceedings of the IEEE, vol. 86, no. 11, pp. 2278–2324, 1998.
+
+\bibitem{CNNverydeep:Simonyan}
+K. Simonyan and A. Zisserman, \emph{Very deep convolutional networks for large-scale image recognition}, arXiv preprint arXiv:1409.1556, 2014.
+
+\bibitem{CNNdeeper:Szegedy}
+C. Szegedy, W. Liu, Y. Jia, P. Sermanet, S. Reed, D. Anguelov, D. Erhan, V. Vanhoucke, and A. Rabinovich, \emph{Going deeper with convolutions,” in Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition}, 2015, pp. 1–9.
+
+\bibitem{CNNGP:Suganuma}
+Masanori Suganuma, Shinichi Shirakawa, and Tomoharu Nagao, \emph{A Genetic Programming Approach to Designing Convolutional Neural Network Architectures∗}, arXiv:1704.00764v2  [cs.NE]  11 Aug 2017
+
+\bibitem{CNNevolve:Stanley}
+K. O. Stanley and R. Miikkulainen, \emph{Evolving neural networks through augmenting topologies}, Evolutionary computation, vol. 10, no. 2, pp. 99–127, 2002.
+
+\bibitem{FashionImage:Xiao}
+H. Xiao, K. Rasul, and R. Vollgraf, \emph{Fashion-mnist: a novel image dataset for benchmarking machine learning algorithms}, arXiv preprint arXiv:1708.07747, 2017.
+
+\bibitem{DeepArchitectureEval:Larochelle}
+H. Larochelle, D. Erhan, A. Courville, J. Bergstra, and Y. Bengio, \emph{An empirical evaluation of deep architectures on problems with many factors of variation}, in Proceedings of the 24th International Conference on Machine Learning. ACM, 2007, pp. 473–480.
 
 \end{thebibliography}
 
