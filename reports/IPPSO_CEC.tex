@@ -398,7 +398,7 @@
 % As a general rule, do not put math, special symbols or citations
 % in the abstract
 \begin{abstract}
-Convolutional neural network (CNN) is one of the most effective deep learning method to solve image classification problems, but the best architecture of CNN to solve a specific problem can be extremely deep which is hardly designed by humans. This paper focuses on utilising Particle Swarm Optimisation (PSO) to automatically search the optimal architecture of CNN without any manual work involved and a novel IP based PSO (IPPSO) - using network IP structure to encode particles, will be proposed. 
+Convolutional neural network (CNN) is one of the most effective deep learning method to solve image classification problems, but the best architecture of CNN to solve a specific problem can be extremely deep which is hardly designed by humans. This paper focuses on utilising Particle Swarm Optimisation (PSO) to automatically search the optimal architecture of CNN without any manual work involved and a novel IP based PSO (IPPSO) method - using network IP structure to encode particles with the ability to tackle variable-length problem, will be proposed. 
 \end{abstract}
 
 % no keywords
@@ -433,24 +433,39 @@ In order to solve the complex problem of the CNN architecture design, evolutiona
 The overall goal of this paper is to design and develop an effective and efficient PSO method - IPPSO to automatically discover good architectures and corresponding weight initialisation values of CNNs. The specific objectives of this paper are to
 
 \begin{enumerate}
-	\item Design an IP based particle encoding scheme of CNN architecture, which does not fix the length of the building blocks in CNNs and consists of Convolution , Pooling and Fully-connected layer. With this PSO encoding scheme, the evolved architecture is expected to achieve good performance in solving different tasks at hand. To be specific, each particle will be comprised of a fix-length network interfaces each of which will carry an IP address and its subnet information, and different subnet will define different type of CNN layer. In addition, in order to learn a variable-length CNN architecture, a disabled subnet, that will represent Disabled layers, will be introduced which means the interface having an IP in the disabled subnet will be hidden when decoding the particle.
+	\item Design an IP based particle encoding scheme of CNN architecture, which does not fix the length of the building blocks in CNNs and consists of Convolution, Pooling and Fully-connected layer. With this PSO encoding scheme, the evolved architecture is expected to achieve good performance in solving different tasks at hand. To be specific, each particle will be comprised of fix-length network interfaces each of which will carry an IP address and its subnet information, and different subnets will define different types of CNN layers. In addition, in order to learn a variable-length CNN architecture, a disabled subnet that will represent Disabled layers, will be introduced which means the interface having an IP in the disabled subnet will be hidden when decoding the particle.
 	\item Based on the designed IPPSO encoding scheme, develop the encoding and decoding methods that convert CNN layer to and IP address and vice versa. 
 	\item Design proper subnet ranges for all three types of CNN layers and the disabled layer.  
 	\item Develop the associated update equation that can cope with the developed IPPSO encoding strategies of CNN architectures.
-	\item Develop a velocity clamping method that are suitable for the novel IPPSO algorithm
+	\item Develop a velocity clamping method that is suitable for the novel IPPSO algorithm
 	\item Propose an effective fitness measure of the individuals representing different CNNs, which does not require intensive computational resources.
 	\item Investigate whether the new approach significantly outperforms the existing methods in classification accuracy
 \end{enumerate} 
 
 \subsection{Organisation}
-The remaining parts of this paper is organised as follows: first of all, the background of the CNNs, the related works on the architecture design and weight initialization approaches of CNNs are
-reviewed in Section II. In addition, the framework and details of each step in the proposed algorithm are elaborated in Section III. Furthermore, the experiment design and experimental results of the proposed algorithm are shown in Sections IV and V, respectively. Next, further discussions are made in Section VI. Last but not least, the conclusions and future work are discussed in Section VII.
+The remaining parts of this paper are organised as follows: first of all, the background of the CNNs, the related works on the architecture design are
+reviewed in Section \ref{sec:Background}. In addition, the framework and details of each step in the proposed algorithm are elaborated in Section \ref{sec:ProposedAlgorithm}. Furthermore, the experiment design and experimental results of the proposed algorithm are shown in Sections \ref{sec:EPDesign} and \ref{sec:EPResults}, respectively. Next, further discussions are made in Section \ref{sec:FurtherDicsussion}. Last but not least, the conclusions and future work are discussed in Section \ref{sec:Conclusion}.
 
 
-\section{Background and related work}
+\section{Background}\label{sec:Background}
+
+\subsection{CNN architecture}\label{sec:CNNArchitecture}
+
+\begin{figure}[!t]
+	\centering
+	\includegraphics[width=2.5in]{cnn_architecture}
+	\caption{An general architecture of the Convolutional Neural Network}
+	\label{fig:CNNArchitecture}
+\end{figure}
+
+Fig \ref{fig:CNNArchitecture} exhibits an extensive architecture of one CNN with two convolutional operations, two pooling operations, the resulted four groups of feature maps, two fully-connected layers including one hidden layer at the end. It is well known that when designing deep CNN architecture the number of convolutional layers, pooling layers and hidden layers have to be properly defined along with their positions and their configurations. In terms of the configuration, apart from output layer which will always be a number of neurons having the number of classes in the classification problem as the size, different types of layers have different configurations as follows: Filter size, stride size and feature maps are the main attributes of the configurations for convolutional layer; Kernel size, stride size and pooling type - max-pooling or average-pooling are the important fields for the configuration of pooling layers; and the number of neurons is the key attribute of hidden layers. After the layers have been designed, a proper weight initialisation method has to be chosen and in this paper, Xavier weight initialisation \cite{WeightIniti:Glorot} will be chosen as it has been proved as an effective way and has been implemented in most of Deep Learning frameworks.  
 
 
-\section{The proposed algorithm}
+\subsection{PSO related work in Deep CNN}
+
+As it is shown in Section \ref{sec:CNNArchitecture}, there are a lot of factors that need to be considered when doing the CNN architecture design and it is obviously an extremely hard work for humans to manually achieve the best design. As a result, researchers have been trying to leverage Evolutionary Algorithm to evolve CNN architectures such as LEIC method \cite{LEIC:Real}; However, the learning process is too slow. In this paper, we will design a more efficient PSO method. Since the length of the best CNN architecture on specific problems is not fixed while the particle length of traditional PSO is fixed, the challenge of the proposed PSO method will be inventing a new encoding scheme to cope with the variable-length problem. 
+
+\section{The proposed algorithm}\label{sec:ProposedAlgorithm}
 In this section, the IP based PSO (IPPSO) for evolving deep Convolutional Neural Networks for image classification will be documented in details. 
 
 
@@ -476,9 +491,9 @@ In this section, the IP based PSO (IPPSO) for evolving deep Convolutional Neural
 	\end{algorithmic}
 \end{algorithm}
 
-Algorithm \ref{alg:framework} outlines the framework of the proposed algorithm. There are mainly three steps which are really straightforward - initialise the population by using the particle encoding strategy which will be described in Part B, update the position and velocity and check whether the termination criterion meets.
+Algorithm \ref{alg:framework} outlines the framework of the proposed algorithm. There are mainly three steps which are really straightforward - initialise the population by using the particle encoding strategy which will be described in Section \ref{sec:ParticleEncodingStrategy}, update the position and velocity and check whether the termination criterion meets.
 
-\subsection{Particle Encoding Strategy}
+\subsection{Particle Encoding Strategy}\label{sec:ParticleEncodingStrategy}
 IPPSO encoding strategy is derived from the Network IP addresses. Since CNN is comprised of Convolutional Layer, Pooling Layer, and Fully-Connected Layer and the encoded information of different types of layers varies in terms of both the number of fields and the range in each field shown in Table \ref{table:ConvFields} to Table \ref{table:FullFields}, a fixed length of the Network IP with enough capacity can be designed to accommodate all the types of CNN layers and then the Network IP can be divided into numerous subsets each of which can be used to define one type of CNN layers. 
 
 \begin{table}[!t]
@@ -576,9 +591,9 @@ IPPSO encoding strategy is derived from the Network IP addresses. Since CNN is c
 	\end{tabular}
 \end{table}
 
-First of all, the length of the IP liked encoding binary string needs to be designed. As the largest number of bits to represent a layer is 12, there will be 2 bytes required to accommodate the 12 bits IP. 
+First of all, the length of the IP liked encoding binary string needs to be designed. As the largest number of bits to represent a layer is 12, there will be 2 bytes required to accommodate the 12 bits IP address. 
 In addition, the subnets for all types of layers need to be defined and CIDR(Classless Inter-Domain Routing) style will be used to represent the subnet. The subnet 0.0/4 with the range from 0.0 to 15.255 which has the capacity of 12 bits will be used to encode the convolutional layer, the subnet 16.0/5 with the range from 16.0 to 23.255 which has the capacity of 11 bits will represent the fully-connected layer, and the subnet 32.0/5 with the range from 32.0 to 39.255 which has the capacity of 11 bits will carry the information of the Pooling layer. 
-Last but not least, as the particle length of PSO is fixed after initialisation,  in order to cope with the variable length of CNN architecture, an alternative way of disabling some of the layers in the encoding vector will be used to accomplish it. Therefore another subnet 32.0/5 with the range from 32.0 to 39.255 will be introduced to mark the layer as not used. 
+Last but not least, as the particle length of PSO is fixed after initialisation,  in order to cope with the variable length of CNN architecture, an alternative way of disabling some of the layers in the encoded particle vector will be used to accomplish it. Therefore another subnet 32.0/5 with the range from 32.0 to 39.255 will be introduced to mark the layer as not used. 
 To summarise, the subnet table where the subsets designed to represent the different types of CNN layers can be drawn as Table \ref{table:Subnets} and each layer will be encoded into a 2 bytes IP address. Table \ref{table:IPExample} shows how the example in Table \ref{table:ConvFields} to Table \ref{table:FullFields} is encoded into IP addresses. 
 
 \begin{table}[!t]
@@ -668,7 +683,7 @@ After converting each layer into a 2 bytes IP address, the position and velocity
 	\end{tabular}
 \end{table}
 
-Here is an example of a particle vector to explain how it can cope with variable-length of CNN architecture. Assume we have the parameter settings - max\_length:5, the particle vector could carry a 5-layer CNN such as $[C, C, P, F, F]$ where C represents Conv layer, P represents Pooling layer, F represents fully-connected layer. After a few PSO updates, the vector could turn the fourth element in the vector from F to D to represents a 4-layer CNN such as $[C, C, P, D, F]$ where D means disabled layer. Therefore, the particle are capable to learn a variable-length CNN architecture with the total number of layers less than 5. 
+Here is an example of a particle vector to explain how it can cope with variable-length of CNN architecture. Assume we have the parameter settings - max\_length:5, the particle vector could carry a 5-layer CNN such as $[C, C, P, F, F]$ where C represents Conv layer, P represents Pooling layer, F represents fully-connected layer. After a few PSO updates, the vector could turn the fourth element in the vector from F to D to represents a 4-layer CNN such as $[C, C, P, D, F]$ where D means disabled layer. Therefore, the particle is capable to learn a variable-length CNN architecture with the total number of layers less than 5. 
 
 \subsection{Population Initialisation}
 
@@ -801,22 +816,22 @@ For comparing the fitness of individuals, the mean value, standard deviation and
 \end{algorithm}
 
 In Algorithm \ref{alg:update}, as each layer is encoded into a unit with 2 dimensions in the particle vector and we want to control the acceleration coefficients for each dimension, the two acceleration coefficients are two float arrays with the length of 2. 
-After the coefficients defined, we go through each dimension in the individual and update the velocity and position by using the corresponding coefficients for that dimension. Since there are some constraints for each position of the particle vector, e.g. the second element can only be convolutional layer, pooling layer or disabled layer, we need to upgrade the new position by an interface with a random IP address in a valid subnet if the new position does not fall in a valid subnet. And then we evaluate the new position, compare it with its local best and the global best, and then update the two bests if needed.
+After the coefficients defined, we go through each dimension in the individual and update the velocity and position by using the corresponding coefficients for that dimension. Since there are some constraints for each position of the particle vector, e.g. the second element can only be a convolutional layer, pooling layer or disabled layer, we need to upgrade the new position by an interface with a random IP address in a valid subnet if the new position does not fall in a valid subnet. And then we evaluate the new position, compare it with its local best and the global best, and then update the two bests if needed.
 
 
 \subsection{Best Individual Selection and Decoding}
 
 Global best of PSO will be reported as the best individual. In terms of the decoding, we can first identify the type of the layer represented by the network interface - stored in every 2 bytes/dimensions from left to right in the particle vector of the global best, according to the subnets in Table \ref{table:Subnets} we can distinguish the type of layer, and then based on Table \ref{table:ConvFields} to Table \ref{table:FullFields} we can decode the IP into different sets of bits which indicate different fields of the layer. After decoding all the interfaces in the global best, the final CNN architecture can be obtained by connecting all of the decoded layers in the same order as the interfaces in the particle vector. 
 
-\section{Experiment design}
+\section{Experiment design}\label{sec:EPDesign}
 
-In order to quantify the performance of the proposed IPPSO for evolving CNN, a series of experiments are designed and performed on the chosen image classification benchmark datasets, which are further compared to state-of-the-art peer competitors. First of all, these benchmark datasets will be briefly described. Secondly, the peer competitors will be listed. Lastly, parameter settings of the proposed IPPSO algorithm participating into these experiments will be documented.
+In order to quantify the performance of the proposed IPPSO for evolving CNN, a series of experiments are designed and performed on the chosen image classification benchmark datasets, which are further compared to state-of-the-art peer competitors. First of all, these benchmark datasets will be briefly described. Secondly, the peer competitors will be listed. Lastly, parameter settings of the proposed IPPSO algorithm participating in these experiments will be documented.
 
 \subsection{Benchmark Datasets}
 
 In these experiments, three datasets are chosen from the widely used image classification benchmark datasets examine the performance of the proposed IPPSO method. They are the MNIST Basic (MB) \cite{DeepArchitectureEval:Larochelle}, the MNIST with Rotated Digits plus Background Images (MRDBI) \cite{DeepArchitectureEval:Larochelle} and the Convex Sets (CS) \cite{DeepArchitectureEval:Larochelle}. 
 
-The first two benchmark datasets are two of the MNIST \cite{DocumentRecognition:LeCun} variants for classifying 10 hand-written digits (i.e., 0-9). There are a couple of reasons of using MNIST variants instead of MNIST. Firstly, the MNIST has been easily achieved 97\%, different noises (e.g., random backgrounds, rotations) are added into these MNIST variants from the MNIST to improve the complexity of classification algorithms. Secondly, there are 12,000 training images and 50,000 test images in these variants, which further challenges the classification algorithms due to the mush less training data but more test data. The third benchmark dataset is for recognizing the shapes of objects (i.e., convex or not) which contains 8,000 training images and 50,000 test images. Since it is a two-class classification problem comparing to 10 classes of MNIST dataset and the images contains shapes rather than digits, it is a chosen as a supplement benchmark dataset to the two MNIST variants in order to thoroughly test the performance of the proposed IPPSO method for evolving CNN. 
+The first two benchmark datasets are two of the MNIST \cite{DocumentRecognition:LeCun} variants for classifying 10 hand-written digits (i.e., 0-9). There are a couple of reasons for using MNIST variants instead of MNIST. Firstly, the MNIST has been easily achieved 97\%, different noises (e.g., random backgrounds, rotations) are added into these MNIST variants from the MNIST to improve the complexity of classification algorithms. Secondly, there are 12,000 training images and 50,000 test images in these variants, which further challenges the classification algorithms due to the much less training data but more test data. The third benchmark dataset is for recognizing the shapes of objects (i.e., convex or not) which contains 8,000 training images and 50,000 test images. Since it is a two-class classification problem comparing to 10 classes of MNIST dataset and the images contains shapes rather than digits, it is a chosen as a supplement benchmark dataset to the two MNIST variants in order to thoroughly test the performance of the proposed IPPSO method for evolving CNN. 
 
 Each image in these benchmarks is with the size 28 × 28 and examples from these three datasets are displayed in Fig \ref{fig:images}. Another reason for choosing these three benchmark datasets is that different algorithms have reported their promising results, so is convenient for comparing the performance of the proposed IPPSO method with these existing algorithms (details can be seen Subsection \ref{secpeer-competitors}).
 
@@ -836,15 +851,15 @@ In the experiments, state-of-the-art algorithms that have reported promising cla
 
 All the parameter settings are set based on the conventions in the communities of PSO \cite{PSOEPSettings:Van} and deep learning \cite{DLGuide:Hinton}, in addition to the maximal length of each basic layer which are listed in Table \ref{table:ParameterList}. As both PSO and CNN are involved in the proposed IPPSO method, the parameters can be split into two parts. In regard to CNN parameters, the maximal length of CNN is set to 9 by considering the complexity of the three datasets, the maximal length of fully-connected layer is set to 3 based on the maximal CNN length, the training epoch and the batch size for fitness evaluation is set to 10 and 200 respectively in order not to obtain a CNN architecture that performs well on a specific benchmark dataset in a reasonably short period. In terms of PSO parameters, 30 is used as the population size, 0.7298 is used as the inertia weight, 1.49618 is used as the coefficient of both local best and global best, and 0.1*search\_space, which is (4, 25.6) based on our IP structure design, is used as the maximal velocity for velocity clamping. 
 
-The proposed IPPSO method is implemented in Tensorﬂow \cite{Tensorfow:Abadi}, and each copy of the code runs on a computer equipped with two GPU cards with the identical model number GTX1080. Due to the heuristic nature of the proposed IPPSO method, 30 independent runs are performed on each benchmark dataset, and the mean results are estimated for the comparisons unless otherwise specified. The experiments take 1 day on each of the benchmark dataset. The source code will be available at https://github.com/wwwbbb8510/ippso for reproducing the experimental results of the proposed IPPSO method reported in this paper, and the evolved CNN architectures on each benchmark are illustrated in Section \ref{sec:EvolvedCNN}.
+The proposed IPPSO method is implemented in Tensorﬂow \cite{Tensorfow:Abadi}, and each copy of the code runs on a computer equipped with two GPU cards with the identical model number GTX1080. Due to the heuristic nature of the proposed IPPSO method, 30 independent runs are performed on each benchmark dataset, and the mean results are estimated for the comparisons unless otherwise specified. The experiments take 1 day on each of the benchmark datasets. The source code will be available at https://github.com/wwwbbb8510/ippso for reproducing the experimental results of the proposed IPPSO method reported in this paper, and the evolved CNN architectures on each benchmark are illustrated in Section \ref{sec:EvolvedCNN}.
 
-\section{Experimental results and analysis}
+\section{Experimental results and analysis}\label{sec:EPResults}
 
 In this section, the CNN architectures learned by the proposed IPPSO method from the experiments for the three benchmark datasets will be listed in Section \ref{sec:EvolvedCNN}, and the corresponding classification performance along with the analysis against peer competitors will be shown in Section \ref{sec:Performance}. 
 
 \subsection{Evolved CNN architectures}\label{sec:EvolvedCNN}
 
-Although the proposed IPPSO method is performed on each benchmark with 30 independent runs, only one is chosen on each benchmark for this description that are shown from Table \ref{table:EvolvedMBCNN} to Table \ref{table:EvolvedConvexCNN} because it will be too tedious to list them all and everybody can download and run the code on github. Since disabled layers have been removed during the decoding process, they don't show up in the learned CNN architectures. Therefore, it turns out that IPPSO is able to learn a variable-length CNN architecture which can be obviously seen from the listed architectures - 6 layers for the MB and CONVEX benchmark CNN and 8 layers for the MDRBI benchmark CNN. 
+Although the proposed IPPSO method is performed on each benchmark with 30 independent runs, only one is chosen on each benchmark for this description that is shown from Table \ref{table:EvolvedMBCNN} to Table \ref{table:EvolvedConvexCNN} because it will be too tedious to list them all and everybody can download and run the code on github. Since disabled layers have been removed during the decoding process, they don't show up in the learned CNN architectures. Therefore, it turns out that IPPSO is able to learn a variable-length CNN architecture which can be obviously seen from the listed architectures - 6 layers for the MB and CONVEX benchmark CNN and 8 layers for the MDRBI benchmark CNN. 
 
 \begin{table}[!t]
 	%% increase table row spacing, adjust to taste
@@ -939,9 +954,9 @@ Although the proposed IPPSO method is performed on each benchmark with 30 indepe
 
 \subsection{Overall performance}\label{sec:Performance}
 
-Experimental results on all the three benchmark datasets are shown in Table \ref{table:ResultComparison} where the last row denotes the mean classification errors received from the proposed IPPSO method and other rows show the best classification errors reported by peer competitors\footnote{It is a convention in deep learning community that only the best result is reported.}. In order to conveniently investigate the comparisons, the terms “(+)” and “(-)” are provided to indicate whether the result generated by the proposed IPPSO method is better or worse that the best result obtained by the corresponding peer competitor. The term “—” means there is no available result reported from the provider or cannot be counted.
+Experimental results on all the three benchmark datasets are shown in Table \ref{table:ResultComparison} where the last row denotes the mean classification errors received from the proposed IPPSO method and other rows show the best classification errors reported by peer competitors\footnote{It is a convention in deep learning community that only the best result is reported.}. In order to conveniently investigate the comparisons, the terms “(+)” and “(-)” are provided to indicate whether the result generated by the proposed IPPSO method is better or worse than the best result obtained by the corresponding peer competitor. The term “—” means there is no available result reported from the provider or cannot be counted.
 
-It is clearly shown in Table \ref{table:ResultComparison} that by comparing the result of the proposed IPPSO method with the best performance of the peer competitors it perform the second best on MB dataset which is only a little bit worse than LDANet-2, the best on MDRBI dataset which is the most complicated dataset among these three, and the fifth best on CONVEX dataset which is not ideal but still reasonably competitive. 
+It is clearly shown in Table \ref{table:ResultComparison} that by comparing the result of the proposed IPPSO method with the best performance of the peer competitors it performs the second best on MB dataset which is only a little bit worse than LDANet-2, the best on MDRBI dataset which is the most complicated dataset among these three, and the fifth best on CONVEX dataset which is not ideal but still reasonably competitive. 
 
 \begin{table}[!t]
 	%% increase table row spacing, adjust to taste
@@ -986,14 +1001,14 @@ It is clearly shown in Table \ref{table:ResultComparison} that by comparing the 
 	\end{tabular}
 \end{table}
 
-\section{Further discussion}
+\section{Further discussion}\label{sec:FurtherDicsussion}
 
 In this section, we will discuss the two advantages that are brought by the IP structure encoding strategy of the proposed IPPSO method. Other than that an extra finding from the experiments will be pointed out, which could provide insights on the industrial applications of the proposed IPPSO method. 
 
-The first advantage is that the IPPSO method can facilitate the convergence because when the search space is huge, by splitting the search space into several bytes and updating each byte simultaneously which can significantly speed up learning process. For example, the convolutional layer in our design contains 12 bits and the search space for each dimension in the particle vector will be 4096 if a single decimal is used for the encoding; However, by using the IP-PSO to encode the search space into 2 bytes the search space for each dimension is 256 and PSO can learn them concurrently by updating each of the dimension at every step which can make the convergence much faster. 
+The first advantage is that the IPPSO method can facilitate the convergence because when the search space is huge, by splitting the search space into several bytes and updating each byte simultaneously which can significantly speed up the learning process. For example, the convolutional layer in our design contains 12 bits and the search space for each dimension in the particle vector will be 4096 if a single decimal is used for the encoding; However, by using the IP-PSO to encode the search space into 2 bytes the search space for each dimension is 256 and PSO can learn them concurrently by updating each of the dimension at every step which can make the convergence much faster. 
 The second advantage is that it provides the flexibility of encoding numerous types of data with variable length into one unit in the particle. For instance, in our design the four types of layers can be encoded as an IP address with 2 bytes which can be easily learned by PSO; However, if using traditional PSO, it is hard to encode 3 types of layers into one number which can be effectively decoded. Furthermore, the capacity of the types of data can extend by enlarging the length of the IP address.
 
-In PSO search process, I found that the architecture learned by only using 1000 rows instead of 12000 rows for MB and MDRBI can obtain a similar or better result than that found by using the whole training set. The potential explanation would be that as we only train the data by 10 epoch and the advantage of using larger data set is to prevent over-fitting which in most occasions will take effect at later training epochs, there is little difference or no difference of using partial dataset instead of the whole dataset which can save a lot of PSO learning time.
+In PSO search process, I found that the architecture learned by only using 1000 rows instead of 12000 rows for MB and MDRBI can obtain a similar or better result than that found by using the whole training set. The potential explanation would be that as we only train the data by 10 epoch and the advantage of using larger data set is to prevent over-fitting which on most occasions will take effect at later training epochs, there is little difference or no difference of using partial dataset instead of the whole dataset which can save a lot of PSO learning time.
 
 % An example of a floating figure using the graphicx package.
 % Note that \label must occur AFTER (or within) \caption.
@@ -1092,13 +1107,13 @@ In PSO search process, I found that the architecture learned by only using 1000 
 
 
 
-\section{Conclusion and future work}
+\section{Conclusion and future work}\label{sec:Conclusion}
 
-The goal of this paper was to develop a new PSO approach with variable length to automatically evolve the architectures of CNNs for image classification problems. This goal has been successfully achieved by proposing a new encoding scheme of using a network interface containing an IP address and its corresponding subnet to carry the configurations of a CNN layers, a corresponding decoding method to translate a network interface back to a CNN layer, a series of three subnets to represent three types of CNN layers, an additional subnet for disabling some dimensions in the particle vector in order to achieve a variable-length PSO, a new update equation with velocity clamping specifically for the proposed encoding scheme, and an efficient fitness evaluation method. This approach was examined and compared with 12 peer competitors including the most state-of-the-are algorithms on three benchmark datasets commonly used in deep learning and the experiment results show that the proposed IPPSO method can achieve a very competitive accuracy by outperforming all others on the MDRBI benchmark dataset, being the second best on the MNIST benchmark dataset and ranking above the middle on the CONVEX benchmark dataset. 
+The goal of this paper was to develop a new PSO approach with variable length to automatically evolve the architectures of CNNs for image classification problems. This goal has been successfully achieved by proposing a new encoding scheme of using a network interface containing an IP address and its corresponding subnet to carry the configurations of a CNN layers, a corresponding decoding method to translate a network interface back to a CNN layer, a series of three subnets to represent three types of CNN layers, an additional subnet for disabling some dimensions in the particle vector in order to achieve a variable-length PSO, a new update equation with velocity clamping specifically for the proposed encoding scheme, and an efficient fitness evaluation method. This approach was examined and compared with 12 peer competitors including the most state-of-the-art algorithms on three benchmark datasets commonly used in deep learning and the experiment results show that the proposed IPPSO method can achieve a very competitive accuracy by outperforming all others on the MDRBI benchmark dataset, being the second-best on the MNIST benchmark dataset and ranking above the middle on the CONVEX benchmark dataset. 
 
 The most important improvement from PSO to the novel IPPSO proposed in the paper is to invent the new encoding strategy of using network interface. Since the subnet in the interface can distinguish any type of layers, any layer configurations can be encoded into the IP address and the length of the IP address can be easily extended to 4 bytes (the length of real IP addresses) or even more, the IPPSO method has the ability of encoding any type of Deep Neural Network layers. In addition, the particle length of the IPPSO method can be easily made variable by simply introducing a disabled layer which could be deemed crucial as it breaks the obstacle of traditional PSO being fix-length. 
 
-In this we have investigated the proposed IPPSO method for evolving deep CNN and it is proved of obtaining promising results. Based on this research, there are a couple of further researches that are worth doing. Firstly, as this paper is mainly to propose the novel encoding strategy of the IPPSO, it will be interesting to see how different PSO topologies\footnote{Fully-connected topology is used in this paper as it is easy to be implemented} will affect the performance of the IPPSO and find the best topology for it. Secondly, we will also investigate how the proposed IPPSO algorithm perform for evolving recurrent neural networks, which are powerful tools for addressing sequential data, such as language processing problem.
+In this paper, we have investigated the proposed IPPSO method for evolving deep CNN and it is proved of obtaining promising results. Based on this research, there are a couple of further researches that are worth doing. Firstly, as this paper is mainly to propose the novel encoding strategy of the IPPSO, it will be interesting to see how different PSO topologies\footnote{Fully-connected topology is used in this paper as it is easy to be implemented} will affect the performance of the IPPSO and find the best topology for it. Secondly, we will also investigate how the proposed IPPSO algorithm performs for evolving recurrent neural networks, which are powerful tools for addressing sequential data, such as language processing problem.
 
 % conference papers do not normally have an appendix
 
@@ -1193,6 +1208,15 @@ G. E. Hinton, \emph{A practical guide to training restricted boltzmann machines}
 
 \bibitem{Tensorfow:Abadi}
 M. Abadi, A. Agarwal, P. Barham, E. Brevdo, Z. Chen, C. Citro, G. S. Corrado, A. Davis, J. Dean, M. Devin et al., \emph{Tensorﬂow: Large-scale machine learning on heterogeneous distributed systems}, arXiv preprint arXiv:1603.04467, 2016. 
+
+\bibitem{PSO:OptimiseCNN}
+Arie Rachmad Syulistyo, Dwi M J Purnomo, Muhammad Febrian Rachmadi, and Adi Wibowo, \emph{Particle swarm optimization (PSO) for training optimization on convolutional neural network (CNN) }, Jurnal Ilmu Komputer dan Informasi (Journal of Computer Science and Information). 9/1 (2016), 52-58 DOI: http://dx.doi.org/10.21609/jiki.v9i1.366
+
+\bibitem{WeightIniti:Glorot}
+X. Glorot and Y. Bengio, \emph{Understanding the difﬁculty of training deep feedforward neural networks}, in Proceedings of the 13th International Conference on Artiﬁcial Intelligence and Statistics, 2010, pp. 249–256. 
+
+\bibitem{LEIC:Real}
+E. Real, S. Moore, A. Selle, S. Saxena, Y. L. Suematsu, Q. Le, and A. Kurakin, “Large-scale evolution of image classiﬁers,” arXiv preprint arXiv:1703.01041, 2017. 
 
 \end{thebibliography}
 
