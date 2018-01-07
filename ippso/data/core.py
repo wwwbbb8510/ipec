@@ -10,7 +10,7 @@ class DataLoader:
     validation = None
     test = None
     mode = None
-    partical_dataset = None
+    partial_dataset = None
 
     @staticmethod
     def load(train_path=None, validation_path=None, test_path=None, height=28, length=28, train_validation_split_point=10000):
@@ -21,10 +21,8 @@ class DataLoader:
             DataLoader.validation = DataLoader.load_image_data_with_label_at_end(
                 os.path.join(DATASET_ROOT_FOLDER, validation_path), height=height, length=length)
         elif train_validation_split_point is not None and train_validation_split_point > 0:
-            if DataLoader.mode is None:
+            if DataLoader.mode is None or DataLoader.partial_dataset is not None:
                 train_validation_split_point = int(DataLoader.train['images'].shape[0] * 0.8)
-            if DataLoader.partical_dataset is not None:
-                train_validation_split_point = int(DataLoader.train['images'].shape[0] * DataLoader.partical_dataset)
             splited_train = {
                 'images': DataLoader.train['images'][0:train_validation_split_point, :, :, :],
                 'labels': DataLoader.train['labels'][0:train_validation_split_point]
@@ -93,6 +91,9 @@ class DataLoader:
         data = np.loadtxt(path)
         if DataLoader.mode is None:
             data = data[0:1000, :]
+        elif DataLoader.partial_dataset is not None and DataLoader.partial_dataset > 0 and DataLoader.partial_dataset <1:
+            cut_point = int(data.shape[0] * DataLoader.partial_dataset)
+            data = data[0:cut_point, :]
         images = data[:, 0:-1]
         labels = data[:, -1]
         images = np.reshape(images, [images.shape[0], height, length, 1], order='F')

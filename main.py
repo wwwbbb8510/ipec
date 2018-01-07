@@ -77,7 +77,7 @@ def _pso_search(args):
     else:
         logging.basicConfig(filename=args.log_file, level=logging.DEBUG)
     logging.info('===Load data - dataset:%s, mode:%s===', args.dataset, args.mode)
-    loaded_data = _load_data(args.dataset, args.mode, args.partical_dataset)
+    loaded_data = _load_data(args.dataset, args.mode, args.partial_dataset)
     logging.info('===Data loaded===')
     logging.info('===Started===')
     if loaded_data is not None:
@@ -122,7 +122,7 @@ def _pso_search(args):
     logging.info('===Finished===')
 
 
-def _load_data(dataset_name, mode, partical_dataset=None):
+def _load_data(dataset_name, mode, partial_dataset=None):
     """
     load the dataset
 
@@ -133,7 +133,7 @@ def _load_data(dataset_name, mode, partical_dataset=None):
     loaded_data = None
     from ippso.data.core import DataLoader
     DataLoader.mode = mode
-    DataLoader.partical_dataset = partical_dataset
+    DataLoader.partial_dataset = partial_dataset
     if dataset_name == 'mb':
         from ippso.data.mb import loaded_data
     elif dataset_name == 'mdrbi':
@@ -165,7 +165,7 @@ def _filter_args(args):
     args.regularise = float(args.regularise) if args.regularise is not None else 0
     args.dropout = float(args.dropout) if args.dropout is not None else 0
     args.ip_structure = int(args.ip_structure) if args.ip_structure is not None else 0
-    args.partical_dataset = float(args.partical_dataset) if args.partical_dataset is not None else None
+    args.partial_dataset = float(args.partial_dataset) if args.partial_dataset is not None else None
 
 # main entrance
 if __name__ == '__main__':
@@ -192,8 +192,8 @@ if __name__ == '__main__':
     parser.add_argument('--dropout', help='enable dropout and set dropout rate')
     parser.add_argument('--ip_structure',
                         help='IP structure. default: 5 bytes, 1: 3 bytes, 2: 2 bytes with xavier weight initialisation')
-    parser.add_argument('--partical_dataset',
-                        help='Use partical dataset for learning CNN architecture to speed up the learning process.')
+    parser.add_argument('--partial_dataset',
+                        help='Use partial dataset for learning CNN architecture to speed up the learning process.')
 
     args = parser.parse_args()
     main(args)
