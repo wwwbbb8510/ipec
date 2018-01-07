@@ -115,6 +115,7 @@
 
 % *** GRAPHICS RELATED PACKAGES ***
 %
+\usepackage{graphicx}
 \ifCLASSINFOpdf
   % \usepackage[pdftex]{graphicx}
   % declare the path(s) where your graphic files are
@@ -297,7 +298,7 @@
 % systems. The latest version and documentation can be obtained at:
 % http://www.ctan.org/pkg/url
 % Basically, \url{my_url_here}.
-
+\usepackage{url}
 
 
 
@@ -313,6 +314,9 @@
 
 % *** Algorithm and Algorithmic packages ***
 \usepackage{algorithm, algorithmic}
+
+% *** footnote package*** %
+\usepackage{footnote}
 
 
 \begin{document}
@@ -659,6 +663,8 @@ After converting each layer into a 2 bytes IP address, the position and velocity
 		\hline
 		w & inertia weight for updating velocity & 0.7298\\
 		\hline
+		$v_{max}$ & maximum velocity & 4,25.6(0.1*search space)\\
+		\hline
 	\end{tabular}
 \end{table}
 
@@ -804,13 +810,190 @@ Global best of PSO will be reported as the best individual. In terms of the deco
 
 \section{Experiment design}
 
+In order to quantify the performance of the proposed IPPSO for evolving CNN, a series of experiments are designed and performed on the chosen image classification benchmark datasets, which are further compared to state-of-the-art peer competitors. First of all, these benchmark datasets will be briefly described. Secondly, the peer competitors will be listed. Lastly, parameter settings of the proposed IPPSO algorithm participating into these experiments will be documented.
+
+\subsection{Benchmark Datasets}
+
+In these experiments, three datasets are chosen from the widely used image classification benchmark datasets examine the performance of the proposed IPPSO method. They are the MNIST Basic (MB) \cite{DeepArchitectureEval:Larochelle}, the MNIST with Rotated Digits plus Background Images (MRDBI) \cite{DeepArchitectureEval:Larochelle} and the Convex Sets (CS) \cite{DeepArchitectureEval:Larochelle}. 
+
+The first two benchmark datasets are two of the MNIST \cite{DocumentRecognition:LeCun} variants for classifying 10 hand-written digits (i.e., 0-9). There are a couple of reasons of using MNIST variants instead of MNIST. Firstly, the MNIST has been easily achieved 97\%, different noises (e.g., random backgrounds, rotations) are added into these MNIST variants from the MNIST to improve the complexity of classification algorithms. Secondly, there are 12,000 training images and 50,000 test images in these variants, which further challenges the classification algorithms due to the mush less training data but more test data. The third benchmark dataset is for recognizing the shapes of objects (i.e., convex or not) which contains 8,000 training images and 50,000 test images. Since it is a two-class classification problem comparing to 10 classes of MNIST dataset and the images contains shapes rather than digits, it is a chosen as a supplement benchmark dataset to the two MNIST variants in order to thoroughly test the performance of the proposed IPPSO method for evolving CNN. 
+
+Each image in these benchmarks is with the size 28 × 28 and examples from these three datasets are displayed in Fig \ref{fig:images}. Another reason for choosing these three benchmark datasets is that different algorithms have reported their promising results, so is convenient for comparing the performance of the proposed IPPSO method with these existing algorithms (details can be seen Subsection \ref{secpeer-competitors}).
+
+\begin{figure}[!t]
+	\centering
+	\includegraphics[width=2.5in]{ippso_image_samples}
+	\caption{Examples of the three datasets. From left to right, each two images as a group are from one benchmark, and each group is from MB, MRDBI, and Convex, respectively}
+	\label{fig:images}
+\end{figure}
+
+
+\subsection{Peer Competitors}\label{secpeer-competitors}
+
+In the experiments, state-of-the-art algorithms that have reported promising classification errors on the chosen benchmarks are collected as the peer competitors of the proposed IPPSO method. To be specific, the peer competitors on the three benchmarks are CAE-2 \cite{CAE:Rifai}, TIRBM \cite{TIRBM:Sohn}, PGBM+DN1 \cite{PGBMDN1:Sohn}, ScatNet-2 \cite{ScatteringCNN:Bruna}, RandNet-2 \cite{DLBaseline:Chan}, PCANet-2 (softmax) \cite{DLBaseline:Chan}, LDANet-2 \cite{DLBaseline:Chan}, SVM+RBF \cite{DeepArchitectureEval:Larochelle}, SVM+Poly \cite{DeepArchitectureEval:Larochelle}, NNet \cite{DeepArchitectureEval:Larochelle}, SAA-3 \cite{DeepArchitectureEval:Larochelle}, and DBN-3 \cite{DeepArchitectureEval:Larochelle}, which are from the literature \cite{DLBaseline:Chan} recently published and the provider of the benchmarks\footnote{\url{http://www.iro.umontreal.ca/∼lisa/twiki/bin/view.cgi/Public/ DeepVsShallowComparisonICML200}}. 
+
+\subsection{Parameter Settings}
+
+All the parameter settings are set based on the conventions in the communities of PSO \cite{PSOEPSettings:Van} and deep learning \cite{DLGuide:Hinton}, in addition to the maximal length of each basic layer which are listed in Table \ref{table:ParameterList}. As both PSO and CNN are involved in the proposed IPPSO method, the parameters can be split into two parts. In regard to CNN parameters, the maximal length of CNN is set to 9 by considering the complexity of the three datasets, the maximal length of fully-connected layer is set to 3 based on the maximal CNN length, the training epoch and the batch size for fitness evaluation is set to 10 and 200 respectively in order not to obtain a CNN architecture that performs well on a specific benchmark dataset in a reasonably short period. In terms of PSO parameters, 30 is used as the population size, 0.7298 is used as the inertia weight, 1.49618 is used as the coefficient of both local best and global best, and 0.1*search\_space, which is (4, 25.6) based on our IP structure design, is used as the maximal velocity for velocity clamping. 
+
+The proposed IPPSO method is implemented in Tensorﬂow \cite{Tensorfow:Abadi}, and each copy of the code runs on a computer equipped with two GPU cards with the identical model number GTX1080. Due to the heuristic nature of the proposed IPPSO method, 30 independent runs are performed on each benchmark dataset, and the mean results are estimated for the comparisons unless otherwise specified. The experiments take 1 day on each of the benchmark dataset. The source code will be available at https://github.com/wwwbbb8510/ippso for reproducing the experimental results of the proposed IPPSO method reported in this paper, and the evolved CNN architectures on each benchmark are illustrated in Section \ref{sec:EvolvedCNN}.
 
 \section{Experimental results and analysis}
 
+In this section, the CNN architectures learned by the proposed IPPSO method from the experiments for the three benchmark datasets will be listed in Section \ref{sec:EvolvedCNN}, and the corresponding classification performance along with the analysis against peer competitors will be shown in Section \ref{sec:Performance}. 
+
+\subsection{Evolved CNN architectures}\label{sec:EvolvedCNN}
+
+Although the proposed IPPSO method is performed on each benchmark with 30 independent runs, only one is chosen on each benchmark for this description that are shown from Table \ref{table:EvolvedMBCNN} to Table \ref{table:EvolvedConvexCNN} because it will be too tedious to list them all and everybody can download and run the code on github. Since disabled layers have been removed during the decoding process, they don't show up in the learned CNN architectures. Therefore, it turns out that IPPSO is able to learn a variable-length CNN architecture which can be obviously seen from the listed architectures - 6 layers for the MB and CONVEX benchmark CNN and 8 layers for the MDRBI benchmark CNN. 
+
+\begin{table}[!t]
+	%% increase table row spacing, adjust to taste
+	\renewcommand{\arraystretch}{1.3}
+	% if using array.sty, it might be a good idea to tweak the value of
+	% \extrarowheight as needed to properly center the text within the cells
+	\caption{The evolved architecture for the MB benchmark}
+	\label{table:EvolvedMBCNN}
+	\centering
+	%% Some packages, such as MDW tools, offer better commands for making tables
+	%% than the plain LaTeX2e tabular which is used here.
+	\begin{tabular}{|c|c|}
+		\hline
+		Layer type & Configuration\\
+		\hline
+		conv & Filter size: 2, Stride size: 1, feature maps: 26\\
+		\hline
+		conv & Filter size: 6, Stride size: 3, feature maps: 82\\
+		\hline
+		conv & Filter size: 8, Stride size: 4, feature maps: 114\\
+		\hline
+		conv & Filter size: 7, Stride size: 4, feature maps: 107\\
+		\hline
+		full & Neurons: 1686\\
+		\hline
+		full & Neurons: 10\\
+		\hline
+	\end{tabular}
+\end{table}
+
+\begin{table}[!t]
+	%% increase table row spacing, adjust to taste
+	\renewcommand{\arraystretch}{1.3}
+	% if using array.sty, it might be a good idea to tweak the value of
+	% \extrarowheight as needed to properly center the text within the cells
+	\caption{The evolved architecture for the MDRBI benchmark}
+	\label{table:EvolvedMDRBICNN}
+	\centering
+	%% Some packages, such as MDW tools, offer better commands for making tables
+	%% than the plain LaTeX2e tabular which is used here.
+	\begin{tabular}{|c|c|}
+		\hline
+		Layer type & Configuration\\
+		\hline
+		conv & Filter size: 2, Stride size: 1, feature maps: 32\\
+		\hline
+		conv & Filter size: 6, Stride size: 3, feature maps: 90\\
+		\hline
+		conv & Filter size: 7, Stride size: 4, feature maps: 101\\
+		\hline
+		conv & Filter size: 7, Stride size: 4, feature maps: 97\\
+		\hline
+		pool & Kernel size: 4, Stride size: 4, Type: Average\\
+		\hline
+		conv & Filter size: 5, Stride size: 3, feature maps: 68\\
+		\hline
+		full & Neurons: 1577\\
+		\hline
+		full & Neurons: 10\\
+		\hline
+	\end{tabular}
+\end{table}
+
+\begin{table}[!t]
+	%% increase table row spacing, adjust to taste
+	\renewcommand{\arraystretch}{1.3}
+	% if using array.sty, it might be a good idea to tweak the value of
+	% \extrarowheight as needed to properly center the text within the cells
+	\caption{The evolved architecture for the CONVEX benchmark}
+	\label{table:EvolvedConvexCNN}
+	\centering
+	%% Some packages, such as MDW tools, offer better commands for making tables
+	%% than the plain LaTeX2e tabular which is used here.
+	\begin{tabular}{|c|c|}
+		\hline
+		Layer type & Configuration\\
+		\hline
+		conv & Filter size: 1, Stride size: 1, feature maps: 11\\
+		\hline
+		conv & Filter size:7, Stride size: 4, feature maps: 108\\
+		\hline
+		conv & Filter size: 1, Stride size: 1, feature maps: 8\\
+		\hline
+		conv & Filter size: 6, Stride size: 3, feature maps: 92\\
+		\hline
+		full & Neurons: 906\\
+		\hline
+		full & Neurons: 2\\
+		\hline
+	\end{tabular}
+\end{table}
+
+\subsection{Overall performance}\label{sec:Performance}
+
+Experimental results on all the three benchmark datasets are shown in Table \ref{table:ResultComparison} where the last row denotes the mean classification errors received from the proposed IPPSO method and other rows show the best classification errors reported by peer competitors\footnote{It is a convention in deep learning community that only the best result is reported.}. In order to conveniently investigate the comparisons, the terms “(+)” and “(-)” are provided to indicate whether the result generated by the proposed IPPSO method is better or worse that the best result obtained by the corresponding peer competitor. The term “—” means there is no available result reported from the provider or cannot be counted.
+
+It is clearly shown in Table \ref{table:ResultComparison} that by comparing the result of the proposed IPPSO method with the best performance of the peer competitors it perform the second best on MB dataset which is only a little bit worse than LDANet-2, the best on MDRBI dataset which is the most complicated dataset among these three, and the fifth best on CONVEX dataset which is not ideal but still reasonably competitive. 
+
+\begin{table}[!t]
+	%% increase table row spacing, adjust to taste
+	\renewcommand{\arraystretch}{1.3}
+	% if using array.sty, it might be a good idea to tweak the value of
+	% \extrarowheight as needed to properly center the text within the cells
+	\caption{The classification errors of the proposed IPPSO method against the peer competitors on the MB, MDRBI and CONVEX benchmark datasets}
+	\label{table:ResultComparison}
+	\centering
+	%% Some packages, such as MDW tools, offer better commands for making tables
+	%% than the plain LaTeX2e tabular which is used here.
+	\begin{tabular}{|c|c|c|c|}
+		\hline
+		classiﬁer & MB & MDRBI & CONVEX\\
+		\hline
+		CAE-2 & 2.48(+) & 45.23(+) & --\\
+		\hline
+		TIRBM & -- & 35.50(+) & --\\
+		\hline
+		PGBM+DN-1 & -- & 36.76(+) & --\\
+		\hline
+		ScatNet-2 & 1.27(+) & 50.48(+) & 6.50(-)\\
+		\hline
+		RandNet-2 & 1.25(+) & 43.69(+) & 5.45(-)\\
+		\hline
+		PCANet-2 (softmax)  & 1.40(+) & 35.86(+) & 4.19(-)\\
+		\hline
+		LDANet-2 & 1.05(-) & 38.54(+) & 7.22(-)\\
+		\hline
+		SVM+RBF & 3.03(+) & 55.18(+) & 19.13(+)\\
+		\hline
+		SVM+Poly & 3.69(+) & 56.41(+) & 19.82(+)\\
+		\hline
+		NNet & 4.69(+) & 62.16(+) & 32.25(+)\\
+		\hline
+		SAA-3 & 3.46(+) & 51.93(+) & 18.41(+)\\
+		\hline
+		DBN-3  & 3.11(+) & 47.39(+) & 18.63(+)\\
+		\hline
+		IPPSO(mean) & 1.15 & 33 & 14\\
+		\hline
+	\end{tabular}
+\end{table}
 
 \section{Further discussion}
 
+In this section, we will discuss the two advantages that are brought by the IP structure encoding strategy of the proposed IPPSO method. Other than that an extra finding from the experiments will be pointed out, which could provide insights on the industrial applications of the proposed IPPSO method. 
 
+The first advantage is that the IPPSO method can facilitate the convergence because when the search space is huge, by splitting the search space into several bytes and updating each byte simultaneously which can significantly speed up learning process. For example, the convolutional layer in our design contains 12 bits and the search space for each dimension in the particle vector will be 4096 if a single decimal is used for the encoding; However, by using the IP-PSO to encode the search space into 2 bytes the search space for each dimension is 256 and PSO can learn them concurrently by updating each of the dimension at every step which can make the convergence much faster. 
+The second advantage is that it provides the flexibility of encoding numerous types of data with variable length into one unit in the particle. For instance, in our design the four types of layers can be encoded as an IP address with 2 bytes which can be easily learned by PSO; However, if using traditional PSO, it is hard to encode 3 types of layers into one number which can be effectively decoded. Furthermore, the capacity of the types of data can extend by enlarging the length of the IP address.
+
+In PSO search process, I found that the architecture learned by only using 1000 rows instead of 12000 rows for MB and MDRBI can obtain a similar or better result than that found by using the whole training set. The potential explanation would be that as we only train the data by 10 epoch and the advantage of using larger data set is to prevent over-fitting which in most occasions will take effect at later training epochs, there is little difference or no difference of using partial dataset instead of the whole dataset which can save a lot of PSO learning time.
 
 % An example of a floating figure using the graphicx package.
 % Note that \label must occur AFTER (or within) \caption.
@@ -911,17 +1094,20 @@ Global best of PSO will be reported as the best individual. In terms of the deco
 
 \section{Conclusion and future work}
 
+The goal of this paper was to develop a new PSO approach with variable length to automatically evolve the architectures of CNNs for image classification problems. This goal has been successfully achieved by proposing a new encoding scheme of using a network interface containing an IP address and its corresponding subnet to carry the configurations of a CNN layers, a corresponding decoding method to translate a network interface back to a CNN layer, a series of three subnets to represent three types of CNN layers, an additional subnet for disabling some dimensions in the particle vector in order to achieve a variable-length PSO, a new update equation with velocity clamping specifically for the proposed encoding scheme, and an efficient fitness evaluation method. This approach was examined and compared with 12 peer competitors including the most state-of-the-are algorithms on three benchmark datasets commonly used in deep learning and the experiment results show that the proposed IPPSO method can achieve a very competitive accuracy by outperforming all others on the MDRBI benchmark dataset, being the second best on the MNIST benchmark dataset and ranking above the middle on the CONVEX benchmark dataset. 
 
+The most important improvement from PSO to the novel IPPSO proposed in the paper is to invent the new encoding strategy of using network interface. Since the subnet in the interface can distinguish any type of layers, any layer configurations can be encoded into the IP address and the length of the IP address can be easily extended to 4 bytes (the length of real IP addresses) or even more, the IPPSO method has the ability of encoding any type of Deep Neural Network layers. In addition, the particle length of the IPPSO method can be easily made variable by simply introducing a disabled layer which could be deemed crucial as it breaks the obstacle of traditional PSO being fix-length. 
 
+In this we have investigated the proposed IPPSO method for evolving deep CNN and it is proved of obtaining promising results. Based on this research, there are a couple of further researches that are worth doing. Firstly, as this paper is mainly to propose the novel encoding strategy of the IPPSO, it will be interesting to see how different PSO topologies\footnote{Fully-connected topology is used in this paper as it is easy to be implemented} will affect the performance of the IPPSO and find the best topology for it. Secondly, we will also investigate how the proposed IPPSO algorithm perform for evolving recurrent neural networks, which are powerful tools for addressing sequential data, such as language processing problem.
 
 % conference papers do not normally have an appendix
 
 
 % use section* for acknowledgment
-\section*{Acknowledgement}
+%\section*{Acknowledgement}
 
 
-The authors would like to thank...
+%The authors would like to thank all the supervisors. 
 
 
 
@@ -949,7 +1135,7 @@ The authors would like to thank...
 % <OR> manually copy in the resultant .bbl file
 % set second argument of \begin to the number of references
 % (used to reserve space for the reference number labels box)
-\begin{thebibliography}{11}
+\begin{thebibliography}{}
 
 \bibitem{CNNspeech:Ossama}
 Ossama Abdel-Hamid, Li Deng and Dong Yu, \emph{Exploring Convolutional Neural Network Structures and Optimization Techniques for Speech Recognition}. INTERSPEECH 2013, 5 - 29 August 2013, Lyon, France
@@ -983,6 +1169,30 @@ H. Xiao, K. Rasul, and R. Vollgraf, \emph{Fashion-mnist: a novel image dataset f
 
 \bibitem{DeepArchitectureEval:Larochelle}
 H. Larochelle, D. Erhan, A. Courville, J. Bergstra, and Y. Bengio, \emph{An empirical evaluation of deep architectures on problems with many factors of variation}, in Proceedings of the 24th International Conference on Machine Learning. ACM, 2007, pp. 473–480.
+
+\bibitem{CAE:Rifai}
+S. Rifai, P. Vincent, X. Muller, X. Glorot, and Y. Bengio, \emph{Contractive auto-encoders: Explicit invariance during feature extraction}, in Proceedings of the 28th International Conference on Machine Learning, 2011, pp. 833–840. 
+
+\bibitem{TIRBM:Sohn}
+K. Sohn and H. Lee, \emph{Learning invariant representations with local transformations}, arXiv preprint arXiv:1206.6418, 2012. 
+
+\bibitem{PGBMDN1:Sohn}
+K. Sohn, G. Zhou, C. Lee, and H. Lee, \emph{Learning and selecting features jointly with point-wise gated boltzmann machines}, in International Conference on Machine Learning, 2013, pp. 217–225. 
+
+\bibitem{DLBaseline:Chan}
+T.-H. Chan, K. Jia, S. Gao, J. Lu, Z. Zeng, and Y. Ma, \emph{Pcanet: A simple deep learning baseline for image classiﬁcation?} IEEE Transactions on Image Processing, vol. 24, no. 12, pp. 5017–5032, 2015. 
+
+\bibitem{ScatteringCNN:Bruna}
+J. Bruna and S. Mallat, \emph{Invariant scattering convolution networks}, IEEE transactions on Pattern Analysis and Machine Intelligence, vol. 35, no. 8, pp. 1872–1886, 2013. 
+
+\bibitem{PSOEPSettings:Van}
+F. van den Bergh, A.P. Engelbrecht, \emph{A study of particle swarm optimization particle trajectories}, doi:10.1016/j.ins.2005.02.003
+
+\bibitem{DLGuide:Hinton}
+G. E. Hinton, \emph{A practical guide to training restricted boltzmann machines}, in Neural Networks: Tricks of the Trade. Springer, 2012, pp. 599–619.
+
+\bibitem{Tensorfow:Abadi}
+M. Abadi, A. Agarwal, P. Barham, E. Brevdo, Z. Chen, C. Citro, G. S. Corrado, A. Davis, J. Dean, M. Devin et al., \emph{Tensorﬂow: Large-scale machine learning on heterogeneous distributed systems}, arXiv preprint arXiv:1603.04467, 2016. 
 
 \end{thebibliography}
 
