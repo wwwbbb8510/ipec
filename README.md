@@ -53,6 +53,15 @@ optional arguments:
   --c2 C2               c2 parameter of PSO
   -v V_MAX, --v_max V_MAX
                         PSO max velocity used by velocity clamping
+  -r REGULARISE, --regularise REGULARISE
+                        weight regularisation hyper-parameter.
+  --dropout DROPOUT     enable dropout and set dropout rate
+  --ip_structure IP_STRUCTURE
+                        IP structure. default: 5 bytes, 1: 3 bytes, 2: 2 bytes
+                        with xavier weight initialisation
+  --partial_dataset PARTIAL_DATASET
+                        Use partial dataset for learning CNN architecture to
+                        speed up the learning process.
 ```
 
 #### run program in debug mode
