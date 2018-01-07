@@ -10,6 +10,7 @@ class DataLoader:
     validation = None
     test = None
     mode = None
+    partical_dataset = None
 
     @staticmethod
     def load(train_path=None, validation_path=None, test_path=None, height=28, length=28, train_validation_split_point=10000):
@@ -22,6 +23,8 @@ class DataLoader:
         elif train_validation_split_point is not None and train_validation_split_point > 0:
             if DataLoader.mode is None:
                 train_validation_split_point = int(DataLoader.train['images'].shape[0] * 0.8)
+            if DataLoader.partical_dataset is not None:
+                train_validation_split_point = int(DataLoader.train['images'].shape[0] * DataLoader.partical_dataset)
             splited_train = {
                 'images': DataLoader.train['images'][0:train_validation_split_point, :, :, :],
                 'labels': DataLoader.train['labels'][0:train_validation_split_point]
