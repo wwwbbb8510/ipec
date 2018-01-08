@@ -14,7 +14,7 @@ os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 path = os.path.join(os.path.abspath('datasets'), 'mnist')
 training_path = os.path.join(path, 'mnist_train.amat')
 test_path = os.path.join(path, 'mnist_test.amat')
-debug = 1
+debug = 0
 
 ################################# load the whole dataset #################################
 def load_image_data_with_label_at_end(path, height, length):
