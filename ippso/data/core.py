@@ -94,7 +94,6 @@ class DataLoader:
             data = data[0:1000, :]
         elif DataLoader.partial_dataset is not None and DataLoader.partial_dataset > 0 and DataLoader.partial_dataset <1:
             # randomly pick partial dataset
-            np.random.shuffle(data)
             cut_point = int(data.shape[0] * DataLoader.partial_dataset)
             indices = np.random.permutation(data.shape[0])
             training_idx= indices[:cut_point]

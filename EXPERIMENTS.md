@@ -88,19 +88,19 @@ nohup python3 main.py -d mdrbi -m 1 --ip_structure 2 -e 100 -f 0 -g 1 -o 1 --log
 **Search the best particle**
 
 ```bash
-nohup python3 main.py -d convex -c 2 -m 1 --ip_structure 2 --w 0.7298 --c1 1.49618,1.49618 --c2 1.49618,1.49618 -s 30 -l 8 --max_steps 15 -e 10 -f 0 -g 1 --log_file=log/ippso_cnn_4034.log --gbest_file=log/gbest_4034.pkl &
+nohup python3 main.py -d convex -c 2 -m 1 --ip_structure 2 --w 0.7298 --c1 1.49618,1.49618 --c2 1.49618,1.49618 -s 30 -l 8 --max_steps 15 -e 10 -f 0 -g 1 --log_file=log/ippso_cnn_4035.log --gbest_file=log/gbest_4035.pkl &
 ```
 
 **Search the best particle with velocity clamping**
 
 ```bash
-nohup python3 main.py -d convex -c 2 -m 1 --partial_dataset 0.15 --ip_structure 2 --w 0.7298 --c1 1.49618,1.49618 --c2 1.49618,1.49618 -v 4,25.6 -s 30 -l 8 --max_steps 30 -e 10 -f 0 -g 1 --log_file=log/ippso_cnn_4034.log --gbest_file=log/gbest_4034.pkl &
+nohup python3 main.py -d convex -c 2 -m 1 --partial_dataset 0.15 --ip_structure 2 --w 0.7298 --c1 1.49618,1.49618 --c2 1.49618,1.49618 -v 4,25.6 -s 30 -l 8 --max_steps 30 -e 10 -f 0 -g 1 --log_file=log/ippso_cnn_4035.log --gbest_file=log/gbest_4035.pkl &
 ```
 
 **Train the best particle**
 
 ```bash
-nohup python3 main.py -d convex -c 2 -m 1 --ip_structure 2 -e 100 -r 0.5 --dropout 0.5 -f 0 -g 1 -o 1 --log_file=log/ippso_cnn_optimise_4034.log --gbest_file=log/gbest_4034.pkl &
+nohup python3 main.py -d convex -c 2 -m 1 --ip_structure 2 -e 100 -r 0.5 --dropout 0.5 -f 0 -g 1 -o 1 --log_file=log/ippso_cnn_optimise_4035.log --gbest_file=log/gbest_4035.pkl &
 ```
 
 
