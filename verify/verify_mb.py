@@ -37,12 +37,16 @@ if debug == 1:
     test_data = mnist.test.images[0:1000, :]
     test_label = mnist.test.labels[0:1000]
 else:
+    print('===start loading training data===')
     whole_training_set = load_image_data_with_label_at_end(training_path, 28, 28)
+    print('===finish loading training data===')
     training_data=whole_training_set['images'][0:10000, :]
     training_label=whole_training_set['labels'][0:10000]
     validation_data=whole_training_set['images'][10000:12000, :]
     validation_label=whole_training_set['labels'][10000:12000]
+    print('===start loading test data===')
     whole_test_set = load_image_data_with_label_at_end(test_path, 28, 28)
+    print('===finish loading test data===')
     test_data=whole_test_set['images']
     test_label=whole_test_set['labels']
 training_data_length = training_data.shape[0]
