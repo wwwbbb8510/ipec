@@ -10,7 +10,7 @@ from datetime import datetime
 batch_size = 200
 training_epoch = 100
 os.environ['CUDA_VISIBLE_DEVICES'] = '1'
-path = os.path.join(os.path.abspath('../datasets'), 'mnist')
+path = os.path.join(os.path.abspath('datasets'), 'mnist')
 training_path = os.path.join(path, 'mnist_train.amat')
 test_path = os.path.join(path, 'mnist_test.amat')
 
@@ -33,9 +33,9 @@ validation_label=whole_training_set['labels'][10000:12000]
 whole_test_set = load_image_data_with_label_at_end(test_path, 28, 28)
 test_data=whole_test_set['images']
 test_label=whole_test_set['labels']
-print('traing data shape:{}{}'.format(str(training_data.shape)))
-print('validation data shape:{}{}'.format(str(validation_data.shape)))
-print('test data shape:{}{}'.format(str(test_data.shape)))
+print('traing data shape:{}'.format(str(training_data.shape)))
+print('validation data shape:{}'.format(str(validation_data.shape)))
+print('test data shape:{}'.format(str(test_data.shape)))
 
 # function of produce batch data
 def produce_tf_batch_data(images, labels, batch_size):
