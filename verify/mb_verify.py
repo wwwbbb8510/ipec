@@ -1,4 +1,3 @@
-import logging
 import tensorflow as tf
 from ippso.data.core import DataLoader
 import tensorflow.contrib.slim as slim
@@ -15,7 +14,6 @@ from ippso.data.mb import loaded_data
 batch_size = 200
 training_epoch = 100
 os.environ['CUDA_VISIBLE_DEVICES'] = '1'
-logging.basicConfig(filename='log/ippso_cnn_mb_verification.log', level=logging.DEBUG)
 
 ################################# load the whole dataset #################################
 DataLoader.mode = 1
@@ -165,7 +163,7 @@ def test_one_epoch(sess, accuracy, cross_entropy, is_training, data_length, trai
     mean_loss = np.mean(loss_list)
     return mean_accu, mean_loss
 
-logging.info('===start training===')
+print('===start training===')
 tf.reset_default_graph()
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
@@ -189,36 +187,36 @@ with tf.Session() as sess:
                 mean_validation_accu, mean_validation_loss = test_one_epoch(sess, accuracy, cross_entropy,
                                                                                  is_training,
                                                                                  validation_data.shape[0], 1, X, true_Y)
-                logging.debug('{}, {}, Step:{}/{}, training_loss:{}, acc:{}, validation_loss:{}, acc:{}'.format(
+                print('{}, {}, Step:{}/{}, training_loss:{}, acc:{}, validation_loss:{}, acc:{}'.format(
                 datetime.now(), i // steps_in_each_epoch, i, total_steps, loss_str,
                 accuracy_str, mean_validation_loss, mean_validation_accu))
                 mean_test_accu, mean_test_loss = test_one_epoch(sess, accuracy,
                                                                      cross_entropy, is_training,
                                                                      test_data.shape[0],
                                                                      2, X, true_Y)
-                logging.debug('test_loss:{}, acc:{}'.format(mean_test_loss, mean_test_accu))
+                print('test_loss:{}, acc:{}'.format(mean_test_loss, mean_test_accu))
         # validate and test the last epoch
         mean_validation_accu, mean_validation_loss = test_one_epoch(sess, accuracy, cross_entropy,
                                                                     is_training,
                                                                     validation_data.shape[0], 1, X, true_Y)
-        logging.debug('===final result after the last epoch===')
-        logging.debug('{}, {}, Step:{}/{}, training_loss:{}, acc:{}, validation_loss:{}, acc:{}'.format(
+        print('===final result after the last epoch===')
+        print('{}, {}, Step:{}/{}, training_loss:{}, acc:{}, validation_loss:{}, acc:{}'.format(
             datetime.now(), i // steps_in_each_epoch, i, total_steps, loss_str,
             accuracy_str, mean_validation_loss, mean_validation_accu))
         mean_test_accu, mean_test_loss = test_one_epoch(sess, accuracy,
                                                         cross_entropy, is_training,
                                                         test_data.shape[0],
                                                         2, X, true_Y)
-        logging.debug('test_loss:{}, acc:{}'.format(mean_test_loss, mean_test_accu))
+        print('test_loss:{}, acc:{}'.format(mean_test_loss, mean_test_accu))
 
     except Exception as e:
         print(e)
         coord.request_stop(e)
     finally:
-        logging.debug('finally...')
+        print('finally...')
         coord.request_stop()
         coord.join(threads)
-    logging.info('===finish training===')
+    print('===finish training===')
 
 
 
