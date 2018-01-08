@@ -77,95 +77,97 @@ def produce_tf_batch_data(images, labels, batch_size):
     return image_batch, label_batch
 
 ################################# build the CNN #################################
-is_training = tf.placeholder(tf.int8, [])
-training_data, training_label = produce_tf_batch_data(training_data, training_label, batch_size)
-validation_data, validation_label = produce_tf_batch_data(validation_data, validation_label, batch_size)
-test_data, test_label = produce_tf_batch_data(test_data, test_label, batch_size)
-bool_is_training = tf.cond(tf.equal(is_training, tf.constant(0, dtype=tf.int8)), lambda: tf.constant(True, dtype=tf.bool), lambda : tf.constant(False, dtype=tf.bool))
-# when is_training==0 use training data, when is_training==1 use validation data, when is_training==2 use test data
-X, y_ = tf.cond(tf.equal(is_training, tf.constant(0, dtype=tf.int8)), lambda : (training_data, training_label),
-                lambda : tf.cond(tf.equal(is_training, tf.constant(1,dtype=tf.int8)), lambda : (validation_data, validation_label), lambda : (test_data, test_label)))
-true_Y = tf.cast(y_, tf.int64)
+def build_cnn(training_data, training_label, validation_data, validation_label, test_data, test_label):
+    is_training = tf.placeholder(tf.int8, [])
+    training_data, training_label = produce_tf_batch_data(training_data, training_label, batch_size)
+    validation_data, validation_label = produce_tf_batch_data(validation_data, validation_label, batch_size)
+    test_data, test_label = produce_tf_batch_data(test_data, test_label, batch_size)
+    bool_is_training = tf.cond(tf.equal(is_training, tf.constant(0, dtype=tf.int8)), lambda: tf.constant(True, dtype=tf.bool), lambda : tf.constant(False, dtype=tf.bool))
+    # when is_training==0 use training data, when is_training==1 use validation data, when is_training==2 use test data
+    X, y_ = tf.cond(tf.equal(is_training, tf.constant(0, dtype=tf.int8)), lambda : (training_data, training_label),
+                    lambda : tf.cond(tf.equal(is_training, tf.constant(1,dtype=tf.int8)), lambda : (validation_data, validation_label), lambda : (test_data, test_label)))
+    true_Y = tf.cast(y_, tf.int64)
 
-# add input layer
-output_list = []
-output_list.append(X)
+    # add input layer
+    output_list = []
+    output_list.append(X)
 
-with slim.arg_scope([slim.conv2d, slim.fully_connected],
-                    activation_fn=tf.nn.crelu,
-                    normalizer_fn=slim.batch_norm,
-                    weights_regularizer=None,
-                    normalizer_params={'is_training': bool_is_training, 'decay': 0.99}
-                    ):
-    # add conv layer
-    name_scope = 'conv_1'
-    with tf.variable_scope(name_scope):
-        filter_size, stride_size, feature_map_size = (2, 1, 26)
-        conv = slim.conv2d(output_list[-1], feature_map_size, filter_size, stride_size,
-                             weights_initializer=initializers.xavier_initializer(),
-                             biases_initializer=init_ops.constant_initializer(0.1, dtype=tf.float32))
-        output_list.append(conv)
+    with slim.arg_scope([slim.conv2d, slim.fully_connected],
+                        activation_fn=tf.nn.crelu,
+                        normalizer_fn=slim.batch_norm,
+                        weights_regularizer=None,
+                        normalizer_params={'is_training': bool_is_training, 'decay': 0.99}
+                        ):
+        # add conv layer
+        name_scope = 'conv_1'
+        with tf.variable_scope(name_scope):
+            filter_size, stride_size, feature_map_size = (2, 1, 26)
+            conv = slim.conv2d(output_list[-1], feature_map_size, filter_size, stride_size,
+                                 weights_initializer=initializers.xavier_initializer(),
+                                 biases_initializer=init_ops.constant_initializer(0.1, dtype=tf.float32))
+            output_list.append(conv)
 
-    # add conv layer
-    name_scope = 'conv_2'
-    with tf.variable_scope(name_scope):
-        filter_size, stride_size, feature_map_size = (6, 3, 82)
-        conv = slim.conv2d(output_list[-1], feature_map_size, filter_size, stride_size,
-                             weights_initializer=initializers.xavier_initializer(),
-                             biases_initializer=init_ops.constant_initializer(0.1, dtype=tf.float32))
-        output_list.append(conv)
+        # add conv layer
+        name_scope = 'conv_2'
+        with tf.variable_scope(name_scope):
+            filter_size, stride_size, feature_map_size = (6, 3, 82)
+            conv = slim.conv2d(output_list[-1], feature_map_size, filter_size, stride_size,
+                                 weights_initializer=initializers.xavier_initializer(),
+                                 biases_initializer=init_ops.constant_initializer(0.1, dtype=tf.float32))
+            output_list.append(conv)
 
-    # add conv layer
-    name_scope = 'conv_3'
-    with tf.variable_scope(name_scope):
-        filter_size, stride_size, feature_map_size = (8, 4, 114)
-        conv = slim.conv2d(output_list[-1], feature_map_size, filter_size, stride_size,
-                             weights_initializer=initializers.xavier_initializer(),
-                             biases_initializer=init_ops.constant_initializer(0.1, dtype=tf.float32))
-        output_list.append(conv)
+        # add conv layer
+        name_scope = 'conv_3'
+        with tf.variable_scope(name_scope):
+            filter_size, stride_size, feature_map_size = (8, 4, 114)
+            conv = slim.conv2d(output_list[-1], feature_map_size, filter_size, stride_size,
+                                 weights_initializer=initializers.xavier_initializer(),
+                                 biases_initializer=init_ops.constant_initializer(0.1, dtype=tf.float32))
+            output_list.append(conv)
 
-    # add conv layer
-    name_scope = 'conv_4'
-    with tf.variable_scope(name_scope):
-        filter_size, stride_size, feature_map_size = (7, 4, 107)
-        conv = slim.conv2d(output_list[-1], feature_map_size, filter_size, stride_size,
-                           weights_initializer=initializers.xavier_initializer(),
-                           biases_initializer=init_ops.constant_initializer(0.1, dtype=tf.float32))
-        output_list.append(conv)
+        # add conv layer
+        name_scope = 'conv_4'
+        with tf.variable_scope(name_scope):
+            filter_size, stride_size, feature_map_size = (7, 4, 107)
+            conv = slim.conv2d(output_list[-1], feature_map_size, filter_size, stride_size,
+                               weights_initializer=initializers.xavier_initializer(),
+                               biases_initializer=init_ops.constant_initializer(0.1, dtype=tf.float32))
+            output_list.append(conv)
 
-    # add first fully-connected layer
-    name_scope = 'fully-connected_1'
-    with tf.variable_scope(name_scope):
-        hidden_neuron_num = 1686
-        input_data = slim.flatten(output_list[-1])
-        full = slim.fully_connected(input_data, num_outputs=hidden_neuron_num,
-                                      weights_initializer=initializers.xavier_initializer(),
-                                      biases_initializer=init_ops.constant_initializer(0.1,
-                                                                                       dtype=tf.float32))
-        output_list.append(full)
+        # add first fully-connected layer
+        name_scope = 'fully-connected_1'
+        with tf.variable_scope(name_scope):
+            hidden_neuron_num = 1686
+            input_data = slim.flatten(output_list[-1])
+            full = slim.fully_connected(input_data, num_outputs=hidden_neuron_num,
+                                          weights_initializer=initializers.xavier_initializer(),
+                                          biases_initializer=init_ops.constant_initializer(0.1,
+                                                                                           dtype=tf.float32))
+            output_list.append(full)
 
-    # add fully-connected output layer
-    name_scope = 'fully-connected_2'
-    with tf.variable_scope(name_scope):
-        hidden_neuron_num = 10
-        input_data = slim.flatten(output_list[-1])
-        full = slim.fully_connected(input_data, num_outputs=hidden_neuron_num,
-                                    weights_initializer=initializers.xavier_initializer(),
-                                    biases_initializer=init_ops.constant_initializer(0.1,
-                                                                                     dtype=tf.float32))
-        output_list.append(full)
+        # add fully-connected output layer
+        name_scope = 'fully-connected_2'
+        with tf.variable_scope(name_scope):
+            hidden_neuron_num = 10
+            input_data = slim.flatten(output_list[-1])
+            full = slim.fully_connected(input_data, num_outputs=hidden_neuron_num,
+                                        weights_initializer=initializers.xavier_initializer(),
+                                        biases_initializer=init_ops.constant_initializer(0.1,
+                                                                                         dtype=tf.float32))
+            output_list.append(full)
 
-    # create tensors
-    with tf.name_scope('loss'):
-        logits = output_list[-1]
-        cross_entropy = tf.reduce_mean(
-            tf.nn.sparse_softmax_cross_entropy_with_logits(labels=true_Y, logits=logits))
-        loss = cross_entropy
-    with tf.name_scope('train'):
-        optimizer = tf.train.AdamOptimizer()
-        train_op = slim.learning.create_train_op(loss, optimizer)
-    with tf.name_scope('test'):
-        accuracy = tf.reduce_mean(tf.cast(tf.equal(tf.argmax(logits, 1), true_Y), tf.float32))
+        # create tensors
+        with tf.name_scope('loss'):
+            logits = output_list[-1]
+            cross_entropy = tf.reduce_mean(
+                tf.nn.sparse_softmax_cross_entropy_with_logits(labels=true_Y, logits=logits))
+            loss = cross_entropy
+        with tf.name_scope('train'):
+            optimizer = tf.train.AdamOptimizer()
+            train_op = slim.learning.create_train_op(loss, optimizer)
+        with tf.name_scope('test'):
+            accuracy = tf.reduce_mean(tf.cast(tf.equal(tf.argmax(logits, 1), true_Y), tf.float32))
+    return is_training, train_op, accuracy, loss, X, true_Y
 
 ################################# train the CNN and output the results #################################
 def test_one_epoch(sess, accuracy, cross_entropy, is_training, data_length, training_mode, X, true_Y):
@@ -192,6 +194,7 @@ def test_one_epoch(sess, accuracy, cross_entropy, is_training, data_length, trai
 
 print('===start training===')
 tf.reset_default_graph()
+is_training, train_op, accuracy, cross_entropy, X, true_Y = build_cnn(training_data, training_label, validation_data, validation_label, test_data, test_label)
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
     steps_in_each_epoch = (training_data_length // batch_size)
