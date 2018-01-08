@@ -1,5 +1,4 @@
 import tensorflow as tf
-from ippso.data.core import DataLoader
 import tensorflow.contrib.slim as slim
 from tensorflow.contrib.layers.python.layers import initializers
 from tensorflow.python.ops import init_ops
@@ -7,22 +6,36 @@ import os
 import numpy as np
 from datetime import datetime
 
-# load the mb dataset
-from ippso.data.mb import loaded_data
-
 # parameters
 batch_size = 200
 training_epoch = 100
 os.environ['CUDA_VISIBLE_DEVICES'] = '1'
+path = os.path.join(os.path.abspath('../datasets'), 'mnist')
+training_path = os.path.join(path, 'mnist_train.amat')
+test_path = os.path.join(path, 'mnist_test.amat')
 
 ################################# load the whole dataset #################################
-DataLoader.mode = 1
-training_data=loaded_data.train['images']
-training_label=loaded_data.train['labels']
-validation_data=loaded_data.validation['images']
-validation_label=loaded_data.validation['labels']
-test_data=loaded_data.test['images']
-test_label=loaded_data.test['labels']
+def load_image_data_with_label_at_end(path, height, length):
+    data = np.loadtxt(path)
+    images = data[:, 0:-1]
+    labels = data[:, -1]
+    images = np.reshape(images, [images.shape[0], height, length, 1], order='F')
+
+    return {
+        'images': images,
+        'labels': labels
+    }
+whole_training_set = load_image_data_with_label_at_end(training_path, 28, 28)
+training_data=whole_training_set['images'][0:10000, :]
+training_label=whole_training_set['labels'][0:10000]
+validation_data=whole_training_set['images'][10000:12000, :]
+validation_label=whole_training_set['labels'][10000:12000]
+whole_test_set = load_image_data_with_label_at_end(test_path, 28, 28)
+test_data=whole_test_set['images']
+test_label=whole_test_set['labels']
+print('traing data shape:{}{}'.format(str(training_data.shape)))
+print('validation data shape:{}{}'.format(str(validation_data.shape)))
+print('test data shape:{}{}'.format(str(test_data.shape)))
 
 # function of produce batch data
 def produce_tf_batch_data(images, labels, batch_size):
