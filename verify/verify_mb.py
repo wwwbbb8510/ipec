@@ -5,6 +5,7 @@ from tensorflow.python.ops import init_ops
 import os
 import numpy as np
 from datetime import datetime
+from tensorflow.examples.tutorials.mnist import input_data
 
 # parameters
 batch_size = 200
@@ -13,6 +14,7 @@ os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 path = os.path.join(os.path.abspath('datasets'), 'mnist')
 training_path = os.path.join(path, 'mnist_train.amat')
 test_path = os.path.join(path, 'mnist_test.amat')
+debug = 1
 
 ################################# load the whole dataset #################################
 def load_image_data_with_label_at_end(path, height, length):
@@ -25,15 +27,28 @@ def load_image_data_with_label_at_end(path, height, length):
         'images': images,
         'labels': labels
     }
-whole_training_set = load_image_data_with_label_at_end(training_path, 28, 28)
-training_data=whole_training_set['images'][0:10000, :]
-training_label=whole_training_set['labels'][0:10000]
-validation_data=whole_training_set['images'][10000:12000, :]
-validation_label=whole_training_set['labels'][10000:12000]
-whole_test_set = load_image_data_with_label_at_end(test_path, 28, 28)
-test_data=whole_test_set['images']
-test_label=whole_test_set['labels']
-print('traing data shape:{}'.format(str(training_data.shape)))
+if debug == 1:
+    # load mnist data
+    mnist = input_data.read_data_sets("MNIST_data/")
+    training_data = mnist.train.images[0:1000, :]
+    training_label = mnist.train.labels[0:1000]
+    validation_data = mnist.validation.images[0:1000, :]
+    validation_label = mnist.validation.labels[0:1000]
+    test_data = mnist.test.images[0:1000, :]
+    test_label = mnist.test.labels[0:1000]
+else:
+    whole_training_set = load_image_data_with_label_at_end(training_path, 28, 28)
+    training_data=whole_training_set['images'][0:10000, :]
+    training_label=whole_training_set['labels'][0:10000]
+    validation_data=whole_training_set['images'][10000:12000, :]
+    validation_label=whole_training_set['labels'][10000:12000]
+    whole_test_set = load_image_data_with_label_at_end(test_path, 28, 28)
+    test_data=whole_test_set['images']
+    test_label=whole_test_set['labels']
+training_data_length = training_data.shape[0]
+validation_data_length = validation_data.shape[0]
+test_data_length = test_data.shape[0]
+print('training data shape:{}'.format(str(training_data.shape)))
 print('validation data shape:{}'.format(str(validation_data.shape)))
 print('test data shape:{}'.format(str(test_data.shape)))
 
@@ -147,7 +162,6 @@ with slim.arg_scope([slim.conv2d, slim.fully_connected],
             tf.nn.sparse_softmax_cross_entropy_with_logits(labels=true_Y, logits=logits))
         loss = cross_entropy
     with tf.name_scope('train'):
-        update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
         optimizer = tf.train.AdamOptimizer()
         train_op = slim.learning.create_train_op(loss, optimizer)
     with tf.name_scope('test'):
@@ -180,7 +194,7 @@ print('===start training===')
 tf.reset_default_graph()
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
-    steps_in_each_epoch = (training_data.shape[0] // batch_size)
+    steps_in_each_epoch = (training_data_length // batch_size)
     total_steps = int(training_epoch * steps_in_each_epoch)
     coord = tf.train.Coordinator()
     # threads = tf.train.start_queue_runners(sess, coord)
@@ -199,26 +213,26 @@ with tf.Session() as sess:
             if i % (2 * steps_in_each_epoch) == 0:
                 mean_validation_accu, mean_validation_loss = test_one_epoch(sess, accuracy, cross_entropy,
                                                                                  is_training,
-                                                                                 validation_data.shape[0], 1, X, true_Y)
+                                                                                 validation_data_length, 1, X, true_Y)
                 print('{}, {}, Step:{}/{}, training_loss:{}, acc:{}, validation_loss:{}, acc:{}'.format(
                 datetime.now(), i // steps_in_each_epoch, i, total_steps, loss_str,
                 accuracy_str, mean_validation_loss, mean_validation_accu))
                 mean_test_accu, mean_test_loss = test_one_epoch(sess, accuracy,
                                                                      cross_entropy, is_training,
-                                                                     test_data.shape[0],
+                                                                     test_data_length,
                                                                      2, X, true_Y)
                 print('test_loss:{}, acc:{}'.format(mean_test_loss, mean_test_accu))
         # validate and test the last epoch
         mean_validation_accu, mean_validation_loss = test_one_epoch(sess, accuracy, cross_entropy,
                                                                     is_training,
-                                                                    validation_data.shape[0], 1, X, true_Y)
+                                                                    validation_data_length, 1, X, true_Y)
         print('===final result after the last epoch===')
         print('{}, {}, Step:{}/{}, training_loss:{}, acc:{}, validation_loss:{}, acc:{}'.format(
             datetime.now(), i // steps_in_each_epoch, i, total_steps, loss_str,
             accuracy_str, mean_validation_loss, mean_validation_accu))
         mean_test_accu, mean_test_loss = test_one_epoch(sess, accuracy,
                                                         cross_entropy, is_training,
-                                                        test_data.shape[0],
+                                                        test_data_length,
                                                         2, X, true_Y)
         print('test_loss:{}, acc:{}'.format(mean_test_loss, mean_test_accu))
 
