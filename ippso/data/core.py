@@ -1,6 +1,7 @@
 import numpy as np
 import os
 import logging
+from sklearn.model_selection import train_test_split
 
 DATASET_ROOT_FOLDER = os.path.abspath('datasets')
 
@@ -92,8 +93,12 @@ class DataLoader:
         if DataLoader.mode is None:
             data = data[0:1000, :]
         elif DataLoader.partial_dataset is not None and DataLoader.partial_dataset > 0 and DataLoader.partial_dataset <1:
+            # randomly pick partial dataset
+            np.random.shuffle(data)
             cut_point = int(data.shape[0] * DataLoader.partial_dataset)
-            data = data[0:cut_point, :]
+            indices = np.random.permutation(data.shape[0])
+            training_idx= indices[:cut_point]
+            data = data[training_idx, :]
         images = data[:, 0:-1]
         labels = data[:, -1]
         images = np.reshape(images, [images.shape[0], height, length, 1], order='F')
