@@ -334,27 +334,7 @@
 % use a multiple column layout for up to three different
 % affiliations
 \author{
-\IEEEauthorblockN{Bin Wang}
-\IEEEauthorblockA{School of Engineering\\ and Computer Science\\
-	Victoria University of Wellington\\
-	Kelburn, Wellington 6012}
-\and
-\IEEEauthorblockN{Yanan Sun}
-\IEEEauthorblockA{School of Engineering\\ and Computer Science\\
-	Victoria University of Wellington\\
-	Kelburn, Wellington 6012}
-\and
-\IEEEauthorblockN{Bing Xue}
-\IEEEauthorblockA{School of Engineering\\ and Computer Science\\
-	Victoria University of Wellington\\
-	Kelburn, Wellington 6012}
-\and
-\IEEEauthorblockN{Mengjie Zhang}
-\IEEEauthorblockA{School of Engineering\\ and Computer Science\\
-	Victoria University of Wellington\\
-	Kelburn, Wellington 6012}
-\and
-\IEEEauthorblockN{Harith Al-Sahaf}
+\IEEEauthorblockN{Bin Wang, Mengjie Zhang, Bing Xue, Yanan Sun, Harith Al-Sahaf}
 \IEEEauthorblockA{School of Engineering\\ and Computer Science\\
 	Victoria University of Wellington\\
 	Kelburn, Wellington 6012}
@@ -476,17 +456,17 @@ In this section, the IP based PSO (IPPSO) for evolving deep Convolutional Neural
 	\begin{algorithmic}
 		\renewcommand{\algorithmicrequire}{\textbf{Input:}}
 		\renewcommand{\algorithmicensure}{\textbf{Output:}}
-		\STATE $P \leftarrow \textit{Initialize the population with the proposed particle}\linebreak \textit{ encoding strategy}$
+		\STATE $P \leftarrow$ Initialize the population with the proposed particle encoding strategy
 		\STATE $t \leftarrow 0$
 		\STATE $P_{id} \leftarrow empty$
 		\STATE $P_{gd} \leftarrow empty$
-		\WHILE{$\textit{termination criterion is not satisﬁed}$}
-		\FOR{$\textit{ind in P}$}
-		\STATE $ind \leftarrow \textit{update ind using the particle update equation}$
-		\IF{$\textit{termination criterion is satisfied}$}
-		\STATE $\textbf{break}$
-		\ENDIF
-		\ENDFOR
+		\WHILE{termination criterion is not satisﬁed}
+			\FOR{$ind$ in $P$}
+				\STATE $ind \leftarrow$ update $ind$ using the particle update equation
+				\IF{termination criterion is satisfied}
+					\STATE $\textbf{break}$
+				\ENDIF
+			\ENDFOR
 		\ENDWHILE		
 	\end{algorithmic}
 \end{algorithm}
@@ -693,48 +673,26 @@ Here is an example of a particle vector to explain how it can cope with variable
 	\begin{algorithmic}
 		\renewcommand{\algorithmicrequire}{\textbf{Input:}}
 		\renewcommand{\algorithmicensure}{\textbf{Output:}}
-		\REQUIRE $\textit{the population size N,} \newline \textit{the maximum length of CNN layers max\_length,} \newline \textit{the maximum fully-connected layers max\_fully\_connected}$
-		\ENSURE $Initialised population P_{0}$
-		\STATE $P_{0} \leftarrow \textit{initialise an empty byte array}$
-		\WHILE{$\textit{length of }P_{0} < N$}
-			\STATE $particle \leftarrow \textit{Initialise a byte array}$
-			\IF{$\textit{length of particle}==0$}
-				\STATE $L \leftarrow \textit{Initialise a random IP address in the subnet of } \newline \textit{convolutional layer}$
-				\STATE $particle \leftarrow \textit{append L at the end of particle byte array}$
-			\ENDIF
-			\WHILE {$\textit{length of particle} < max\_length - max\_fully\_connected \textbf{ AND } \textit{length of particle} > 0$}
-				\STATE $r \leftarrow \textit{Uniformly generate a number between [0, 1]}$
-				\IF{$r<0.34$}
-					\STATE $L \leftarrow \textit{Initialise a random IP address } \newline \textit{in the subnet of convolutional layer}$
-				\ELSIF{$r<0.68$}
-					\STATE $L \leftarrow \textit{Initialise a random IP address } \newline \textit{in the subnet of pooling layer}$
-				\ELSE
-					\STATE $L \leftarrow \textit{Initialise a random IP address } \newline \textit{in the subnet of disabled layer}$
-				\ENDIF
-				\STATE $particle \leftarrow \textit{append L at the end of particle byte array}$
+		\REQUIRE the population size $N$, the maximum length of CNN layers $max\_length$, the maximum fully-connected layers $max\_fully\_connected$
+		\ENSURE Initialised population $P_{0}$
+		\STATE $P_{0} \leftarrow$ initialise an empty byte array
+		\WHILE{length of $P_{0} < N$}
+			\STATE $particle \leftarrow empty$
+			\STATE $particle \leftarrow$ Initialise a random IP address in the subnet of convolutional layer and append it to $particle$
+			\WHILE{length of $particle < max\_length - max\_fully\_connected \textbf{ AND }$ length of $particle > 0$}
+				\STATE $particle \leftarrow$ Initialise a random IP address in a random subnet of convolutional or pooling or disabled layers and append it to $particle$
 			\ENDWHILE
-			\STATE $is\_fully\_connected \leftarrow \textbf{False}$
-			\WHILE {$\textit{length of particle} > max\_length - max\_fully\_connected \textbf{ AND } \textit{length of particle} < max\_length-1$}
+			\STATE $is\_fully\_connected\_found \leftarrow \textbf{False}$
+			\WHILE {length of $particle > max\_length - max\_fully\_connected \textbf{ AND }$ length of $particle < max\_length-1$}
 				\IF{$is\_fully\_connected == \textbf{True}$}
-					\STATE $L \leftarrow \textit{Initialise a random IP address } \newline \textit{in the subnet of fully-connected layer}$
+					\STATE $L \leftarrow$ Initialise a random IP address in the subnet of fully-connected layer
 				\ELSE
-					\STATE $r \leftarrow \textit{Uniformly generate a number between [0, 1]}$
-					\IF{$r<0.25$}
-						\STATE $L \leftarrow \textit{Initialise a random IP address } \newline \textit{in the subnet of convolutional layer}$
-					\ELSIF{$r<0.5$}
-						\STATE $L \leftarrow \textit{Initialise a random IP address } \newline \textit{in the subnet of pooling layer}$
-					\ELSIF{$r<0.75$}
-						\STATE $L \leftarrow \textit{Initialise a random IP address } \newline \textit{in the subnet of fully-connected layer}$
-						\STATE $is\_fully\_connected \leftarrow \textbf{True}$
-					\ELSE
-						\STATE $L \leftarrow \textit{Initialise a random IP address } \newline \textit{in the subnet of disabled layer}$
-					\ENDIF
+					\STATE $L \leftarrow$ Initialise a random IP address in a random subnet of convolutional or pooling or fully-connected or disabled layers, and set $is\_fully\_connected\_found$ $\textbf{True}$ if the IP represents a fully-connected layer
 				\ENDIF
-				\STATE $particle \leftarrow \textit{append L at the end of particle byte array}$
+				\STATE $particle \leftarrow$ append $L$ at the end of $particle$ byte array
 			\ENDWHILE
-			\STATE $L \leftarrow \textit{Initialise a random IP address in the subnet of } \newline \textit{fully-connected layer}$
-			\STATE $particle \leftarrow \textit{append L at the end of particle byte array}$
-			\STATE $P_{0} \leftarrow \textit{append particle at the end of }P_{0}$
+			\STATE $paticle \leftarrow$ Initialise a random IP address in the subnet of fully-connected layer and append it to $paticle$
+			\STATE $P_{0} \leftarrow$ append $particle$ at the end of $P_{0}$
 		\ENDWHILE
 		\RETURN $P_{0}$
 	\end{algorithmic}
@@ -751,25 +709,17 @@ For each individual, first we initialise an empty vector and each element in it 
 	\begin{algorithmic}
 		\renewcommand{\algorithmicrequire}{\textbf{Input:}}
 		\renewcommand{\algorithmicensure}{\textbf{Output:}}
-		\REQUIRE $\textit{The population } P_{t}, \newline \textit{the training epoch number k,} \newline \textit{the training set } D_{train}, \newline \textit{the ﬁtness evaluation dataset } D_{fitness}, \newline \textit{the batch size } batch\_size$
-		\ENSURE $The population with ﬁtness P_{t}$
-		\FOR{$individual s \textbf{ in } P_{t}$}
+		\REQUIRE The population $P_{t}$, the training epoch number $k$, the training set $D_{train}$, the fitness evaluation dataset $D_{fitness}$, the batch size $batch\_size$
+		\ENSURE The population with fitness $P_{t}$
+		\FOR{individual $s \textbf{ in } P_{t}$}
 			\STATE $i \leftarrow 1$
-			\STATE $eval\_steps \leftarrow \textit{size of } D_{fitness} / batch\_size$
 			\WHILE{$i<=k$}
 				\STATE $\textit{Train the connection weights of the CNN } \newline \textit{represented by individual s}$
-				\IF{$i==k$}
-					\STATE $accy\_list \leftarrow \textit{empty array}$
-					\WHILE{$j<eval\_steps$}
-						\STATE $acc\_j \leftarrow \textit{Evaluate the classiﬁcation error on } \newline \textit{the j-th batch data from } D_{fitness}$
-						\STATE $acc\_list \leftarrow \textit{append accy\_j at the end of accy\_list}$
-					\ENDWHILE
-					\STATE $mean \leftarrow \textit{calculate the mean value }\newline \textit{of  acc\_list}$
-					\STATE $stddev \leftarrow \textit{calculate the standard deviation }\newline \textit{of acc\_list}$
-					\STATE $num\_of\_connections \leftarrow \textit{calculate the number }\newline \textit{of connections in s}$
-					\STATE $s.fitness \leftarrow (mean, -stddev, -num\_of\_connections)$
-				\ENDIF
 			\ENDWHILE
+			\STATE $accy\_list \leftarrow$ Batch-evaluate the trained model on the dataset $D_{fitness}$ with the batch size $batch\_size$ and store the accuracy for each batch
+			\STATE ($(mean, stddev) \leftarrow$ Calculate the mean value and standard deviation of  $acc\_list$
+			\STATE $num\_of\_connections \leftarrow$ Calculate the number of connections in s
+			\STATE $s.fitness \leftarrow (mean, -stddev, -num\_of\_connections)$
 		\ENDFOR	
 		\RETURN $P_{t}$	
 	\end{algorithmic}
@@ -786,31 +736,23 @@ For comparing the fitness of individuals, the mean value, standard deviation and
 	\begin{algorithmic}
 		\renewcommand{\algorithmicrequire}{\textbf{Input:}}
 		\renewcommand{\algorithmicensure}{\textbf{Output:}}
-		\REQUIRE $\textit{particle individual vector ind}, \newline \textit{acceleration coefficient array for $P_{id}$ c1,} \newline \textit{acceleration coefficient array for $P_{gd}$ c2}, \newline \textit{inertia weight w}, \newline \textit{max velocity array } v_{max}$
-		\ENSURE $\textit{updated individual vector ind}$
-		\FOR{$\textit{element } interface \textbf{ in } ind$}
-			\STATE $i=0$
-			\FOR{$i < number of bytes of IP address in interface$}
-				\STATE $x \leftarrow \textit{the ith byte of the IP address in the interface}$
-				\STATE $r1 \leftarrow \textit{uniformly generate r1 between [0, 1]}$
-				\STATE $r2 \leftarrow \textit{uniformly generate r2 between [0, 1]}$
-				\STATE $v_{new} \leftarrow w * v + c1[i] * r1 * (P_{id} - x) + c2[i] * r2 * (P_{gd} - x)$
-				\IF{$v_{max}[i] < v_{new}$}
-					\STATE $v_{new} \leftarrow v_{max}[i]$
-				\ENDIF
+		\REQUIRE particle individual vector $ind$, acceleration coefficient array for $P_{id}$ $c1$, acceleration coefficient array for $P_{gd}$ $c2$, inertia weight $w$, max velocity array $v_{max}$
+		\ENSURE updated individual vector $ind$
+		\FOR{element $interface \textbf{ in } ind$}
+			\STATE $i \leftarrow 0$
+			\FOR{$i <$ number of bytes of IP address in $interface$}
+				\STATE $x \leftarrow$ the ith byte of the IP address in the $interface$
+				\STATE $(r1, r2) \leftarrow$ uniformly generate $r1, r2$ between [0, 1]
+				\STATE $v_{new} \leftarrow$ Update velocity based on PSO update equation: $w * v + c1[i] * r1 * (P_{id} - x) + c2[i] * r2 * (P_{gd} - x)$
+				\STATE $v_{new} \leftarrow$ Apply velocity clamping using $v_{max}$
 				\STATE $x_{new} \leftarrow x + v_{new}$
 				\IF{$x_{new} > 255$}
 					\STATE $x_{new} \leftarrow x_{new}-255$
 				\ENDIF
 			\ENDFOR
 		\ENDFOR
-		\STATE $fitness \leftarrow \textit{evaluate the updated individual ind}$
-		\IF{$P_{id} < fitness$}
-			\STATE $P_{id} \leftarrow fitness$
-		\ENDIF
-		\IF{$P_{gd} < fitness$}
-		\STATE $P_{gd} \leftarrow fitness$
-		\ENDIF
+		\STATE $fitness \leftarrow$ evaluate the updated individual $ind$
+		\STATE $(P_{id}, P_{gd}) \leftarrow$ Update  by comparing them with $fitness$
 		\RETURN $ind$
 	\end{algorithmic}
 \end{algorithm}
@@ -1001,14 +943,14 @@ It is clearly shown in Table \ref{table:ResultComparison} that by comparing the 
 	\end{tabular}
 \end{table}
 
-\section{Further discussion}\label{sec:FurtherDicsussion}
-
-In this section, we will discuss the two advantages that are brought by the IP structure encoding strategy of the proposed IPPSO method. Other than that an extra finding from the experiments will be pointed out, which could provide insights on the industrial applications of the proposed IPPSO method. 
-
-The first advantage is that the IPPSO method can facilitate the convergence because when the search space is huge, by splitting the search space into several bytes and updating each byte simultaneously which can significantly speed up the learning process. For example, the convolutional layer in our design contains 12 bits and the search space for each dimension in the particle vector will be 4096 if a single decimal is used for the encoding; However, by using the IP-PSO to encode the search space into 2 bytes the search space for each dimension is 256 and PSO can learn them concurrently by updating each of the dimension at every step which can make the convergence much faster. 
-The second advantage is that it provides the flexibility of encoding numerous types of data with variable length into one unit in the particle. For instance, in our design the four types of layers can be encoded as an IP address with 2 bytes which can be easily learned by PSO; However, if using traditional PSO, it is hard to encode 3 types of layers into one number which can be effectively decoded. Furthermore, the capacity of the types of data can extend by enlarging the length of the IP address.
-
-In PSO search process, I found that the architecture learned by only using 1000 rows instead of 12000 rows for MB and MDRBI can obtain a similar or better result than that found by using the whole training set. The potential explanation would be that as we only train the data by 10 epoch and the advantage of using larger data set is to prevent over-fitting which on most occasions will take effect at later training epochs, there is little difference or no difference of using partial dataset instead of the whole dataset which can save a lot of PSO learning time.
+%\section{Further discussion}\label{sec:FurtherDicsussion}
+%
+%In this section, we will discuss the two advantages that are brought by the IP structure encoding strategy of the proposed IPPSO method. Other than that an extra finding from the experiments will be pointed out, which could provide insights on the industrial applications of the proposed IPPSO method. 
+%
+%The first advantage is that the IPPSO method can facilitate the convergence because when the search space is huge, by splitting the search space into several bytes and updating each byte simultaneously which can significantly speed up the learning process. For example, the convolutional layer in our design contains 12 bits and the search space for each dimension in the particle vector will be 4096 if a single decimal is used for the encoding; However, by using the IP-PSO to encode the search space into 2 bytes the search space for each dimension is 256 and PSO can learn them concurrently by updating each of the dimension at every step which can make the convergence much faster. 
+%The second advantage is that it provides the flexibility of encoding numerous types of data with variable length into one unit in the particle. For instance, in our design the four types of layers can be encoded as an IP address with 2 bytes which can be easily learned by PSO; However, if using traditional PSO, it is hard to encode 3 types of layers into one number which can be effectively decoded. Furthermore, the capacity of the types of data can extend by enlarging the length of the IP address.
+%
+%In PSO search process, I found that the architecture learned by only using 1000 rows instead of 12000 rows for MB and MDRBI can obtain a similar or better result than that found by using the whole training set. The potential explanation would be that as we only train the data by 10 epoch and the advantage of using larger data set is to prevent over-fitting which on most occasions will take effect at later training epochs, there is little difference or no difference of using partial dataset instead of the whole dataset which can save a lot of PSO learning time.
 
 % An example of a floating figure using the graphicx package.
 % Note that \label must occur AFTER (or within) \caption.
