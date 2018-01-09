@@ -315,8 +315,11 @@
 % *** Algorithm and Algorithmic packages ***
 \usepackage{algorithm, algorithmic}
 
-% *** footnote package*** %
+% *** footnote package *** %
 \usepackage{footnote}
+
+% *** euqation packages *** %
+\usepackage{amsmath}
 
 
 \begin{document}
@@ -327,7 +330,7 @@
 % not capitalized unless they are the first or last word of the title.
 % Linebreaks \\ can be used within to get better formatting as desired.
 % Do not put math or special symbols in the title.
-\title{IP Based Particle Swarm Optimization\\ for Evolving Deep Convolutional Neural Networks\\ for Image Classification}
+\title{Evolving Deep Convolutional Neural Networks by Particle Swarm Optimization for Image Classification}
 
 
 % author names and affiliations
@@ -378,7 +381,7 @@
 % As a general rule, do not put math, special symbols or citations
 % in the abstract
 \begin{abstract}
-Convolutional neural network (CNN) is one of the most effective deep learning method to solve image classification problems, but the best architecture of CNN to solve a specific problem can be extremely deep which is hardly designed by humans. This paper focuses on utilising Particle Swarm Optimisation (PSO) to automatically search the optimal architecture of CNN without any manual work involved and a novel IP based PSO (IPPSO) method - using network IP structure to encode particles with the ability to tackle variable-length problem, will be proposed. 
+Convolutional neural network (CNN) is one of the most effective deep learning method to solve image classification problems, but the best architecture of CNN to solve a specific problem can be extremely deep which is hardly designed by humans. This paper focuses on utilising Particle Swarm Optimisation (PSO) to automatically search the optimal architecture of CNN without any manual work involved. Three improvements will be made based on the traditional PSO. First, a novel IP-based encoding strategy of using network IP structure to encode CNN layers into particle vectors will be introduced and the IP-based PSO method will be called IPPSO in this paper; Second, in order to allow IPPSO to learn variable-length CNN architectures, a disabled subnet will be designed to hide some dimensions of the particle vector; Third, since the learning process on large data is slow, we will randomly pick partial dataset for the evaluation to dramatically speed it up. The proposed IPPSO algorithm is examined and compared with 12 existing algorithms including the state-of-art methods on 3 widely used image classification benchmark datasets. The experimental results demonstrate that the proposed algorithm is a strong competitor to the state-of-art algorithms in terms of classification error. 
 \end{abstract}
 
 % no keywords
@@ -405,26 +408,26 @@ Convolutional neural network (CNN) has demonstrated its exceptional superiority 
 
 % You must have at least 2 lines in the paragraph with the drop letter
 % (should never be an issue)
-In order to solve the complex problem of the CNN architecture design, evolutionary computation has recently been leveraged to automatically design the architecture without any human effort involved. Interested researchers have done some excellent work on the automatic design of the CNN architecture by using Genetic Programming \cite{CNNGP:Suganuma} and Genetic Algorithm \cite{CNNevolve:Stanley}. Since PSO is a very simple and effective swarm intelligence algorithm in the evolutionary computation family, in this paper, I would like to develop a PSO method with network IP structure as the encoding scheme to achieve the goal of automatically seeking the optimal CNN architecture. 
+In order to solve the complex problem of the CNN architecture design, evolutionary computation has recently been leveraged to automatically design the architecture without any human effort involved. Interested researchers have done some excellent work on the automatic design of the CNN architecture by using Genetic Programming \cite{CNNGP:Suganuma} and Genetic Algorithm \cite{CNNevolve:Stanley} \cite{LEIC:Real} which have proved that Evolutionary computation can be used in learning CNN architectures that are competitive with the state-of-art human-designed. However, the computational cost for most of the methods are really high and it is not practical for large datasets. 
 
+Interested researchers have been working on reducing the computational cost of evolving a CNN architecture such as the recent proposed EvoCNN \cite{EvolveCNN:Yanan}. During the fitness evaluation, instead of training the model for 25, 600 steps in LEIC, EvoCNN only train the model by 10 epochs which dramatically speeds up the learning process. The rationale behind EvoCNN using 10 epochs is that the researchers believe that training 10 epochs can obtain the major trend of the CNN architecture which would be decisive to the final performance of a model which has been proved through their experiments. 
+
+Although the learning process of EvoCNN is much faster than others, it still takes days to optimise a CNN architecture. In this paper, we would like to further reduce the computational cost of using Evolutionary Computation method to automatically evolve CNN architectures. Since PSO is easy to be implemented and require much lower computational cost, we will choose PSO to evolve the CNN architecture for image classification and develop a variable-length PSO with a novel IP-based encoding strategy to cope with variable-length CNN architectures. In addition, we will use partial dataset \footnote{we use 10\% to 20\% of the whole traing set for fitness evaluations depending on the specific problem.} instead of the whole training set for fitness evaluation as training only 10\% to 20\% of the dataset can significantly speed up the training process which then saves tremendous time for the whole evolution process and we believe using partial dataset with 10 epochs is able to learn the trend of a CNN architecture which will be proved in the experiments. Overall, the proposed IPPSO method is able to drastically improve the speed of the learning process along with obtaining a very competitive classification performance. 
 
 
 \subsection{Goal}
-The overall goal of this paper is to design and develop an effective and efficient PSO method - IPPSO to automatically discover good architectures and corresponding weight initialisation values of CNNs. The specific objectives of this paper are to
+The overall goal of this paper is to design and develop an effective and efficient PSO method to automatically discover good architectures of CNNs. The specific objectives of this paper are to
 
 \begin{enumerate}
-	\item Design an IP based particle encoding scheme of CNN architecture, which does not fix the length of the building blocks in CNNs and consists of Convolution, Pooling and Fully-connected layer. With this PSO encoding scheme, the evolved architecture is expected to achieve good performance in solving different tasks at hand. To be specific, each particle will be comprised of fix-length network interfaces each of which will carry an IP address and its subnet information, and different subnets will define different types of CNN layers. In addition, in order to learn a variable-length CNN architecture, a disabled subnet that will represent Disabled layers, will be introduced which means the interface having an IP in the disabled subnet will be hidden when decoding the particle.
-	\item Based on the designed IPPSO encoding scheme, develop the encoding and decoding methods that convert CNN layer to and IP address and vice versa. 
-	\item Design proper subnet ranges for all three types of CNN layers and the disabled layer.  
-	\item Develop the associated update equation that can cope with the developed IPPSO encoding strategies of CNN architectures.
-	\item Develop a velocity clamping method that is suitable for the novel IPPSO algorithm
-	\item Propose an effective fitness measure of the individuals representing different CNNs, which does not require intensive computational resources.
-	\item Investigate whether the new approach significantly outperforms the existing methods in classification accuracy
+	\item Design an IP-based particle encoding scheme which has the ability of effectively encoding different types of CNN layers into a network interface, and develop the customised PSO based on the novel encoding strategy. 
+	\item Design the IP subnets especially a disabled subnet to enable the IPPSO method to learn variable-length CNN architectures. 
+	\item Propose a fitness evaluation method of using partial dataset instead of the whole dataset in order to significantly speed up the evolutionary process. 
 \end{enumerate} 
 
 \subsection{Organisation}
 The remaining parts of this paper are organised as follows: first of all, the background of the CNNs, the related works on the architecture design are
-reviewed in Section \ref{sec:Background}. In addition, the framework and details of each step in the proposed algorithm are elaborated in Section \ref{sec:ProposedAlgorithm}. Furthermore, the experiment design and experimental results of the proposed algorithm are shown in Sections \ref{sec:EPDesign} and \ref{sec:EPResults}, respectively. Next, further discussions are made in Section \ref{sec:FurtherDicsussion}. Last but not least, the conclusions and future work are discussed in Section \ref{sec:Conclusion}.
+reviewed in Section \ref{sec:Background}. In addition, the framework and details of each step in the proposed algorithm are elaborated in Section \ref{sec:ProposedAlgorithm}. Furthermore, the experiment design and experimental results of the proposed algorithm are shown in Sections \ref{sec:EPDesign} and \ref{sec:EPResults}, respectively. Last but not least, the conclusions and future work are discussed in Section \ref{sec:Conclusion}. 
+%Next, further discussions are made in Section \ref{sec:FurtherDiscussion}.
 
 
 \section{Background}\label{sec:Background}
@@ -440,10 +443,28 @@ reviewed in Section \ref{sec:Background}. In addition, the framework and details
 
 Fig \ref{fig:CNNArchitecture} exhibits an extensive architecture of one CNN with two convolutional operations, two pooling operations, the resulted four groups of feature maps, two fully-connected layers including one hidden layer at the end. It is well known that when designing deep CNN architecture the number of convolutional layers, pooling layers and hidden layers have to be properly defined along with their positions and their configurations. In terms of the configuration, apart from output layer which will always be a number of neurons having the number of classes in the classification problem as the size, different types of layers have different configurations as follows: Filter size, stride size and feature maps are the main attributes of the configurations for convolutional layer; Kernel size, stride size and pooling type - max-pooling or average-pooling are the important fields for the configuration of pooling layers; and the number of neurons is the key attribute of hidden layers. After the layers have been designed, a proper weight initialisation method has to be chosen and in this paper, Xavier weight initialisation \cite{WeightIniti:Glorot} will be chosen as it has been proved as an effective way and has been implemented in most of Deep Learning frameworks.  
 
+\subsection{Particle Swarm Optimisation}
 
-\subsection{PSO related work in Deep CNN}
+Particle Swarm Optimization (PSO) is a population-based stochastic evolutionary computation algorithm, motivated by the social behaviour of fish schooling or bird flocking \cite{PSOIntro:Kennedy} \cite{PSOIntro:Kennedy}, commonly used for solving optimization problems without rich domain knowledge \cite{PSOIntro:Yanan}. In PSO, the population is comprised of a certain number of particles each of which represent a solution and particles fly in the search space to find the best solution according to Update Equation \ref{eq:UpdateV} and \ref{eq:UpdateX} for velocity and particle vector update respectively where $v_{id}$ represents the velocity, $x_{id}$ represents the particle vector, $P_{id}$ represents the local best of the particle, $P_{gd}$ represents the global best of all the particles, $r_{1}, r_{2}$ are a random number between 0 to 1, $w, c_{1} and c_{2}$ are PSO hyper-parameters used to tweak the performance. 
 
-As it is shown in Section \ref{sec:CNNArchitecture}, there are a lot of factors that need to be considered when doing the CNN architecture design and it is obviously an extremely hard work for humans to manually achieve the best design. As a result, researchers have been trying to leverage Evolutionary Algorithm to evolve CNN architectures such as LEIC method \cite{LEIC:Real}; However, the learning process is too slow. In this paper, we will design a more efficient PSO method. Since the length of the best CNN architecture on specific problems is not fixed while the particle length of traditional PSO is fixed, the challenge of the proposed PSO method will be inventing a new encoding scheme to cope with the variable-length problem. 
+\begin{equation}\label{eq:UpdateV}
+	\begin{aligned}
+	v_{id}(t+1) = w * v_{id}(t) + c_{1} * r_{1} * (P_{id} - x_{id}(t)) + \\
+	c_{2} * r_{2} * (P_{gd} - x_{id}(t))
+	\end{aligned}
+\end{equation}
+
+\begin{equation}\label{eq:UpdateX}
+	x_{id}(t+1) = x_{id}(t) + v_{id}(t+1)
+\end{equation}
+
+\subsection{Internet Protocol address}
+
+An Internet Protocol address (IP address) is a numerical label assigned to each device connected to a computer network that uses the Internet Protocol for communication \cite{IP:Postel}. A network interface contains an IP address to identify the host and its corresponding subnet information used for routing between different networks. A standard IP address widely used is 32-bit number, e.g. 192.168.1.251 and the a standard subnet carries the starting IP address and the length of the subnet mask, e.g. 192.168.1.0/8 which indicates the IP address in the subnet starts from 192.168.1.0 to 192.168.1.255. 
+
+%\subsection{PSO related work in Deep CNN}
+%
+%As it is shown in Section \ref{sec:CNNArchitecture}, there are a lot of factors that need to be considered when doing the CNN architecture design and it is obviously an extremely hard work for humans to manually achieve the best design. As a result, researchers have been trying to leverage Evolutionary Algorithm to evolve CNN architectures such as LEIC method \cite{LEIC:Real}; However, the learning process is too slow. In this paper, we will design a more efficient PSO method. Since the length of the best CNN architecture on specific problems is not fixed while the particle length of traditional PSO is fixed, the challenge of the proposed PSO method will be inventing a new encoding scheme to cope with the variable-length problem. 
 
 \section{The proposed algorithm}\label{sec:ProposedAlgorithm}
 In this section, the IP based PSO (IPPSO) for evolving deep Convolutional Neural Networks for image classification will be documented in details. 
@@ -943,7 +964,7 @@ It is clearly shown in Table \ref{table:ResultComparison} that by comparing the 
 	\end{tabular}
 \end{table}
 
-%\section{Further discussion}\label{sec:FurtherDicsussion}
+%\section{Further discussion}\label{sec:FurtherDiscussion}
 %
 %In this section, we will discuss the two advantages that are brought by the IP structure encoding strategy of the proposed IPPSO method. Other than that an extra finding from the experiments will be pointed out, which could provide insights on the industrial applications of the proposed IPPSO method. 
 %
@@ -1093,6 +1114,24 @@ In this paper, we have investigated the proposed IPPSO method for evolving deep 
 % set second argument of \begin to the number of references
 % (used to reserve space for the reference number labels box)
 \begin{thebibliography}{}
+
+\bibitem{EvolveCNN:Yanan}
+Yanan Sun, Bing Xue, Mengjie Zhang, \emph{Evolving Deep Convolutional Neural Networks for Image Classification[J]}. arXiv preprint arXiv:1710.10741, 2017. 
+
+\bibitem{EvolveDNN:Yanan}
+Yanan Sun, Gary G. Yen, Zhang Yi, \emph{Evolving Unsupervised Deep Neural Networks for Learning Meaningful Representations[J]}. arXiv preprint arXiv:1712.05043, 2017. 
+
+\bibitem{PSOIntro:Yanan}
+Yanan Sun, Bing Xue, Mengjie Zhang, \emph{A Particle Swarm Optimization-based Flexible Convolutional Auto-Encoder for Image Classification[J]}. arXiv preprint arXiv:11712.05042, 2017. 
+
+\bibitem{PSOIntro:Kennedy}
+Kennedy and R. E. P. S. Optimization, \emph{Ieee int,} in Conf. on Neural Networks, vol. 4, 1995
+
+\bibitem{PSOIntro:Eberhart}
+. Eberhart and J. Kennedy, \emph{A new optimizer using particle swarm theory}, in Micro Machine and Human Science, 1995. MHS’95., Proceedings of the Sixth International Symposium on.  IEEE, 1995, pp. 39–43.
+
+\bibitem{IP:Postel}
+Postel, J., \emph{DoD standard Internet Protocol}, RFC 760, DOI 10.17487/RFC0760, January 1980, <https://www.rfc-editor.org/info/rfc760>.
 
 \bibitem{CNNspeech:Ossama}
 Ossama Abdel-Hamid, Li Deng and Dong Yu, \emph{Exploring Convolutional Neural Network Structures and Optimization Techniques for Speech Recognition}. INTERSPEECH 2013, 5 - 29 August 2013, Lyon, France
