@@ -3,7 +3,10 @@
 **batch running on multiple tasks through bash scripts**
 
 ```bash
+# batch train CNNs
 nohup bash ./run_all.sh -g 1 -i 0001 -e 1 &
+# batch optimise final models
+nohup bash ./run_all.sh -g 1 -i 0001 -e 2 &
 ```
 
 **copy datasets to cuda server**
