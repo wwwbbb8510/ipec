@@ -21,7 +21,7 @@ fi
 FIRST_GPU_ID=0
 MAX_GPU=1
 
-if [ $EVOLVE -eq 1 ];then
+if [ $EVOLVE -eq "1" ];then
     case "${GPU}" in
         1)
         FIRST_GPU_ID=0
@@ -41,7 +41,7 @@ if [ $EVOLVE -eq 1 ];then
         print_help
         ;;
     esac
-elif [ $EVOLVE -eq 1 ];then
+elif [ $EVOLVE -eq "2" ];then
     case "${GPU}" in
         1)
         FIRST_GPU_ID=0
