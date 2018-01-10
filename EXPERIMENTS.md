@@ -3,7 +3,13 @@
 **batch running on multiple tasks through bash scripts**
 
 ```bash
-nohup ./run_all.sh -g 1 -i 0001 -e 1 &
+nohup bash ./run_all.sh -g 1 -i 0001 -e 1 &
+```
+
+**copy datasets to cuda server**
+
+```bash
+scp -r datasets/* wangbin@bats.ecs.vuw.ac.nz:~/code/psocnn-comp440/datasets/
 ```
 
 **Extract gbest in log files**

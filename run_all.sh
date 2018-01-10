@@ -35,7 +35,7 @@ if [ "${EVOLVE}" -eq "1" ];then
         printf "evolve CNN for mb, mdrbi and convex"
         python3 main.py -d mb -m 1 --partial_dataset 0.1 --ip_structure 2 --w 0.7298 --c1 1.49618,1.49618 --c2 1.49618,1.49618 -v 4,25.6 -s 30 -l 8 --max_steps 30 -e 10 -f ${FIRST_GPU_ID} -g 1 --log_file=log/ippso_cnn_mb_${ID}.log --gbest_file=log/gbest_mb_${ID}.pkl
         python3 main.py -d mdrbi -m 1 --partial_dataset 0.1 --ip_structure 2 --w 0.7298 --c1 1.49618,1.49618 --c2 1.49618,1.49618 -v 4,25.6 -s 30 -l 8 --max_steps 30 -e 10 -f ${FIRST_GPU_ID} -g 1 --log_file=log/ippso_cnn_mdrbi_${ID}.log --gbest_file=log/gbest_mdrbi_${ID}.pkl
-        python3 main.py -d convex -m 1 --partial_dataset 0.1 --ip_structure 2 --w 0.7298 --c1 1.49618,1.49618 --c2 1.49618,1.49618 -v 4,25.6 -s 30 -l 8 --max_steps 30 -e 10 -f ${FIRST_GPU_ID} -g 1 --log_file=log/ippso_cnn_convex_${ID}.log --gbest_file=log/gbest_convex_${ID}.pkl
+        python3 main.py -d convex -m 1 --partial_dataset 0.15 --ip_structure 2 --w 0.7298 --c1 1.49618,1.49618 --c2 1.49618,1.49618 -v 4,25.6 -s 30 -l 8 --max_steps 30 -e 10 -f ${FIRST_GPU_ID} -g 1 --log_file=log/ippso_cnn_convex_${ID}.log --gbest_file=log/gbest_convex_${ID}.pkl
         ;;
         *)
         print_help
