@@ -8,20 +8,20 @@ while getopts g:i:e: option;do
 done
 
 print_help(){
-    printf "Parameter g(GPU) and i(ID) are mandatory\n"
+    printf "Parameter g(GPU), i(ID), e(Evolve or train) are mandatory\n"
     printf "g values - 1:first gpu, 2: second gpu"
     printf "e values - 1:PSO evolve particles, 2: training the final model"
     exit 1
 }
 
-if [ -z "${GPU}" -o -z "${ID}" ];then
+if [ -z "${GPU}" -o -z "${ID}" -o -z "${EVOLVE}" ];then
     print_help
 fi
 
 FIRST_GPU_ID=0
 MAX_GPU=1
 
-if [ $EVOLVE -eq "1" ];then
+if [ "${EVOLVE}" -eq "1" ];then
     case "${GPU}" in
         1)
         FIRST_GPU_ID=0
@@ -41,7 +41,7 @@ if [ $EVOLVE -eq "1" ];then
         print_help
         ;;
     esac
-elif [ $EVOLVE -eq "2" ];then
+elif [ "${EVOLVE}" -eq "2" ];then
     case "${GPU}" in
         1)
         FIRST_GPU_ID=0

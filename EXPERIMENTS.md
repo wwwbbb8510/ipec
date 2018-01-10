@@ -1,5 +1,11 @@
 ## Quick commands
 
+**batch running on multiple tasks through bash scripts**
+
+```bash
+nohup ./run_all.sh -g 1 -i 0001 -e 1 &
+```
+
 **Extract gbest in log files**
 
 ```bash
