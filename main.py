@@ -136,8 +136,14 @@ def _load_data(dataset_name, mode, partial_dataset=None):
     DataLoader.partial_dataset = partial_dataset
     if dataset_name == 'mb':
         from ippso.data.mb import loaded_data
+    elif dataset_name == 'mbi':
+        from ippso.data.mbi import loaded_data
     elif dataset_name == 'mdrbi':
         from ippso.data.mdrbi import loaded_data
+    elif dataset_name == 'mrb':
+        from ippso.data.mrb import loaded_data
+    elif dataset_name == 'mrd':
+        from ippso.data.mrd import loaded_data
     elif dataset_name == 'convex':
         from ippso.data.convex import loaded_data
     return loaded_data
@@ -170,7 +176,7 @@ def _filter_args(args):
 # main entrance
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('-d', '--dataset', help='choose a dataset among mb, mdrbi, or convex')
+    parser.add_argument('-d', '--dataset', help='choose a dataset among mb, mbi, mdrbi, mrb, mrd or convex')
     parser.add_argument('-c', '--class_num', help='# of classes for the classification problem')
     parser.add_argument('-m', '--mode', help='default:None, 1: production (load full data)')
     parser.add_argument('-s', '--pop_size', help='population size')
