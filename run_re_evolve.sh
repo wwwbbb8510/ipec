@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-while getopts g:i:e: option;do
+while getopts g:i:d: option;do
     case "${option}" in
     g) GPU=${OPTARG};;
     i) ID=${OPTARG};;
