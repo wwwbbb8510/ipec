@@ -1,5 +1,6 @@
 import numpy as np
 import logging
+import os
 from datetime import datetime
 import tensorflow as tf
 from tensorflow.contrib.layers.python.layers import initializers
@@ -12,7 +13,7 @@ import os
 
 def initialise_cnn_evaluator(training_epoch=None, batch_size=None, training_data=None, training_label=None, validation_data=None,
                              validation_label=None, max_gpu=None, first_gpu_id=None, class_num=None, regularise=0, dropout=0,
-                             mean_centre=None, mean_divisor=None, stddev_divisor=None, test_data=None, test_label=None, optimise=False):
+                             mean_centre=None, mean_divisor=None, stddev_divisor=None, test_data=None, test_label=None, optimise=False, tensorboard_path=None):
     training_epoch = 2 if training_epoch is None else training_epoch
     max_gpu = None if max_gpu is None else max_gpu
     batch_size = 200 if batch_size is None else batch_size
@@ -27,7 +28,7 @@ def initialise_cnn_evaluator(training_epoch=None, batch_size=None, training_data
         test_label = get_test_data()['labels'] if test_label is None else test_label
     return CNNEvaluator(training_epoch, batch_size, training_data, training_label,
                         validation_data, validation_label, max_gpu, first_gpu_id, class_num, regularise, dropout, mean_centre, mean_divisor, stddev_divisor,
-                        test_data=test_data, test_label=test_label, optimise=optimise)
+                        test_data=test_data, test_label=test_label, optimise=optimise, tensorboard_path=tensorboard_path)
 
 
 def produce_tf_batch_data(images, labels, batch_size):
@@ -69,7 +70,8 @@ class CNNEvaluator(Evaluator):
     """
     def __init__(self, training_epoch, batch_size, training_data, training_label,
                  validation_data, validation_label, max_gpu, first_gpu_id, class_num=10, regularise=0, dropout=0,
-                 mean_centre=None, mean_divisor=None, stddev_divisor=None, test_data=None, test_label=None, optimise=False):
+                 mean_centre=None, mean_divisor=None, stddev_divisor=None, test_data=None, test_label=None, optimise=False,
+                 tensorboard_path=None):
         """
         constructor
 
@@ -96,6 +98,8 @@ class CNNEvaluator(Evaluator):
         :param first_gpu_id: the first gpu ID. The GPUs will start from the first gpu ID
         and continue using the following GPUs until reaching the max_gpu number
         :type first_gpu_id: int
+        :param tensorboard_path: tensorboard path
+        :type tensorboard_path: string
         """
         self.training_epoch = training_epoch
         self.batch_size = batch_size
@@ -111,11 +115,17 @@ class CNNEvaluator(Evaluator):
         self.regularise = regularise
         self.dropout = dropout
         self.optimise = optimise
+        self.tensorboarad_path = tensorboard_path
 
         self.training_data_length = self.training_data.shape[0]
         self.validation_data_length = self.validation_data.shape[0]
         self.test_data_length = self.test_data.shape[0] if self.test_data is not None else 0
         self.decoder = Decoder(mean_centre=mean_centre, mean_divisor=mean_divisor, stddev_divisor=stddev_divisor)
+
+        if self.tensorboarad_path is not None:
+            self.train_writer = tf.summary.FileWriter(os.path.join(self.tensorboarad_path, 'train'))
+            self.test_writer = tf.summary.FileWriter(os.path.join(self.tensorboarad_path, 'test'))
+            self.validation_writer = tf.summary.FileWriter(os.path.join(self.tensorboarad_path, 'validation'))
 
         # set visible cuda devices
         if self.max_gpu is not None:
@@ -138,6 +148,10 @@ class CNNEvaluator(Evaluator):
         tf.reset_default_graph()
         is_training, train_op, accuracy, cross_entropy, num_connections, merge_summary, regularization_loss, X, true_Y = self.build_graph(particle)
         with tf.Session() as sess:
+            if self.tensorboarad_path is not None:
+                self.train_writer.add_graph(sess.graph)
+                self.validation_writer.add_graph(sess.graph)
+                self.test_writer.add_graph(sess.graph)
             sess.run(tf.global_variables_initializer())
             steps_in_each_epoch = (self.training_data_length // self.batch_size)
             total_steps = int(self.training_epoch * steps_in_each_epoch)
@@ -154,10 +168,12 @@ class CNNEvaluator(Evaluator):
                         [train_op, accuracy, cross_entropy, regularization_loss, merge_summary, X, true_Y, is_training],
                         {is_training: 0}
                     )
+                    self.train_writer.add_summary(merge_summary_str, i) if self.tensorboarad_path is not None else None
                     if i % (2 * steps_in_each_epoch) == 0:
+                        training_epoch = i//steps_in_each_epoch
                         mean_validation_accu, mean_validation_loss, stddev_validation_acccu = self.test_one_epoch(sess, accuracy, cross_entropy,
                                                                                          is_training,
-                                                                                         self.validation_data_length, 1, X, true_Y)
+                                                                                         self.validation_data_length, 1, X, true_Y, merge_summary, training_epoch)
                         logging.debug('{}, {}, indi:{}, Step:{}/{}, ce_loss:{}, reg_loss:{}, acc:{}, validation_ce_loss:{}, acc:{}'.format(
                             datetime.now(), i // steps_in_each_epoch, particle.id, i, total_steps, loss_str, regularization_loss_str,
                             accuracy_str, mean_validation_loss, mean_validation_accu))
@@ -165,18 +181,18 @@ class CNNEvaluator(Evaluator):
                             mean_test_accu, mean_test_loss, _ = self.test_one_epoch(sess, accuracy,
                                                                                  cross_entropy, is_training,
                                                                                  self.test_data_length,
-                                                                                 2, X, true_Y)
+                                                                                 2, X, true_Y, merge_summary, training_epoch)
                             logging.debug('test_ce_loss:{}, acc:{}'.format(mean_test_loss, mean_test_accu))
                 # validate the last epoch
                 mean_validation_accu, mean_validation_loss, stddev_validation_acccu = self.test_one_epoch(sess, accuracy, cross_entropy,
                                                                                  is_training,
-                                                                                 self.validation_data_length, 1, X, true_Y)
+                                                                                 self.validation_data_length, 1, X, true_Y, merge_summary, training_epoch)
                 logging.debug('{}, validation_loss:{}, acc:{}'.format(datetime.now(), mean_validation_loss, mean_validation_accu))
                 if self.optimise and self.test_data is not None:
                     mean_test_accu, mean_test_loss, _ = self.test_one_epoch(sess, accuracy,
                                                                          cross_entropy, is_training,
                                                                          self.test_data_length,
-                                                                         2, X, true_Y)
+                                                                         2, X, true_Y, merge_summary, training_epoch)
                     logging.debug('test_ce_loss:{}, acc:{}'.format(mean_test_loss, mean_test_accu))
 
             except Exception as e:
@@ -190,7 +206,7 @@ class CNNEvaluator(Evaluator):
             logging.info('===finish evaluating Particle-%d===', particle.id)
             return mean_validation_accu, stddev_validation_acccu, num_connections
 
-    def test_one_epoch(self, sess, accuracy, cross_entropy, is_training, data_length, training_mode, X, true_Y):
+    def test_one_epoch(self, sess, accuracy, cross_entropy, is_training, data_length, training_mode, X, true_Y, merged_summary, training_epoch):
         """
         test one epoch on validation data or test data
         :param sess: tensor session
@@ -204,10 +220,15 @@ class CNNEvaluator(Evaluator):
         total_step = data_length // self.batch_size
         accuracy_list = []
         loss_list = []
+        if self.tensorboarad_path is not None:
+            test_valid_writer = self.validation_writer if training_mode == 1 else self.test_writer
         for _ in range(total_step):
-            accuracy_str, loss_str, X_str, true_Y_str = sess.run([accuracy, cross_entropy, X, true_Y], {is_training: training_mode})
+            accuracy_str, loss_str, X_str, true_Y_str, mreged_summary_str = sess.run([accuracy, cross_entropy, X, true_Y, merged_summary], {is_training: training_mode})
             accuracy_list.append(accuracy_str)
             loss_list.append(loss_str)
+        # write the accuracy of last batch in summary
+        test_valid_writer.add_summary(mreged_summary_str,
+                                      training_epoch) if self.tensorboarad_path is not None else None
         mean_accu = np.mean(accuracy_list)
         mean_loss = np.mean(loss_list)
         stddev_accu = np.std(accuracy_list)

@@ -103,3 +103,9 @@ python3 main.py -d mb -m 1 -e 30 -g 1 -o 1
 ```bash
 nohup python3 main.py -d mb -m 1 -e 30 -g 1 -o 1 &
 ```
+
+### Visualise the training process of the final model in Tensorboard
+
+```bash
+tensorboard --logdir log/ippso_cnn_optimise/tensorboard/train
+```

@@ -1,6 +1,7 @@
 import logging
 import argparse
 import numpy as np
+import os
 from ippso.pso.population import initialise_cnn_population
 from ippso.pso.evaluator import initialise_cnn_evaluator
 from ippso.pso.particle import save_particle, load_particle
@@ -26,9 +27,15 @@ def _optimise_learned_particle(args):
     :param args: arguments
     """
     if args.log_file is None:
-        logging.basicConfig(filename='log/ippso_cnn_optimise.log', level=logging.DEBUG)
+        log_file_path = 'log/ippso_cnn_optimise.log'
     else:
-        logging.basicConfig(filename=args.log_file, level=logging.DEBUG)
+        log_file_path = args.log_file
+    tensorboard_path = None
+    if args.use_tensorboard == 1:
+        tensorboard_path = os.path.join(os.path.splitext(log_file_path)[0], 'tensorboard')
+        if not os.path.exists(tensorboard_path):
+            os.makedirs(tensorboard_path)
+    logging.basicConfig(filename=log_file_path, level=logging.DEBUG)
     logging.info('===Load data - dataset:%s, mode:%s===', args.dataset, args.mode)
     loaded_data = _load_data(args.dataset, args.mode)
     logging.info('===Data loaded===')
@@ -49,7 +56,8 @@ def _optimise_learned_particle(args):
                                              stddev_divisor=16,
                                              test_data=loaded_data.test['images'],
                                              test_label=loaded_data.test['labels'],
-                                             optimise=True)
+                                             optimise=True,
+                                             tensorboard_path=tensorboard_path)
     else:
         evaluator = initialise_cnn_evaluator(training_epoch=args.training_epoch,
                                              max_gpu=args.max_gpu,
@@ -60,7 +68,8 @@ def _optimise_learned_particle(args):
                                              mean_centre=7,
                                              mean_divisor=80,
                                              stddev_divisor=16,
-                                             optimise=True)
+                                             optimise=True,
+                                             tensorboard_path=tensorboard_path)
     loaded_particle = load_particle(args.gbest_file)
     evaluator.eval(loaded_particle)
     logging.info('===Finished===')
@@ -172,6 +181,7 @@ def _filter_args(args):
     args.dropout = float(args.dropout) if args.dropout is not None else 0
     args.ip_structure = int(args.ip_structure) if args.ip_structure is not None else 0
     args.partial_dataset = float(args.partial_dataset) if args.partial_dataset is not None else None
+    args.use_tensorboard = int(args.use_tensorboard) if args.use_tensorboard is not None else 0
 
 # main entrance
 if __name__ == '__main__':
@@ -200,6 +210,8 @@ if __name__ == '__main__':
                         help='IP structure. default: 5 bytes, 1: 3 bytes, 2: 2 bytes with xavier weight initialisation')
     parser.add_argument('--partial_dataset',
                         help='Use partial dataset for learning CNN architecture to speed up the learning process.')
+    parser.add_argument('--use_tensorboard',
+                        help='indicate whether to use tensorboard. default: not use, 1: use')
 
     args = parser.parse_args()
     main(args)
