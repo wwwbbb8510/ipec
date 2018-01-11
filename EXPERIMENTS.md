@@ -9,6 +9,12 @@ nohup bash ./run_all.sh -g 1 -i 0002 -e 1 &
 nohup bash ./run_all.sh -g 1 -i 0002 -e 2 &
 ```
 
+**bach script for re-evolve**
+
+```bash
+nohup bash ./run_re_evolve.sh &
+```
+
 **copy datasets to cuda server**
 
 ```bash

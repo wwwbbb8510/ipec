@@ -199,8 +199,7 @@ class CNNPopulation(Population):
         if self.learned_gbest is not None:
             self.pop[0] = copy.deepcopy(self.learned_gbest)
             self.pop[0].id = 0
-            self.gbest = copy.deepcopy(self.pop[0])
         logging.info('===finish initialising population')
-        self.gbest = self.pop[0]
+        self.gbest = copy.deepcopy(self.pop[0])
         return self
 
