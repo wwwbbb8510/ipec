@@ -15,7 +15,7 @@ print_help(){
     exit 1
 }
 
-if [ -z "${GPU}" -o -z "${ID}" -o -z "${EVOLVE}" ];then
+if [ -z "${GPU}" -o -z "${ID}" -o -z "${DATASET}" ];then
     print_help
 fi
 
