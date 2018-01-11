@@ -122,10 +122,15 @@ def _pso_search(args):
         layers = initialise_cnn_layers_with_xavier_weights()
     else:
         layers = None
+    # load the learned gbest previously
+    loaded_particle = None
+    if args.re_evolve == 1 and os.path.isfile(args.gbest_file):
+        loaded_particle = load_particle(args.gbest_file)
+        logging.info('===Re-evolve from gbest with particle-id: {}==='.format(loaded_particle.id))
     pso_pop = initialise_cnn_population(pop_size=args.pop_size, particle_length=args.particle_length,
                                         evaluator=evaluator, w=args.w, c1=args.c1, c2=args.c2,
                                         max_fully_connected_length=args.max_full,
-                                        layers=layers, v_max=args.v_max)
+                                        layers=layers, v_max=args.v_max, learned_gbest=loaded_particle)
     best_particle = pso_pop.fly_2_end(max_steps=args.max_steps)
     save_particle(best_particle, args.gbest_file)
     logging.info('===Finished===')
@@ -182,6 +187,7 @@ def _filter_args(args):
     args.ip_structure = int(args.ip_structure) if args.ip_structure is not None else 0
     args.partial_dataset = float(args.partial_dataset) if args.partial_dataset is not None else None
     args.use_tensorboard = int(args.use_tensorboard) if args.use_tensorboard is not None else 0
+    args.re_evolve = int(args.re_evolve) if args.re_evolve is not None else None
 
 # main entrance
 if __name__ == '__main__':
@@ -212,6 +218,8 @@ if __name__ == '__main__':
                         help='Use partial dataset for learning CNN architecture to speed up the learning process.')
     parser.add_argument('--use_tensorboard',
                         help='indicate whether to use tensorboard. default: not use, 1: use')
+    parser.add_argument('--re_evolve',
+                        help='Re-evolve based on the saved gbest. Default: no. 1: Re-evolve')
 
     args = parser.parse_args()
     main(args)
