@@ -12,7 +12,13 @@ nohup bash ./run_all.sh -g 1 -i 0002 -e 2 &
 **bach script for re-evolve**
 
 ```bash
-nohup bash ./run_re_evolve.sh &
+nohup bash ./run_re_evolve.sh -g 0 -i 1003 -d mbi &
+```
+
+**check disk usage**
+
+```bash
+du -d1 | sort -n
 ```
 
 **copy datasets to cuda server**
