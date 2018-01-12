@@ -1,14 +1,16 @@
-import numpy as np
-import logging
-from .particle import Particle
-from .particle import CNNParticle
-from ippso.cnn.layers import ConvLayer
-from ippso.cnn.layers import FullyConnectedLayer
-from ippso.cnn.layers import DisabledLayer
-from ippso.cnn.layers import PoolingLayer
-from .evaluator import Evaluator, CNNEvaluator, initialise_cnn_evaluator
-from ippso.ip.decoder import Decoder
 import copy
+import logging
+
+import numpy as np
+
+from ipec.cnn.evaluator import Evaluator, CNNEvaluator, initialise_cnn_evaluator
+from ipec.cnn.layers import ConvLayer
+from ipec.cnn.layers import DisabledLayer
+from ipec.cnn.layers import FullyConnectedLayer
+from ipec.cnn.layers import PoolingLayer
+from ipec.ip.decoder import Decoder
+from .particle import CNNParticle
+from .particle import Particle
 
 POPULATION_DEFAULT_PARAMS = {
     'pop_size': 5, #50,

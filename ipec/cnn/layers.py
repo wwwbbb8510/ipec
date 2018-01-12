@@ -1,11 +1,11 @@
 import numpy as np
 
-from ippso.ip.core import parse_subnet_str
-from ippso.ip.core import IPStructure
-from ippso.ip.core import Interface
-from ippso.ip.encoder import Encoder
-from ippso.ip.decoder import Decoder
-from ippso.ip.core import max_decimal_value_of_binary
+from ipec.ip.core import parse_subnet_str
+from ipec.ip.core import IPStructure
+from ipec.ip.core import Interface
+from ipec.ip.encoder import Encoder
+from ipec.ip.decoder import Decoder
+from ipec.ip.core import max_decimal_value_of_binary
 
 # convolutional layer fields
 CONV_FIELDS = {

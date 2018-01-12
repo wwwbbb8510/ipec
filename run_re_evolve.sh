@@ -9,7 +9,7 @@ done
 
 print_help(){
     printf "Parameter g(GPU), i(ID), d(dataset) are mandatory\n"
-    printf "g values - 1:first gpu, 2: second gpu"
+    printf "g values - 0:first gpu, 1: second gpu"
     printf "e values - 1:PSO evolve particles, 2: training the final model"
     printf "d values - choose a dataset among mb, mbi, mdrbi, mrb, mrd or convex"
     exit 1

@@ -131,6 +131,21 @@ def compare_2_bin_ips(bin_ip_1, bin_ip_2):
         flag = 0
     return flag
 
+class InterfaceArray:
+    """
+    Interface array
+    All the individuals will extend this class
+    """
+    def __init__(self, id):
+        """
+        constructor
+
+        :param id: ID
+        :type: int
+        """
+        self.x = None
+        self.id = id
+
 class Interface:
     """
     Interface class

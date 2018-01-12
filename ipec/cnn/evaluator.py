@@ -7,8 +7,8 @@ from tensorflow.contrib.layers.python.layers import initializers
 import tensorflow.contrib.slim as slim
 from tensorflow.python.ops import control_flow_ops
 from tensorflow.python.ops import init_ops
-from ippso.ip.decoder import Decoder
-from .particle import Particle
+from ipec.ip.decoder import Decoder
+from ipec.ip.core import InterfaceArray
 import os
 
 def initialise_cnn_evaluator(training_epoch=None, batch_size=None, training_data=None, training_label=None, validation_data=None,
@@ -19,7 +19,7 @@ def initialise_cnn_evaluator(training_epoch=None, batch_size=None, training_data
     batch_size = 200 if batch_size is None else batch_size
     class_num = 10 if class_num is None else class_num
     if training_data is None and training_label is None and validation_data is None and validation_label is None:
-        from ippso.data.mnist import get_training_data, get_validation_data, get_test_data
+        from ipec.data.mnist import get_training_data, get_validation_data, get_test_data
         training_data = get_training_data()['images'] if training_data is None else training_data
         training_label = get_training_data()['labels'] if training_label is None else training_label
         validation_data = get_validation_data()['images'] if validation_data is None else validation_data
@@ -136,17 +136,17 @@ class CNNEvaluator(Evaluator):
                 print('CUDA DEVICES-{} enabled'.format(gpu_id))
                 os.environ['CUDA_VISIBLE_DEVICES'] = '{}'.format(gpu_id)
 
-    def eval(self, particle):
+    def eval(self, interface_array):
         """
-        evaluate the particle
+        evaluate the interface_array
 
-        :param particle: particle
-        :type particle: Particle
+        :param interface_array: interface_array
+        :type interface_array: InterfaceArray
         :return:
         """
-        logging.info('===start evaluating Particle-%d===', particle.id)
+        logging.info('===start evaluating InterfaceArray-%d===', interface_array.id)
         tf.reset_default_graph()
-        is_training, train_op, accuracy, cross_entropy, num_connections, merge_summary, regularization_loss, X, true_Y = self.build_graph(particle)
+        is_training, train_op, accuracy, cross_entropy, num_connections, merge_summary, regularization_loss, X, true_Y = self.build_graph(interface_array)
         with tf.Session() as sess:
             if self.tensorboarad_path is not None:
                 self.train_writer.add_graph(sess.graph)
@@ -175,7 +175,7 @@ class CNNEvaluator(Evaluator):
                                                                                          is_training,
                                                                                          self.validation_data_length, 1, X, true_Y, merge_summary, training_epoch)
                         logging.debug('{}, {}, indi:{}, Step:{}/{}, ce_loss:{}, reg_loss:{}, acc:{}, validation_ce_loss:{}, acc:{}'.format(
-                            datetime.now(), i // steps_in_each_epoch, particle.id, i, total_steps, loss_str, regularization_loss_str,
+                            datetime.now(), i // steps_in_each_epoch, interface_array.id, i, total_steps, loss_str, regularization_loss_str,
                             accuracy_str, mean_validation_loss, mean_validation_accu))
                         if self.optimise and self.test_data is not None:
                             mean_test_accu, mean_test_loss, _ = self.test_one_epoch(sess, accuracy,
@@ -202,8 +202,8 @@ class CNNEvaluator(Evaluator):
                 logging.debug('finally...')
                 coord.request_stop()
                 coord.join(threads)
-            logging.info('fitness of the particle: mean accuracy - %f, standard deviation of accuracy - %f, # of connections - %d', mean_validation_accu, stddev_validation_acccu, num_connections)
-            logging.info('===finish evaluating Particle-%d===', particle.id)
+            logging.info('fitness of the interface_array: mean accuracy - %f, standard deviation of accuracy - %f, # of connections - %d', mean_validation_accu, stddev_validation_acccu, num_connections)
+            logging.info('===finish evaluating InterfaceArray-%d===', interface_array.id)
             return mean_validation_accu, stddev_validation_acccu, num_connections
 
     def test_one_epoch(self, sess, accuracy, cross_entropy, is_training, data_length, training_mode, X, true_Y, merged_summary, training_epoch):
@@ -234,12 +234,12 @@ class CNNEvaluator(Evaluator):
         stddev_accu = np.std(accuracy_list)
         return mean_accu, mean_loss, stddev_accu
 
-    def build_graph(self, particle):
+    def build_graph(self, interface_array):
         """
-        evaluate the particle
+        evaluate the interface_array
 
-        :param particle: particle
-        :type particle: Particle
+        :param interface_array: interface_array
+        :type interface_array: InterfaceArray
         :return:
         """
         is_training = tf.placeholder(tf.int8, [])
@@ -251,7 +251,7 @@ class CNNEvaluator(Evaluator):
                         lambda : tf.cond(tf.equal(is_training, tf.constant(1,dtype=tf.int8)), lambda : (validation_data, validation_label), lambda : (test_data, test_label)))
         true_Y = tf.cast(y_, tf.int64)
 
-        name_preffix = 'I_{}'.format(particle.id)
+        name_preffix = 'I_{}'.format(interface_array.id)
         output_list = []
         output_list.append(X)
         num_connections = 0
@@ -267,10 +267,10 @@ class CNNEvaluator(Evaluator):
                 normalizer_params={'is_training': bool_is_training, 'decay': 0.99}
                             ):
             i = 0
-            for interface in particle.x:
+            for interface in interface_array.x:
                 # conv layer
                 field_values = self.decoder.decode_2_field_values(interface)
-                if particle.layers['conv'].check_interface_in_type(interface):
+                if interface_array.layers['conv'].check_interface_in_type(interface):
                     name_scope = '{}_conv_{}'.format(name_preffix, i)
                     with tf.variable_scope(name_scope):
                         filter_size, mean, stddev, feature_map_size, stride_size = self.decoder.filter_conv_fields(field_values)
@@ -282,7 +282,7 @@ class CNNEvaluator(Evaluator):
                         last_output_feature_map_size = feature_map_size
                         num_connections += feature_map_size * stride_size ^ 2 + feature_map_size
                 # pooling layer
-                elif particle.layers['pooling'].check_interface_in_type(interface):
+                elif interface_array.layers['pooling'].check_interface_in_type(interface):
                     name_scope = '{}_pooling_{}'.format(name_preffix, i)
                     with tf.variable_scope(name_scope):
                         kernel_size, stride_size, kernel_type = self.decoder.filter_pooling_fields(field_values)
@@ -297,11 +297,11 @@ class CNNEvaluator(Evaluator):
                         last_output_feature_map_size = last_output_feature_map_size
                         num_connections += last_output_feature_map_size
                 # fully-connected layer
-                elif particle.layers['full'].check_interface_in_type(interface):
+                elif interface_array.layers['full'].check_interface_in_type(interface):
                     name_scope = '{}_fully-connected_{}'.format(name_preffix, i)
                     with tf.variable_scope(name_scope):
-                        last_interface = particle.x[i-1]
-                        if not particle.layers['full'].check_interface_in_type(last_interface):  # use the previous setting to calculate this input dimension
+                        last_interface = interface_array.x[i-1]
+                        if not interface_array.layers['full'].check_interface_in_type(last_interface):  # use the previous setting to calculate this input dimension
                             input_data = slim.flatten(output_list[-1])
                             input_dim = input_data.get_shape()[1].value
                         else:  # current input dim should be the number of neurons in the previous hidden layer
@@ -318,7 +318,7 @@ class CNNEvaluator(Evaluator):
                         output_list.append(self._add_dropout(full_H))
                         num_connections += input_dim * hidden_neuron_num + hidden_neuron_num
                 # disabled layer
-                elif particle.layers['disabled'].check_interface_in_type(interface):
+                elif interface_array.layers['disabled'].check_interface_in_type(interface):
                     name_scope = '{}_disabled_{}'.format(name_preffix, i)
                 else:
                     logging.error('Invalid Interface: %s', str(interface))

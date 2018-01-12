@@ -13,6 +13,8 @@ nohup bash ./run_all.sh -g 1 -i 0002 -e 2 &
 
 ```bash
 nohup bash ./run_re_evolve.sh -g 0 -i 1003 -d mbi &
+nohup bash ./run_re_evolve.sh -g 1 -i 1003 -d mrd &
+nohup bash ./run_re_evolve.sh -g 1 -i 1003 -d mrb &
 ```
 
 **check disk usage**

@@ -1,15 +1,13 @@
-import logging
 import argparse
-import numpy as np
+import logging
 import os
-from ippso.pso.population import initialise_cnn_population
-from ippso.pso.evaluator import initialise_cnn_evaluator
-from ippso.pso.particle import save_particle, load_particle
-from ippso.cnn.layers import ConvLayer
-from ippso.cnn.layers import PoolingLayer
-from ippso.cnn.layers import FullyConnectedLayer
-from ippso.cnn.layers import DisabledLayer
-from ippso.cnn.layers import initialise_cnn_layers_3_bytes, initialise_cnn_layers_with_xavier_weights
+
+import numpy as np
+
+from ipec.cnn.evaluator import initialise_cnn_evaluator
+from ipec.cnn.layers import initialise_cnn_layers_3_bytes, initialise_cnn_layers_with_xavier_weights
+from ipec.pso.particle import save_particle, load_particle
+from ipec.pso.population import initialise_cnn_population
 
 
 def main(args):
@@ -145,21 +143,21 @@ def _load_data(dataset_name, mode, partial_dataset=None):
     :return: loaded data
     """
     loaded_data = None
-    from ippso.data.core import DataLoader
+    from ipec.data.core import DataLoader
     DataLoader.mode = mode
     DataLoader.partial_dataset = partial_dataset
     if dataset_name == 'mb':
-        from ippso.data.mb import loaded_data
+        from ipec.data.mb import loaded_data
     elif dataset_name == 'mbi':
-        from ippso.data.mbi import loaded_data
+        from ipec.data.mbi import loaded_data
     elif dataset_name == 'mdrbi':
-        from ippso.data.mdrbi import loaded_data
+        from ipec.data.mdrbi import loaded_data
     elif dataset_name == 'mrb':
-        from ippso.data.mrb import loaded_data
+        from ipec.data.mrb import loaded_data
     elif dataset_name == 'mrd':
-        from ippso.data.mrd import loaded_data
+        from ipec.data.mrd import loaded_data
     elif dataset_name == 'convex':
-        from ippso.data.convex import loaded_data
+        from ipec.data.convex import loaded_data
     return loaded_data
 
 

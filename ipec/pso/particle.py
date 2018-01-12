@@ -1,7 +1,7 @@
 import numpy as np
 import logging
-from ippso.ip.core import Interface
-from ippso.ip.decoder import Decoder
+from ipec.ip.core import Interface, InterfaceArray
+from ipec.ip.decoder import Decoder
 import copy
 import pickle
 
@@ -53,7 +53,7 @@ def load_particle(path=None):
         particle = pickle.load(input)
     return particle
 
-class Particle:
+class Particle(InterfaceArray):
     """
     Particle class
     """
@@ -74,7 +74,7 @@ class Particle:
         :param layers: a dict of (layer_name, layer) pairs; keys: conv, pooling, full, disabled
         :type layers: dict
         """
-        self.id = id
+        super(Particle, self).__init__(id)
         self.length = length
         self.w = w
         self.c1 = c1
@@ -83,9 +83,8 @@ class Particle:
         self.layers = layers
         self.decoder = Decoder()
 
-        # initialise pbest, x, v to None
+        # initialise pbest, v to None
         self.pbest = None
-        self.x = None
         self.v = None
         self.fitness = None
 
