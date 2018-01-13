@@ -179,7 +179,7 @@ class Population:
         agent_trial = copy.deepcopy(target)
         agent_trial.id = self.pop_size+1
         for i in range(self.agent_length):
-            interface = self.x[i]
+            interface = agent_trial.x[i]
             for j in range(interface.ip.length):
                 rand = np.random.uniform(0, 1)
                 if rand < self.cr:
@@ -187,7 +187,7 @@ class Population:
                     x_r2 = agent_r2.x[i].ip.ip[j]
                     x_r3 = agent_r3.x[i].ip.ip[j]
                     new_x_ij = x_r1 + self.f * (x_r2 - x_r3)
-                    self.x[i].update_byte(j, new_x_ij)
+                    agent_trial.x[i].update_byte(j, new_x_ij)
         return agent_trial
 
     def crossover(self, target, agent_trial):
