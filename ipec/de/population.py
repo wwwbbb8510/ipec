@@ -203,7 +203,7 @@ class Population:
         """
         candidate_agent = copy.deepcopy(target)
         start_point = np.random.randint(0, self.agent_length)
-        mutation_length = np.random.randint(1, self.agent_length - start_point)
+        mutation_length = np.random.randint(1, self.agent_length - start_point+1)
         for i in range(start_point, start_point+mutation_length):
             candidate_agent.x[i] = agent_trial.x[i]
 
