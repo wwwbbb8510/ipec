@@ -186,7 +186,8 @@ class Population:
                     x_r1 = agent_r1.x[i].ip.ip[j]
                     x_r2 = agent_r2.x[i].ip.ip[j]
                     x_r3 = agent_r3.x[i].ip.ip[j]
-                    new_x_ij = x_r1 + self.f * (x_r2 - x_r3)
+                    new_x_ij = int(x_r1 + self.f * (x_r2 - x_r3))
+                    new_x_ij = new_x_ij if new_x_ij < 256 else new_x_ij - 256
                     agent_trial.x[i].update_byte(j, new_x_ij)
         return agent_trial
 

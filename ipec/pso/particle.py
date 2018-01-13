@@ -123,8 +123,8 @@ class Particle(InterfaceArray):
                 if self.v_max is not None:
                     if new_v_ij > self.v_max[j]:
                         new_v_ij = self.v_max[j]
-                new_x_ij = x_ij + new_v_ij
-                new_x_ij if new_x_ij < 256 else new_x_ij - 256
+                new_x_ij = int(x_ij + new_v_ij)
+                new_x_ij = new_x_ij if new_x_ij < 256 else new_x_ij - 256
                 # update the IP and velocity of the particle
                 self.x[i].update_byte(j, new_x_ij)
                 self.v[i,j] = new_v_ij
