@@ -28,6 +28,7 @@ class Decoder:
         :return: (filed, value) dict
         :rtype: dict
         """
+        logging.debug('The interface to be decoded: %s', str(interface))
         fields = interface.ip_structure.fields
         fields_length = interface.ip_structure.fields_length
         ip = interface.ip.ip
@@ -42,6 +43,8 @@ class Decoder:
             num_of_bits = fields[field_name]
             field_values[field_name] = int(field_bin_ip[pos:pos+num_of_bits], base=2)
             pos + num_of_bits
+
+        logging.debug('The fields decoded from the interface: %s', str(field_values))
 
         return field_values
 
