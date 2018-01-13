@@ -72,7 +72,7 @@ class Population:
     """
     Population class
     """
-    def __init__(self, pop_size,  agent_length, f, cr, evaluator=None, max_generation=None):
+    def __init__(self, pop_size,  agent_length, f, cr, layers, evaluator=None, max_generation=None):
         """
         constructor
 
@@ -84,6 +84,8 @@ class Population:
         :type f: float
         :param cr: crossover rate at the mutation step
         :type cr: float
+        :param layers: a dict of (layer_name, layer) pairs; keys: conv, pooling, full, disabled
+        :type layers: dict
         :param evaluator: evaluator to calculate the fitness
         :type evaluator: Evaluator
         :param max_generation: max generation
@@ -94,6 +96,7 @@ class Population:
         self.agent_length = agent_length
         self.f = f
         self.cr = cr
+        self.layers = layers
         self.max_generation = max_generation if max_generation > 0 else POPULATION_DEFAULT_PARAMS['max_generation']
         self.evaluator = evaluator
         self.decoder = Decoder()
@@ -189,6 +192,8 @@ class Population:
                     new_x_ij = int(x_r1 + self.f * (x_r2 - x_r3))
                     new_x_ij = new_x_ij if new_x_ij < 256 else new_x_ij - 256
                     agent_trial.x[i].update_byte(j, new_x_ij)
+            if self.layers is not None:
+                agent_trial.x[i].update_subnet_and_structure(self.layers)
         return agent_trial
 
     def crossover(self, target, agent_trial):
@@ -240,8 +245,7 @@ class CNNPopulation(Population):
         :type max_generation: int
         """
         self.max_fully_connected_length = max_fully_connected_length
-        self.layers = layers
-        super(CNNPopulation, self).__init__(pop_size, agent_length, f, cr, evaluator, max_generation)
+        super(CNNPopulation, self).__init__(pop_size, agent_length, f, cr, layers, evaluator, max_generation)
 
     def initialise(self):
         """
