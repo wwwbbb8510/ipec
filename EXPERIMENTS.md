@@ -1,5 +1,11 @@
 ## Quick commands
 
+**batch n runs**
+
+```bash
+nohup bash ./run_m_runs.sh -r 3 &
+```
+
 **batch running on multiple tasks through bash scripts**
 
 ```bash
@@ -15,6 +21,12 @@ nohup bash ./run_all.sh -g 1 -i 0002 -e 2 &
 nohup bash ./run_re_evolve.sh -g 0 -i 1003 -d mbi &
 nohup bash ./run_re_evolve.sh -g 1 -i 1003 -d mrd &
 nohup bash ./run_re_evolve.sh -g 1 -i 1003 -d mrb &
+```
+
+**go to grid folder**
+
+```bash
+/vol/grid-solar/sgeusers/wangbin
 ```
 
 **check disk usage**
