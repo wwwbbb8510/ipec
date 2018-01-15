@@ -262,6 +262,17 @@ class IPAddress:
         self.ip[pos] = value
         self.bin_ip = self._ip_2_bin_ip()
 
+    def update_ip_by_binary_string(self, bin_ip):
+        """
+        update ip by binary string of IP
+
+        :param bin_ip: binary string IP
+        :type bin_ip: string
+        :return:
+        """
+        self.bin_ip = bin_ip
+        self.ip = self._bin_ip_2_ip()
+
     def _ip_2_bin_ip(self, ip=None):
         """
         convert IP from decimal IP to binary string
