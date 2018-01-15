@@ -16,7 +16,7 @@ POPULATION_DEFAULT_PARAMS = {
     'chromosome_length': 5, #15,
     'max_full': 2, #5,
     'elitism_rate': 0.5,
-    'mutation_rate': 0.5,
+    'mutation_rate': np.asarray([0.1, 0.2]),
     'layers': {
         'conv': ConvLayer(),
         'pooling': PoolingLayer(),
@@ -129,7 +129,7 @@ class Population:
                     new_pop_index = new_pop_index + 1
             # generate children (after doing selection, crossover, mutation) in the population
             while new_pop_index < self.pop_size:
-                chromosome_1, chromosome_2 = self.spin_roulette()
+                chromosome_1, chromosome_2 = self.select()
                 candidate_chromosome = self.crossover(chromosome_1, chromosome_2)
                 candidate_chromosome = self.mutate(candidate_chromosome)
                 candidate_chromosome.id = new_pop_index

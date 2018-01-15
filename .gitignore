@@ -5,6 +5,9 @@ MNIST_data
 *.pyc
 log/*
 !log/placeholder.txt
+!log/analysis_test_accuracy
+log/analysis_test_accuracy/*
+!log/analysis_test_accuracy/placeholder.txt
 datasets/*
 !datasets/placeholder.txt
 reports/cec/IPPSO_CEC.*
