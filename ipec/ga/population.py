@@ -12,7 +12,7 @@ from ipec.ip.decoder import Decoder
 from .chromosome import Chromosome, CNNChromosome
 
 POPULATION_DEFAULT_PARAMS = {
-    'pop_size': 5, #50,
+    'pop_size': 3, #50,
     'chromosome_length': 5, #15,
     'max_full': 2, #5,
     'elitism_rate': 0.5,
@@ -108,19 +108,25 @@ class Population:
         """
         for g in range(self.max_generation):
             logging.info('===start updating population at step-%d===', g)
+            # evaluate the first generation as the chromosomes are not evaluated during initialisation
             if g == 0:
-                eval_result = self.evaluator.eval(chromosome)
-                # use minus standard deviation which is the less the better
-                # use minus number of connections which is the less the better
-                chromosome.fitness = (eval_result[0], -eval_result[1], -eval_result[2])
+                for chromosome in self.pop:
+                    eval_result = self.evaluator.eval(chromosome)
+                    # use minus standard deviation which is the less the better
+                    # use minus number of connections which is the less the better
+                    chromosome.fitness = (eval_result[0], -eval_result[1], -eval_result[2])
+
+            # generate new pop
             new_pop = np.empty(self.pop_size, dtype=Chromosome)
             new_pop_index = 0
             # add elite chromosomes in the new generation
             elite_chromosomes = self.elitism()
-            for chromosome in elite_chromosomes:
-                new_chromosome = copy.deepcopy(chromosome['chromosome'])
-                new_chromosome.id = new_pop_index
-                new_pop_index = new_pop_index + 1
+            if elite_chromosomes is not None:
+                for chromosome in elite_chromosomes:
+                    new_chromosome = copy.deepcopy(chromosome)
+                    new_chromosome.id = new_pop_index
+                    new_pop[new_pop_index] = new_chromosome
+                    new_pop_index = new_pop_index + 1
             # generate children (after doing selection, crossover, mutation) in the population
             while new_pop_index < self.pop_size:
                 chromosome_1, chromosome_2 = self.spin_roulette()
@@ -137,6 +143,7 @@ class Population:
                 elif self.best_chromosome.compare_with(self.pop[new_pop_index]) < 0:
                     self.best_chromosome = copy.deepcopy(self.pop[new_pop_index])
                 logging.info('===fitness of Chromosome-%d at generation-%d: %s===', new_pop_index, g, str(self.pop[new_pop_index].fitness))
+                new_pop[new_pop_index] = candidate_chromosome
                 new_pop_index = new_pop_index + 1
 
             logging.info('===fitness of best chromosome at generation-%d: %s===', g, str(self.best_chromosome.fitness))
@@ -151,20 +158,21 @@ class Population:
         :return: elitism array of chromosome
         :type: numpy.array
         """
+        elitism_pop = None
         elitism_amount = int(self.elitism_rate * self.pop_size)
-        # construct a sortable array
-        sortable_pop = np.zeros(self.pop_size)
-        for i in range(self.pop_size):
-            fitness = self.pop[i].fitness
-            sortable_pop[i] = {
-                's_0', fitness[0],
-                's_1', fitness[1],
-                's_2', fitness[2],
-                'chromosome', self.pop[i]
-            }
-        sorted_pop = np.sort(sortable_pop, order=['s_0', 's_1', 's_2'])
+        if elitism_amount > 0:
+            # construct a sortable array
+            dtype = [('chromosome', Chromosome), ('s_0', float), ('s_1', float), ('s_2', float)]
+            sortable_pop = np.empty(self.pop_size, dtype=dtype)
+            for i in range(self.pop_size):
+                fitness = self.pop[i].fitness
+                sortable_pop[i] = (self.pop[i], fitness[0], fitness[1], fitness[2])
+            sorted_pop = np.sort(sortable_pop, order=['s_0', 's_1', 's_2'])
+            elitism_pop = np.empty(elitism_amount, dtype=Chromosome)
+            for i in range(self.pop_size-elitism_amount, self.pop_size):
+                elitism_pop[i-(self.pop_size-elitism_amount)] = sorted_pop[i][0]
 
-        return sorted_pop[self.pop_size-elitism_amount:]
+        return elitism_pop
 
 
     def select(self):

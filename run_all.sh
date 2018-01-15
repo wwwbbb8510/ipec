@@ -24,8 +24,8 @@ PARTIAL_10=" --partial_dataset 0.1 "
 PARTIAL_15=" --partial_dataset 0.15 "
 
 # disable using partial
-PARTIAL_10=""
-PARTIAL_15=""
+#PARTIAL_10=""
+#PARTIAL_15=""
 
 if [ "${EVOLVE}" -eq "1" ];then
     case "${GPU}" in
