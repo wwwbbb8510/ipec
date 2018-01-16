@@ -3,7 +3,10 @@
 **batch n runs**
 
 ```bash
-nohup bash ./run_m_runs.sh -r 2 -p 10 &
+# evolve
+nohup bash ./run_m_runs.sh -r 2 -p 10 -e 1 &
+# optimise
+nohup bash ./run_m_runs.sh -r 2 -p 10 -e 2 &
 ```
 
 **batch running on multiple tasks through bash scripts**
