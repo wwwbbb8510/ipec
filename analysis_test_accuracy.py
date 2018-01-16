@@ -22,5 +22,6 @@ for file in files:
     f.close()
 
 print('best accuracy list: {}'.format(str(best_acc_list)))
+print('best accuracy: {}'.format(np.amax(best_acc_list)))
 print('accuracy mean: {}'.format(np.mean(best_acc_list)))
 print('accuracy standard deviation: {}'.format(np.std(best_acc_list)))

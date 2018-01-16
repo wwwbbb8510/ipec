@@ -381,7 +381,7 @@
 % As a general rule, do not put math, special symbols or citations
 % in the abstract
 \begin{abstract}
-Convolutional neural network (CNN) is one of the most effective deep learning method to solve image classification problems, but the best architecture of CNN to solve a specific problem can be extremely complicated which is hardly designed by humans. This paper focuses on utilising Particle Swarm Optimisation (PSO) to automatically search for the optimal architecture of CNN without any manual work involved. In order to achieve the goal, three adjustments will be made based on the traditional PSO. First, a novel IP-based encoding strategy of using network IP structure to encode CNN layers into particle vectors is proposed and the IP-based PSO method will be called IPPSO in this paper; Second, in order to allow IPPSO to learn variable-length CNN architectures, a disabled subnet is designed to hide some dimensions of the particle vector to simulate the variable-length particles; Third, since the learning process on large data is slow, we will randomly pick partial dataset for the evaluation to dramatically speed it up. The proposed IPPSO algorithm is examined and compared with 12 existing algorithms including the state-of-art methods on 3 widely used image classification benchmark datasets. The experimental results prove that the proposed algorithm is a strong competitor to the state-of-art algorithms in terms of classification error. 
+Convolutional neural network (CNN) is one of the most effective deep learning method to solve image classification problems, but the best architecture of CNN to solve a specific problem can be extremely complicated which is hardly designed by humans. This paper focuses on utilising Particle Swarm Optimisation (PSO) to automatically search for the optimal architecture of CNN without any manual work involved. In order to achieve the goal, three adjustments will be made based on the traditional PSO. First, a novel Internet Protocol based (IP-based) encoding strategy of using network IP structure to encode CNN layers into particle vectors is proposed and the IP-based PSO method will be called IPPSO in this paper; Second, in order to allow IPPSO to learn variable-length CNN architectures, a disabled subnet is designed to hide some dimensions of the particle vector to simulate the variable-length particles; Third, since the learning process on large data is slow, we will randomly pick partial dataset for the evaluation to dramatically speed it up. The proposed IPPSO algorithm is examined and compared with 12 existing algorithms including the state-of-art methods on 3 widely used image classification benchmark datasets. The experimental results prove that the proposed algorithm is a strong competitor to the state-of-art algorithms in terms of classification error. 
 \end{abstract}
 
 % no keywords
@@ -413,7 +413,9 @@ In order to solve the complex problem of the CNN architecture design, evolutiona
 
 A lot of work has been done in order to improve using Evolutionary Algorithm to evolve a CNN architecture such as the recent proposed EvoCNN \cite{EvolveCNN:Yanan}. One of the improvements of EvoCNN is that during the fitness evaluation, instead of training the model for 25, 600 steps in LEIC, it only trains the individual by 10 epochs which dramatically speeds up the learning process. The rationale behind EvoCNN using 10 epochs is that the researchers believe that training 10 epochs can obtain the major trend of the CNN architecture which would be decisive to the final performance of a model, and it has been verified by their experiments. 
 
-However, not a lot of research has been done by using other Evolutionary Computation methods to evolve the architectures of CNNs. In this paper, we would like to explore using PSO to evolve the architectures of CNNs for image classification as PSO has advantages of easy implementation and lower computational cost. First of all, We will develop a variable-length PSO with a novel IP-based encoding strategy to cope with variable-length CNN architectures. In addition, we will adjust the fitness evaluation method proposed in EvoCNN by using partial dataset \footnote{we use 10\% to 20\% of the whole training set for fitness evaluations depending on the specific problem.} instead of the whole training set for fitness evaluation as training only 10\% to 20\% of the dataset can significantly speed up the training process which then saves tremendous time of the whole evolution process and we believe using partial dataset with 10 epochs is able to learn the trend of a CNN architecture which will be confirmed in the experiments. Overall, the proposed IPPSO method is able to drastically improve the speed of the learning process along with obtaining a very competitive classification performance. 
+%However, not a lot of research has been done by using other Evolutionary Computation methods to evolve the architectures of CNNs. In this paper, we would like to explore using PSO to evolve the architectures of CNNs for image classification as PSO has advantages of easy implementation and lower computational cost. First of all, We will develop a variable-length PSO with a novel IP-based encoding strategy to cope with variable-length CNN architectures. In addition, we will adjust the fitness evaluation method proposed in EvoCNN by using partial dataset \footnote{we use 10\% to 20\% of the whole training set for fitness evaluations depending on the specific problem.} instead of the whole training set for fitness evaluation as training only 10\% to 20\% of the dataset can significantly speed up the training process which then saves tremendous time of the whole evolution process and we believe using partial dataset with 10 epochs is able to learn the trend of a CNN architecture which will be confirmed in the experiments. Overall, the proposed IPPSO method is able to drastically improve the speed of the learning process along with obtaining a very competitive classification performance. 
+
+However, not a lot of research has been done by using other Evolutionary Computation (EC) methods to evolve the architectures of CNNs, so we would like to explore some other EC methods used for evolving the architectures of CNNs without any human interference. Since PSO has the advantages of easy implementation, lower computational cost, and fewer parameters to adjust, we choose PSO as our EC method in this paper. But the fix-length attribute of the particle in traditional PSO is a big challenge for evolving the architectures of CNN as the optimal CNN architecture varies for different tasks, so we develop a novel flexible encoding scheme to break the fix-length constraint which would be the most fundamental part of the proposed algorithm in this paper. 
 
 
 \subsection{Goal}
@@ -421,7 +423,8 @@ The overall goal of this paper is to design and develop an effective and efficie
 
 \begin{enumerate}
 	\item Design an IP-based particle encoding scheme which has the ability of effectively encoding a CNN layer of different types into a network interface which is stored in order in the particle vector to represent a CNN architecture, and develop the customised PSO based on the novel encoding strategy. 
-	\item Design the IP subnets especially a disabled subnet to enable the IPPSO method to learn variable-length CNN architectures as the optimal architectures of CNNs for different tasks could vary in length. 
+%	\item Design the IP subnets especially a disabled subnet to enable the IPPSO method to learn variable-length CNN architectures as the optimal architectures of CNNs for different tasks could vary in length. 
+	\item Design a method to break the constraint of the fix-length attribute of the traditional PSO in order to learn variable-length architectures of CNNs. To be specific, we introduce a new layer called Disabled layer along with the other CNN layers, and the interface representing the Disabled layer would be hidden when decoding the particle which simulates a variable-length particle. 
 	\item Propose a fitness evaluation method of using partial dataset instead of the whole dataset in order to significantly speed up the evolutionary process. 
 \end{enumerate} 
 
@@ -495,107 +498,125 @@ In this section, the IP based PSO (IPPSO) for evolving deep Convolutional Neural
 Algorithm \ref{alg:framework} outlines the framework of the proposed algorithm. There are mainly three steps which are really straightforward - initialise the population by using the particle encoding strategy which will be described in Section \ref{sec:ParticleEncodingStrategy}, update the position and velocity and check whether the termination criterion meets.
 
 \subsection{Particle Encoding Strategy}\label{sec:ParticleEncodingStrategy}
-IPPSO encoding strategy is derived from the Network IP addresses. Although the CNN architecture is comprised of three types of layers - Convolutional Layer, Pooling Layer, and Fully-Connected Layer and the encoded information of different types of layers varies in terms of both the number of fields and the range in each field shown in Table \ref{table:ConvFields} to Table \ref{table:FullFields}, a Network IP address with a fixed length of enough capacity can be designed to accommodate all the types of CNN layers and then the Network IP can be divided into numerous subsets each of which can be used to define a specific type of CNN layers. 
+IPPSO encoding strategy is derived from the Network IP addresses. Although the CNN architecture is comprised of three types of layers - Convolutional Layer, Pooling Layer, and Fully-Connected Layer and the encoded information of different types of layers varies in terms of both the number of fields and the range in each field shown in Table \ref{table:CNNFields}, a Network IP address with a fixed length of enough capacity can be designed to accommodate all the types of CNN layers and then the Network IP can be divided into numerous subsets each of which can be used to define a specific type of CNN layers. 
 
 \begin{table}[!t]
 	%% increase table row spacing, adjust to taste
 	\renewcommand{\arraystretch}{1.3}
 	% if using array.sty, it might be a good idea to tweak the value of
 	% \extrarowheight as needed to properly center the text within the cells
-	\caption{The fields of Convolutional layer with an example in the Example column}
-	\label{table:ConvFields}
+	\caption{The fields of different types of CNN layers - Convolutional, Pooling, Fully-connected and Disabled layer with an example in the Example column}
+	\label{table:CNNFields}
 	\centering
 	%% Some packages, such as MDW tools, offer better commands for making tables
 	%% than the plain LaTeX2e tabular which is used here.
-	\begin{tabular}{|c|c|c|c|}
+	\begin{tabular}{|p{1.5cm}|p{1.5cm}|p{1.5cm}|p{1.5cm}|p{1cm}|}
 		\hline
-		Field & Example Value & Range & \# of Bits\\
+		Layer Type & Field & Example Value & Range & \# of Bits\\
 		\hline
-		Filter size & 2(001) & 1-8 & 3\\
+		Conv & Filter size & 2(001) & 1-8 & 3\\
 		\hline
-		\# of feature maps & 32(000 1111) & 1-128 & 7\\
+		-- & \# of feature maps & 32(000 1111) & 1-128 & 7\\
 		\hline
-		Stride size & 2(01) & 1-4 & 2\\
+		-- & Stride size & 2(01) & 1-4 & 2\\
 		\hline
-		\textbf{Total} & 001 000 1111 01 &  & 12\\
+		-- & \textbf{Summary} & 001 000 1111 01 &  & 12\\
+		\hline
+		Pooling & Kernel size & 2(01) & 1-4 & 2\\
+		\hline
+		-- & Stride size & 2(01) & 1-4 & 2\\
+		\hline
+		-- & Type: 1(maximal), 2(average) & 2(1) & 1-2 & 1\\
+		\hline
+		-- & Place holder & 32(00 1111) & 1-128 & 6\\
+		\hline
+		-- & \textbf{Summary} & 01 01 0 00 1111 &  & 11\\
+		\hline
+		Fully-connected & \# of Neurons & 1024(011 11111111) & 1-2048 & 11\\
+		\hline
+		-- & \textbf{Summary} & 011 11111111 &  & 11\\
+		\hline
+		Disabled & Place holder & 1024(011 11111111) & 1-2048 & 11\\
+		\hline
+		-- & \textbf{Summary} & 011 11111111 &  & 11\\
 		\hline
 	\end{tabular}
 \end{table}
 
 
-\begin{table}[!t]
-	%% increase table row spacing, adjust to taste
-	\renewcommand{\arraystretch}{1.3}
-	% if using array.sty, it might be a good idea to tweak the value of
-	% \extrarowheight as needed to properly center the text within the cells
-	\caption{The fields of Pooling layer with an example in the Example column}
-	\label{table:PoolingFields}
-	\centering
-	%% Some packages, such as MDW tools, offer better commands for making tables
-	%% than the plain LaTeX2e tabular which is used here.
-	\begin{tabular}{|c|c|c|c|}
-		\hline
-		Field & Example Value & Range & \# of Bits\\
-		\hline
-		Kernel size & 2(01) & 1-4 & 2\\
-		\hline
-		Stride size & 2(01) & 1-4 & 2\\
-		\hline
-		Type:1(maximal), 2(average) & 2(1) & 1-2 & 1\\
-		\hline
-		Place holder & 32(00 1111) & 1-128 & 6\\
-		\hline
-		\textbf{Total} & 01 01 0 00 1111 &  & 11\\
-		\hline
-	\end{tabular}
-\end{table}
-
-\begin{table}[!t]
-	%% increase table row spacing, adjust to taste
-	\renewcommand{\arraystretch}{1.3}
-	% if using array.sty, it might be a good idea to tweak the value of
-	% \extrarowheight as needed to properly center the text within the cells
-	\caption{The fields of Fully-Connected layer with an example in the Example column}
-	\label{table:FullFields}
-	\centering
-	%% Some packages, such as MDW tools, offer better commands for making tables
-	%% than the plain LaTeX2e tabular which is used here.
-	\begin{tabular}{|c|c|c|c|}
-		\hline
-		Field & Example Value & Range & \# of Bits\\
-		\hline
-		\# of Neurons & 1024(011 11111111) & 1-2048 & 11\\
-		\hline
-		\textbf{Total} & 011 11111111 &  & 11\\
-		\hline
-	\end{tabular}
-\end{table}
-
-\begin{table}[!t]
-	%% increase table row spacing, adjust to taste
-	\renewcommand{\arraystretch}{1.3}
-	% if using array.sty, it might be a good idea to tweak the value of
-	% \extrarowheight as needed to properly center the text within the cells
-	\caption{Disabled layer with an example in the Example column}
-	\label{table:DisabledFields}
-	\centering
-	%% Some packages, such as MDW tools, offer better commands for making tables
-	%% than the plain LaTeX2e tabular which is used here.
-	\begin{tabular}{|c|c|c|c|}
-		\hline
-		Field & Example Value & Range & \# of Bits\\
-		\hline
-		Place holder & 1024(011 11111111) & 1-2048 & 11\\
-		\hline
-		\textbf{Total} & 011 11111111 &  & 11\\
-		\hline
-	\end{tabular}
-\end{table}
+%\begin{table}[!t]
+%	%% increase table row spacing, adjust to taste
+%	\renewcommand{\arraystretch}{1.3}
+%	% if using array.sty, it might be a good idea to tweak the value of
+%	% \extrarowheight as needed to properly center the text within the cells
+%	\caption{The fields of Pooling layer with an example in the Example column}
+%	\label{table:PoolingFields}
+%	\centering
+%	%% Some packages, such as MDW tools, offer better commands for making tables
+%	%% than the plain LaTeX2e tabular which is used here.
+%	\begin{tabular}{|c|c|c|c|}
+%		\hline
+%		Field & Example Value & Range & \# of Bits\\
+%		\hline
+%		Kernel size & 2(01) & 1-4 & 2\\
+%		\hline
+%		Stride size & 2(01) & 1-4 & 2\\
+%		\hline
+%		Type:1(maximal), 2(average) & 2(1) & 1-2 & 1\\
+%		\hline
+%		Place holder & 32(00 1111) & 1-128 & 6\\
+%		\hline
+%		\textbf{Total} & 01 01 0 00 1111 &  & 11\\
+%		\hline
+%	\end{tabular}
+%\end{table}
+%
+%\begin{table}[!t]
+%	%% increase table row spacing, adjust to taste
+%	\renewcommand{\arraystretch}{1.3}
+%	% if using array.sty, it might be a good idea to tweak the value of
+%	% \extrarowheight as needed to properly center the text within the cells
+%	\caption{The fields of Fully-Connected layer with an example in the Example column}
+%	\label{table:FullFields}
+%	\centering
+%	%% Some packages, such as MDW tools, offer better commands for making tables
+%	%% than the plain LaTeX2e tabular which is used here.
+%	\begin{tabular}{|c|c|c|c|}
+%		\hline
+%		Field & Example Value & Range & \# of Bits\\
+%		\hline
+%		\# of Neurons & 1024(011 11111111) & 1-2048 & 11\\
+%		\hline
+%		\textbf{Total} & 011 11111111 &  & 11\\
+%		\hline
+%	\end{tabular}
+%\end{table}
+%
+%\begin{table}[!t]
+%	%% increase table row spacing, adjust to taste
+%	\renewcommand{\arraystretch}{1.3}
+%	% if using array.sty, it might be a good idea to tweak the value of
+%	% \extrarowheight as needed to properly center the text within the cells
+%	\caption{Disabled layer with an example in the Example column}
+%	\label{table:DisabledFields}
+%	\centering
+%	%% Some packages, such as MDW tools, offer better commands for making tables
+%	%% than the plain LaTeX2e tabular which is used here.
+%	\begin{tabular}{|c|c|c|c|}
+%		\hline
+%		Field & Example Value & Range & \# of Bits\\
+%		\hline
+%		Place holder & 1024(011 11111111) & 1-2048 & 11\\
+%		\hline
+%		\textbf{Total} & 011 11111111 &  & 11\\
+%		\hline
+%	\end{tabular}
+%\end{table}
 
 First of all, the length of the IP liked encoding binary string needs to be designed. As the largest number of bits to represent a layer is 12, there will be 2 bytes required to accommodate the 12 bits IP address. 
 In addition, the subnets for all types of layers need to be defined and CIDR style will be used to represent the subnet. The subnet 0.0/4 with the range from 0.0 to 15.255 which has the capacity of 12 bits will be used to encode the convolutional layer, the subnet 16.0/5 with the range from 16.0 to 23.255 which has the capacity of 11 bits will represent the fully-connected layer, and the subnet 24.0/5 with the range from 24.0 to 31.255 which has the capacity of 11 bits will carry the information of the Pooling layer. 
 Last but not least, as the particle length of PSO is fixed after initialisation,  in order to cope with the variable length of CNN architecture, an alternative way of disabling some of the layers in the encoded particle vector will be used to achieve this purpose. Therefore another subnet 32.0/5 with the range from 32.0 to 39.255 will be introduced to mark the layer as not used. 
-To summarise, the subnet table where the subsets defined to represent the different types of CNN layers can be drawn as Table \ref{table:Subnets} and each layer will be encoded into a 2 bytes IP address. Table \ref{table:IPExample} shows how the example in Table \ref{table:ConvFields} to Table \ref{table:FullFields} is encoded into IP addresses. 
+To summarise, the subnet table where the subsets defined to represent the different types of CNN layers can be drawn as Table \ref{table:Subnets} and each layer will be encoded into a 2 bytes IP address. Table \ref{table:IPExample} shows how the example in Table \ref{table:CNNFields} is encoded into IP addresses. 
 
 \begin{table}[!t]
 	%% increase table row spacing, adjust to taste
@@ -785,7 +806,7 @@ After the coefficients defined, we go through each byte in the particle and upda
 
 \subsection{Best Individual Selection and Decoding}
 
-Global best of PSO will be reported as the best individual. In terms of the decoding, we can first obtain a list of network interfaces - stored in every 2 bytes from left to right in the particle vector of the global best, according to the subnets in Table \ref{table:Subnets} we can distinguish the type of layer, and then based on Table \ref{table:ConvFields} to Table \ref{table:FullFields} we can decode the IP address into different sets of binary string which indicate the field values the layer. After decoding all the interfaces in the global best, the final CNN architecture can be obtained by connecting all of the decoded layers in the same order as that of the interfaces in the particle vector.
+Global best of PSO will be reported as the best individual. In terms of the decoding, we can first obtain a list of network interfaces - stored in every 2 bytes from left to right in the particle vector of the global best, according to the subnets in Table \ref{table:Subnets} we can distinguish the type of layer, and then based on Table \ref{table:CNNFields} we can decode the IP address into different sets of binary string which indicate the field values the layer. After decoding all the interfaces in the global best, the final CNN architecture can be obtained by connecting all of the decoded layers in the same order as that of the interfaces in the particle vector.
 
 \section{Experiment design}\label{sec:EPDesign}
 
