@@ -260,7 +260,7 @@ class Population:
                 for j in range(len(bin_ip)):
                     # check whether to mutate the bit
                     rand = np.random.uniform(0, 1)
-                    if rand < self.mutation_rate:
+                    if rand < self.mutation_rate[1]:
                         bin_ip[j] = '0' if bin_ip[j] == '1' else '1'
                 candidate_chromosome.x[i].update_ip_by_binary_string(bin_ip)
                 if self.layers is not None:

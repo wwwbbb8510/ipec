@@ -3,7 +3,7 @@
 **batch n runs**
 
 ```bash
-nohup bash ./run_m_runs.sh -r 3 -p 4 &
+nohup bash ./run_m_runs.sh -r 3 -p 10 &
 ```
 
 **batch running on multiple tasks through bash scripts**
