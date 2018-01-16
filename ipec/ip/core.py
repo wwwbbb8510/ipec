@@ -178,6 +178,16 @@ class Interface:
         """
         self.ip.update_byte(pos, value)
 
+    def update_ip_by_binary_string(self, bin_ip):
+        """
+        update ip by binary string of IP
+
+        :param bin_ip: binary string IP
+        :type bin_ip: string
+        :return:
+        """
+        self.ip.update_ip_by_binary_string(bin_ip)
+
     def update_subnet_and_structure(self, layers):
         """
         update the ip structure and subnet after the IP changed

@@ -19,7 +19,7 @@ fi
 
 for i in `seq 1 ${RUNS}`;do
     bash run_all.sh -g 2 -i ${PROGRAM_ID}00${i} -e 1
-    sleep 60
+    sleep 300
     bash run_all.sh -g 2 -i ${PROGRAM_ID}00${i} -e 2
     sleep 120
 done

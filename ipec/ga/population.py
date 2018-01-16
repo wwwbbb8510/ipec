@@ -256,13 +256,16 @@ class Population:
             rand = np.random.uniform(0, 1)
             # check whether to mutate the interface
             if rand < self.mutation_rate[0]:
-                bin_ip = interface.ip.bin_ip
-                for j in range(len(bin_ip)):
+                bin_ip_list = list(interface.ip.bin_ip)
+                bin_ip_length = len(bin_ip_list)
+                field_length = interface.ip_structure.fields_length
+                # mutate fields of a specific layer type instead of the entire IP
+                for j in range(bin_ip_length - field_length, bin_ip_length):
                     # check whether to mutate the bit
                     rand = np.random.uniform(0, 1)
                     if rand < self.mutation_rate[1]:
-                        bin_ip[j] = '0' if bin_ip[j] == '1' else '1'
-                candidate_chromosome.x[i].update_ip_by_binary_string(bin_ip)
+                        bin_ip_list[j] = '0' if bin_ip_list[j] == '1' else '1'
+                candidate_chromosome.x[i].update_ip_by_binary_string(''.join(bin_ip_list))
                 if self.layers is not None:
                     candidate_chromosome.x[i].update_subnet_and_structure(self.layers)
             else:

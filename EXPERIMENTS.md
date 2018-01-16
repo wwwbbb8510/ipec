@@ -3,7 +3,7 @@
 **batch n runs**
 
 ```bash
-nohup bash ./run_m_runs.sh -r 3 -p 10 &
+nohup bash ./run_m_runs.sh -r 2 -p 10 &
 ```
 
 **batch running on multiple tasks through bash scripts**
@@ -56,6 +56,36 @@ grep 'fitness of gbest' log/ippso_cnn_3032.log
 tail -f log/ippso_cnn_optimise_3132.log
 tail -f log/ippso_cnn_optimise_3032.log
 tail -f log/ippso_cnn_optimise_4032.log
+```
+
+**batch train final CNNs**
+
+```bash
+# convex
+python3 main.py -d convex -m 1 --ip_structure 2 -e 100 -f 0 -g 1 -o 1 --log_file=log/ippso_cnn_optimise_convex_3001.log --gbest_file=log/gbest_convex_3001.pkl
+python3 main.py -d convex -m 1 --ip_structure 2 -e 100 -f 0 -g 1 -o 1 --log_file=log/ippso_cnn_optimise_convex_4002.log --gbest_file=log/gbest_convex_4002.pkl
+python3 main.py -d convex -m 1 --ip_structure 2 -e 100 -f 0 -g 1 -o 1 --log_file=log/ippso_cnn_optimise_convex_6001.log --gbest_file=log/gbest_convex_6001.pkl
+python3 main.py -d convex -m 1 --ip_structure 2 -e 100 -f 0 -g 1 -o 1 --log_file=log/ippso_cnn_optimise_convex_6003.log --gbest_file=log/gbest_convex_6003.pkl
+python3 main.py -d convex -m 1 --ip_structure 2 -e 100 -f 0 -g 1 -o 1 --log_file=log/ippso_cnn_optimise_convex_7001.log --gbest_file=log/gbest_convex_7001.pkl
+python3 main.py -d convex -m 1 --ip_structure 2 -e 100 -f 0 -g 1 -o 1 --log_file=log/ippso_cnn_optimise_convex_8001.log --gbest_file=log/gbest_convex_8001.pkl
+python3 main.py -d convex -m 1 --ip_structure 2 -e 100 -f 0 -g 1 -o 1 --log_file=log/ippso_cnn_optimise_convex_9001.log --gbest_file=log/gbest_convex_9001.pkl
+# mb
+python3 main.py -d mb -m 1 --ip_structure 2 -e 100 -f 0 -g 1 -o 1 --log_file=log/ippso_mb_3001.log --gbest_file=log/gbest_mb_3001.pkl
+python3 main.py -d mb -m 1 --ip_structure 2 -e 100 -f 0 -g 1 -o 1 --log_file=log/ippso_mb_4002.log --gbest_file=log/gbest_mb_4002.pkl
+python3 main.py -d mb -m 1 --ip_structure 2 -e 100 -f 0 -g 1 -o 1 --log_file=log/ippso_mb_6001.log --gbest_file=log/gbest_mb_6001.pkl
+python3 main.py -d mb -m 1 --ip_structure 2 -e 100 -f 0 -g 1 -o 1 --log_file=log/ippso_mb_6003.log --gbest_file=log/gbest_mb_6003.pkl
+python3 main.py -d mb -m 1 --ip_structure 2 -e 100 -f 0 -g 1 -o 1 --log_file=log/ippso_mb_7001.log --gbest_file=log/gbest_mb_7001.pkl
+python3 main.py -d mb -m 1 --ip_structure 2 -e 100 -f 0 -g 1 -o 1 --log_file=log/ippso_mb_8001.log --gbest_file=log/gbest_mb_8001.pkl
+python3 main.py -d mb -m 1 --ip_structure 2 -e 100 -f 0 -g 1 -o 1 --log_file=log/ippso_mb_9001.log --gbest_file=log/gbest_mb_9001.pkl
+# mdrbi
+python3 main.py -d mdrbi -m 1 --ip_structure 2 -e 100 -f 0 -g 1 -o 1 --log_file=log/ippso_cnn_optimise_mdrbi_2003.log --gbest_file=log/gbest_mdrbi_2003.pkl
+python3 main.py -d mdrbi -m 1 --ip_structure 2 -e 100 -f 0 -g 1 -o 1 --log_file=log/ippso_cnn_optimise_mdrbi_3001.log --gbest_file=log/gbest_mdrbi_3001.pkl
+python3 main.py -d mdrbi -m 1 --ip_structure 2 -e 100 -f 0 -g 1 -o 1 --log_file=log/ippso_cnn_optimise_mdrbi_4002.log --gbest_file=log/gbest_mdrbi_4002.pkl
+python3 main.py -d mdrbi -m 1 --ip_structure 2 -e 100 -f 0 -g 1 -o 1 --log_file=log/ippso_cnn_optimise_mdrbi_6001.log --gbest_file=log/gbest_mdrbi_6001.pkl
+python3 main.py -d mdrbi -m 1 --ip_structure 2 -e 100 -f 0 -g 1 -o 1 --log_file=log/ippso_cnn_optimise_mdrbi_6003.log --gbest_file=log/gbest_mdrbi_6003.pkl
+python3 main.py -d mdrbi -m 1 --ip_structure 2 -e 100 -f 0 -g 1 -o 1 --log_file=log/ippso_cnn_optimise_mdrbi_7001.log --gbest_file=log/gbest_mdrbi_7001.pkl
+python3 main.py -d mdrbi -m 1 --ip_structure 2 -e 100 -f 0 -g 1 -o 1 --log_file=log/ippso_cnn_optimise_mdrbi_8001.log --gbest_file=log/gbest_mdrbi_8001.pkl
+python3 main.py -d mdrbi -m 1 --ip_structure 2 -e 100 -f 0 -g 1 -o 1 --log_file=log/ippso_cnn_optimise_mdrbi_9001.log --gbest_file=log/gbest_mdrbi_9001.pkl
 ```
 
 ## IPPSO with 2 bytes Xavier weight initialisation
