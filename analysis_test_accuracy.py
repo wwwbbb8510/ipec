@@ -37,7 +37,7 @@ for file in files:
     f.close()
 
 print('error rate list: {}'.format(str(error_rate_list)))
-print('best error rate: {}'.format(np.amax(error_rate_list)))
+print('best error rate: {}'.format(np.amin(error_rate_list)))
 print('error rate mean: {}'.format(np.mean(error_rate_list)))
 print('error rate standard deviation: {}'.format(np.std(error_rate_list)))
 print('best accuracy list: {}'.format(str(best_acc_list)))
