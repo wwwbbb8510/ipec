@@ -19,6 +19,7 @@ print('log path: {}'.format(LOG_PATHS))
 files = glob.glob(LOG_PATHS)
 
 best_acc_list = []
+error_rate_list = []
 file_list = []
 for file in files:
     best_acc = None
@@ -32,8 +33,13 @@ for file in files:
                 best_acc = matched_acc
     if best_acc is not None:
         best_acc_list.append(best_acc)
+        error_rate_list.append(100 - best_acc * 100)
     f.close()
 
+print('error rate list: {}'.format(str(error_rate_list)))
+print('best error rate: {}'.format(np.amax(error_rate_list)))
+print('error rate mean: {}'.format(np.mean(error_rate_list)))
+print('error rate standard deviation: {}'.format(np.std(error_rate_list)))
 print('best accuracy list: {}'.format(str(best_acc_list)))
 print('best accuracy: {}'.format(np.amax(best_acc_list)))
 print('accuracy mean: {}'.format(np.mean(best_acc_list)))
