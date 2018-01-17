@@ -14,6 +14,8 @@ if SUB_FOLDER is None:
 else:
     LOG_PATHS = os.path.join('log', 'analysis_test_accuracy', SUB_FOLDER, '*.log')
 
+print('log path: {}'.format(LOG_PATHS))
+
 files = glob.glob(LOG_PATHS)
 
 best_acc_list = []
