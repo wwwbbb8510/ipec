@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-while getopts r:p:E: option;do
+while getopts r:p:e: option;do
     case "${option}" in
     r) RUNS=${OPTARG};;
     p) PROGRAM_ID=${OPTARG};;
