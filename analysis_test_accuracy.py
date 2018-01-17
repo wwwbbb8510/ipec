@@ -2,9 +2,17 @@ import os
 import glob
 import re
 import numpy as np
-import sys
+import argparse
 
-LOG_PATHS = os.path.join('log', 'analysis_test_accuracy', '*.log')
+parser = argparse.ArgumentParser()
+parser.add_argument('-f', '--folder', help='the sub folder under analysis_test_accuracy')
+args = parser.parse_args()
+
+SUB_FOLDER = args.folder
+if SUB_FOLDER is None:
+    LOG_PATHS = os.path.join('log', 'analysis_test_accuracy',  '*.log')
+else:
+    LOG_PATHS = os.path.join('log', 'analysis_test_accuracy', SUB_FOLDER, '*.log')
 
 files = glob.glob(LOG_PATHS)
 

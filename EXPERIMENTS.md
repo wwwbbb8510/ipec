@@ -73,13 +73,13 @@ python3 main.py -d convex -m 1 --ip_structure 2 -e 100 -f 0 -g 1 -o 1 --log_file
 python3 main.py -d convex -m 1 --ip_structure 2 -e 100 -f 0 -g 1 -o 1 --log_file=log/ippso_cnn_optimise_convex_8001.log --gbest_file=log/gbest_convex_8001.pkl
 python3 main.py -d convex -m 1 --ip_structure 2 -e 100 -f 0 -g 1 -o 1 --log_file=log/ippso_cnn_optimise_convex_9001.log --gbest_file=log/gbest_convex_9001.pkl
 # mb
-python3 main.py -d mb -m 1 --ip_structure 2 -e 100 -f 0 -g 1 -o 1 --log_file=log/ippso_mb_3001.log --gbest_file=log/gbest_mb_3001.pkl
-python3 main.py -d mb -m 1 --ip_structure 2 -e 100 -f 0 -g 1 -o 1 --log_file=log/ippso_mb_4002.log --gbest_file=log/gbest_mb_4002.pkl
-python3 main.py -d mb -m 1 --ip_structure 2 -e 100 -f 0 -g 1 -o 1 --log_file=log/ippso_mb_6001.log --gbest_file=log/gbest_mb_6001.pkl
-python3 main.py -d mb -m 1 --ip_structure 2 -e 100 -f 0 -g 1 -o 1 --log_file=log/ippso_mb_6003.log --gbest_file=log/gbest_mb_6003.pkl
-python3 main.py -d mb -m 1 --ip_structure 2 -e 100 -f 0 -g 1 -o 1 --log_file=log/ippso_mb_7001.log --gbest_file=log/gbest_mb_7001.pkl
-python3 main.py -d mb -m 1 --ip_structure 2 -e 100 -f 0 -g 1 -o 1 --log_file=log/ippso_mb_8001.log --gbest_file=log/gbest_mb_8001.pkl
-python3 main.py -d mb -m 1 --ip_structure 2 -e 100 -f 0 -g 1 -o 1 --log_file=log/ippso_mb_9001.log --gbest_file=log/gbest_mb_9001.pkl
+python3 main.py -d mb -m 1 --ip_structure 2 -e 100 -f 0 -g 1 -o 1 --log_file=log/ippso_cnn_optimise_mb_3001.log --gbest_file=log/gbest_mb_3001.pkl
+python3 main.py -d mb -m 1 --ip_structure 2 -e 100 -f 0 -g 1 -o 1 --log_file=log/ippso_cnn_optimise_mb_4002.log --gbest_file=log/gbest_mb_4002.pkl
+python3 main.py -d mb -m 1 --ip_structure 2 -e 100 -f 0 -g 1 -o 1 --log_file=log/ippso_cnn_optimise_mb_6001.log --gbest_file=log/gbest_mb_6001.pkl
+python3 main.py -d mb -m 1 --ip_structure 2 -e 100 -f 0 -g 1 -o 1 --log_file=log/ippso_cnn_optimise_mb_6003.log --gbest_file=log/gbest_mb_6003.pkl
+python3 main.py -d mb -m 1 --ip_structure 2 -e 100 -f 0 -g 1 -o 1 --log_file=log/ippso_cnn_optimise_mb_7001.log --gbest_file=log/gbest_mb_7001.pkl
+python3 main.py -d mb -m 1 --ip_structure 2 -e 100 -f 0 -g 1 -o 1 --log_file=log/ippso_cnn_optimise_mb_8001.log --gbest_file=log/gbest_mb_8001.pkl
+python3 main.py -d mb -m 1 --ip_structure 2 -e 100 -f 0 -g 1 -o 1 --log_file=log/ippso_cnn_optimise_mb_9001.log --gbest_file=log/gbest_mb_9001.pkl
 # mdrbi
 python3 main.py -d mdrbi -m 1 --ip_structure 2 -e 100 -f 0 -g 1 -o 1 --log_file=log/ippso_cnn_optimise_mdrbi_2003.log --gbest_file=log/gbest_mdrbi_2003.pkl
 python3 main.py -d mdrbi -m 1 --ip_structure 2 -e 100 -f 0 -g 1 -o 1 --log_file=log/ippso_cnn_optimise_mdrbi_3001.log --gbest_file=log/gbest_mdrbi_3001.pkl
