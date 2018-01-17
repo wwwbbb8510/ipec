@@ -19,9 +19,11 @@ print('log path: {}'.format(LOG_PATHS))
 files = glob.glob(LOG_PATHS)
 
 best_acc_list = []
+file_list = []
 for file in files:
     best_acc = None
     f = open(file, 'r')
+    file_list.append(file)
     for line in f:
         matchObj = re.match(r'.*test_ce_loss:\s*(\d*\.?\d*),\s*acc:\s*(\d*\.?\d*).*', line)
         if matchObj is not None:
@@ -36,3 +38,4 @@ print('best accuracy list: {}'.format(str(best_acc_list)))
 print('best accuracy: {}'.format(np.amax(best_acc_list)))
 print('accuracy mean: {}'.format(np.mean(best_acc_list)))
 print('accuracy standard deviation: {}'.format(np.std(best_acc_list)))
+print('file list: {}'.format(str(file_list)))
