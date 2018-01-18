@@ -80,9 +80,11 @@ def _pso_search(args):
     :param args: arguments
     """
     if args.log_file is None:
-        logging.basicConfig(filename='log/ippso_cnn.log', level=logging.DEBUG)
+        log_file_path = 'log/ippso_cnn.log'
     else:
-        logging.basicConfig(filename=args.log_file, level=logging.DEBUG)
+        log_file_path = args.log_file
+    eval_csv_output_file = os.path.join(os.path.splitext(log_file_path)[0] + '_eval.csv')
+    logging.basicConfig(filename=log_file_path, level=logging.DEBUG)
     logging.info('===Load data - dataset:%s, mode:%s===', args.dataset, args.mode)
     loaded_data = _load_data(args.dataset, args.mode, args.partial_dataset)
     logging.info('===Data loaded===')
@@ -102,7 +104,8 @@ def _pso_search(args):
                                              mean_divisor=80,
                                              stddev_divisor=16,
                                              test_data=loaded_data.test['images'],
-                                             test_label=loaded_data.test['labels'])
+                                             test_label=loaded_data.test['labels'],
+                                             eval_csv_output_file=eval_csv_output_file)
     else:
         evaluator = initialise_cnn_evaluator(training_epoch=args.training_epoch,
                                              max_gpu=args.max_gpu,
@@ -112,8 +115,8 @@ def _pso_search(args):
                                              dropout=args.dropout,
                                              mean_centre=7,
                                              mean_divisor=80,
-                                             stddev_divisor=16
-                                             )
+                                             stddev_divisor=16,
+                                             eval_csv_output_file=eval_csv_output_file)
     if args.ip_structure == 1:
         layers = initialise_cnn_layers_3_bytes()
     elif args.ip_structure == 2:

@@ -21,4 +21,5 @@ fi
 
 for i in `seq 1 ${RUNS}`;do
     bash run_all.sh -g 2 -i ${PROGRAM_ID}00${i} -e ${EVOLVE}
+    sleep 120
 done

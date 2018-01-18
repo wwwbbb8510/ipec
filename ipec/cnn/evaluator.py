@@ -1,6 +1,7 @@
 import numpy as np
 import logging
 import os
+import csv
 from datetime import datetime
 import tensorflow as tf
 from tensorflow.contrib.layers.python.layers import initializers
@@ -9,11 +10,10 @@ from tensorflow.python.ops import control_flow_ops
 from tensorflow.python.ops import init_ops
 from ipec.ip.decoder import Decoder
 from ipec.ip.core import InterfaceArray
-import os
 
 def initialise_cnn_evaluator(training_epoch=None, batch_size=None, training_data=None, training_label=None, validation_data=None,
                              validation_label=None, max_gpu=None, first_gpu_id=None, class_num=None, regularise=0, dropout=0,
-                             mean_centre=None, mean_divisor=None, stddev_divisor=None, test_data=None, test_label=None, optimise=False, tensorboard_path=None):
+                             mean_centre=None, mean_divisor=None, stddev_divisor=None, test_data=None, test_label=None, optimise=False, tensorboard_path=None, eval_csv_output_file=None):
     training_epoch = 2 if training_epoch is None else training_epoch
     max_gpu = None if max_gpu is None else max_gpu
     batch_size = 200 if batch_size is None else batch_size
@@ -28,7 +28,7 @@ def initialise_cnn_evaluator(training_epoch=None, batch_size=None, training_data
         test_label = get_test_data()['labels'] if test_label is None else test_label
     return CNNEvaluator(training_epoch, batch_size, training_data, training_label,
                         validation_data, validation_label, max_gpu, first_gpu_id, class_num, regularise, dropout, mean_centre, mean_divisor, stddev_divisor,
-                        test_data=test_data, test_label=test_label, optimise=optimise, tensorboard_path=tensorboard_path)
+                        test_data=test_data, test_label=test_label, optimise=optimise, tensorboard_path=tensorboard_path, eval_csv_output_file=eval_csv_output_file)
 
 
 def produce_tf_batch_data(images, labels, batch_size):
@@ -71,7 +71,7 @@ class CNNEvaluator(Evaluator):
     def __init__(self, training_epoch, batch_size, training_data, training_label,
                  validation_data, validation_label, max_gpu, first_gpu_id, class_num=10, regularise=0, dropout=0,
                  mean_centre=None, mean_divisor=None, stddev_divisor=None, test_data=None, test_label=None, optimise=False,
-                 tensorboard_path=None):
+                 tensorboard_path=None, eval_csv_output_file=None):
         """
         constructor
 
@@ -100,6 +100,8 @@ class CNNEvaluator(Evaluator):
         :type first_gpu_id: int
         :param tensorboard_path: tensorboard path
         :type tensorboard_path: string
+        :param eval_csv_output_file: evaluation csv output file path
+        :type eval_csv_output_file: string
         """
         self.training_epoch = training_epoch
         self.batch_size = batch_size
@@ -116,6 +118,7 @@ class CNNEvaluator(Evaluator):
         self.dropout = dropout
         self.optimise = optimise
         self.tensorboarad_path = tensorboard_path
+        self.eval_csv_output_file = eval_csv_output_file
 
         self.training_data_length = self.training_data.shape[0]
         self.validation_data_length = self.validation_data.shape[0]
@@ -204,6 +207,7 @@ class CNNEvaluator(Evaluator):
                 coord.join(threads)
             logging.info('fitness of the interface_array: mean accuracy - %f, standard deviation of accuracy - %f, # of connections - %d', mean_validation_accu, stddev_validation_acccu, num_connections)
             logging.info('===finish evaluating InterfaceArray-%d===', interface_array.id)
+            self._eval_output(interface_array, (mean_validation_accu, stddev_validation_acccu, num_connections))
             return mean_validation_accu, stddev_validation_acccu, num_connections
 
     def test_one_epoch(self, sess, accuracy, cross_entropy, is_training, data_length, training_mode, X, true_Y, merged_summary, training_epoch):
@@ -385,4 +389,26 @@ class CNNEvaluator(Evaluator):
         else:
             full_dropout_H = full_H
         return full_dropout_H
+
+    def _eval_output(self, interface_array, eval_result):
+        """
+        output evaluation result to csv
+        :param interface_array: interface array comprised of all interfaces for the layer
+        :type interface_array: InterfaceArray
+        :param eval_result: evaluation result
+        :type eval_result: tuple
+        """
+        if self.eval_csv_output_file is not None:
+            fields = []
+            # add the id of interface array
+            fields.append(interface_array.id)
+            # add all the ip addresses
+            for interface in interface_array.x:
+                fields.extend(interface.ip.ip.tolist())
+            # add the evaluation result
+            fields.extend(list(eval_result))
+            with open(self.eval_csv_output_file, 'a', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerow(fields)
+            f.close()
 

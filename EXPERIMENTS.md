@@ -4,9 +4,9 @@
 
 ```bash
 # evolve
-nohup bash ./run_m_runs.sh -r 2 -p 17 -e 1 &
+nohup bash ./run_m_runs.sh -r 2 -p 20 -e 1 &
 # optimise
-nohup bash ./run_m_runs.sh -r 2 -p 17 -e 2 &
+nohup bash ./run_m_runs.sh -r 2 -p 20 -e 2 &
 ```
 
 **batch running on multiple tasks through bash scripts**
@@ -74,8 +74,6 @@ python3 main.py -d mb -m 1 --ip_structure 2 -e 100 -f 0 -g 1 -o 1 --log_file=log
 python3 main.py -d mb -m 1 --ip_structure 2 -e 100 -f 0 -g 1 -o 1 --log_file=log/ippso_cnn_optimise_mb_12002.log --gbest_file=log/gbest_mb_12002.pkl
 python3 main.py -d mb -m 1 --ip_structure 2 -e 100 -f 0 -g 1 -o 1 --log_file=log/ippso_cnn_optimise_mb_13002.log --gbest_file=log/gbest_mb_13002.pkl
 python3 main.py -d mb -m 1 --ip_structure 2 -e 100 -f 0 -g 1 -o 1 --log_file=log/ippso_cnn_optimise_mb_14001.log --gbest_file=log/gbest_mb_14001.pkl
-python3 main.py -d mb -m 1 --ip_structure 2 -e 100 -f 0 -g 1 -o 1 --log_file=log/ippso_cnn_optimise_mb_15001.log --gbest_file=log/gbest_mb_15001.pkl
-python3 main.py -d mb -m 1 --ip_structure 2 -e 100 -f 0 -g 1 -o 1 --log_file=log/ippso_cnn_optimise_mb_16001.log --gbest_file=log/gbest_mb_16001.pkl
 # mdrbi
 python3 main.py -d mdrbi -m 1 --ip_structure 2 -e 100 -f 1 -g 1 -o 1 --log_file=log/ippso_cnn_optimise_mdrbi_11002.log --gbest_file=log/gbest_mdrbi_11002.pkl
 python3 main.py -d mdrbi -m 1 --ip_structure 2 -e 100 -f 1 -g 1 -o 1 --log_file=log/ippso_cnn_optimise_mdrbi_13002.log --gbest_file=log/gbest_mdrbi_13002.pkl
