@@ -10,8 +10,9 @@ done
 
 print_help(){
     printf "Parameter g(GPU), i(ID), e(Evolve or train) are mandatory\n"
-    printf "g values - 1:first gpu, 2: second gpu"
+    printf "g values - group. 1: mbi, mrb, mrd 2: mb, mdrbi, convex"
     printf "e values - 1:PSO evolve particles, 2: training the final model"
+    printf "f values - first gpu id"
     exit 1
 }
 

@@ -13,10 +13,11 @@ print_help(){
     printf "r values - number of runs"
     printf "p values - program ID"
     printf "e values - 1:PSO evolve particles, 2: training the final model"
+    printf "f values - first gpu id"
     exit 1
 }
 
-if [ -z "${RUNS}" ];then
+if [ -z "${RUNS}" -o -z "${PROGRAM_ID}" -o -z "${EVOLVE}" -o -z "${FIRST_GPU_ID}" ];then
     print_help
 fi
 
