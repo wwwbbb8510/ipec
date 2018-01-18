@@ -9,7 +9,6 @@ while getopts r:p:e:f: option;do
 done
 
 print_help(){
-    printf "Parameter r(RUNS) is mandatory\n"
     printf "r values - number of runs"
     printf "p values - program ID"
     printf "e values - 1:PSO evolve particles, 2: training the final model"
