@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
-while getopts r:p:e: option;do
+while getopts r:p:e:f: option;do
     case "${option}" in
     r) RUNS=${OPTARG};;
     p) PROGRAM_ID=${OPTARG};;
     e) EVOLVE=${OPTARG};;
+    f) FIRST_GPU_ID=${OPTARG};;
     esac
 done
 
@@ -20,6 +21,6 @@ if [ -z "${RUNS}" ];then
 fi
 
 for i in `seq 1 ${RUNS}`;do
-    bash run_all.sh -g 2 -i ${PROGRAM_ID}00${i} -e ${EVOLVE}
+    bash run_all.sh -g 2 -i ${PROGRAM_ID}00${i} -e ${EVOLVE} -f ${FIRST_GPU_ID}
     sleep 120
 done

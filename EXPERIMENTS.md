@@ -4,9 +4,9 @@
 
 ```bash
 # evolve
-nohup bash ./run_m_runs.sh -r 3 -p 21 -e 1 f 0 &
+nohup bash ./run_m_runs.sh -r 5 -p 22 -e 1 f 0 &
 # optimise
-nohup bash ./run_m_runs.sh -r 3 -p 21 -e 2 &
+nohup bash ./run_m_runs.sh -r 5 -p 22 -e 2 &
 ```
 
 **batch running on multiple tasks through bash scripts**
