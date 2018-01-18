@@ -1,3 +1,6 @@
+import matplotlib as mpl
+# disable display
+mpl.use('Agg')
 import numpy as np
 import glob
 import pandas as pd
@@ -84,10 +87,8 @@ def plot_2d(x, y, z, output_file_path):
 def plot_2d_surface(x, y, z, output_file_path):
     # mesh 3D plot
     fig = plt.figure(3, figsize=(20, 20))
-
     ax = Axes3D(fig)
-    m_x, m_y = np.meshgrid(x, y)
-    ax.plot_surface(m_x, m_y, z, rstride=1, cstride=1, cmap=cm.viridis)
+    ax.plot_trisurf(x, y, z, rstride=1, cstride=1, cmap=cm.viridis)
     ax.set_xlabel('PCA One')
     ax.set_ylabel('PCA Two')
     ax.set_zlabel('Accuracy')
