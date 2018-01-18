@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 from matplotlib import cm
 import argparse
 import os
+from matplotlib import colors
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-f', '--folder', help='the sub folder under analysis_test_accuracy')
@@ -88,7 +89,7 @@ def plot_2d_surface(x, y, z, output_file_path):
     # mesh 3D plot
     fig = plt.figure(3, figsize=(20, 20))
     ax = Axes3D(fig)
-    ax.plot_trisurf(x, y, z, rstride=1, cstride=1, cmap=cm.viridis)
+    ax.plot_trisurf(x, y, z, cmap=plt.cm.CMRmap)
     ax.set_xlabel('PCA One')
     ax.set_ylabel('PCA Two')
     ax.set_zlabel('Accuracy')
