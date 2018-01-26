@@ -12,5 +12,6 @@ datasets/*
 !datasets/placeholder.txt
 reports/cec/IPPSO_CEC.*
 !reports/cec/IPPSO_CEC.tex
+reports/*.zip
 doc
 .ipynb_checkpoints

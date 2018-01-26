@@ -93,7 +93,7 @@ def plot_2d_surface(x, y, z, output_file_path):
     ax.set_xlabel('PCA One')
     ax.set_ylabel('PCA Two')
     ax.set_zlabel('Accuracy')
-    ax.set_title('Meshgrid surface')
+    ax.set_title('Tri surface')
     fig.savefig(output_file_path)
 
 x, y, z = load_data(csv_path, x_dimension)
