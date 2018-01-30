@@ -1,326 +1,16 @@
-
-%% bare_conf.tex
-%% V1.4b
-%% 2015/08/26
-%% by Michael Shell
-%% See:
-%% http://www.michaelshell.org/
-%% for current contact information.
-%%
-%% This is a skeleton file demonstrating the use of IEEEtran.cls
-%% (requires IEEEtran.cls version 1.8b or later) with an IEEE
-%% conference paper.
-%%
-%% Support sites:
-%% http://www.michaelshell.org/tex/ieeetran/
-%% http://www.ctan.org/pkg/ieeetran
-%% and
-%% http://www.ieee.org/
-
-%%*************************************************************************
-%% Legal Notice:
-%% This code is offered as-is without any warranty either expressed or
-%% implied; without even the implied warranty of MERCHANTABILITY or
-%% FITNESS FOR A PARTICULAR PURPOSE! 
-%% User assumes all risk.
-%% In no event shall the IEEE or any contributor to this code be liable for
-%% any damages or losses, including, but not limited to, incidental,
-%% consequential, or any other damages, resulting from the use or misuse
-%% of any information contained here.
-%%
-%% All comments are the opinions of their respective authors and are not
-%% necessarily endorsed by the IEEE.
-%%
-%% This work is distributed under the LaTeX Project Public License (LPPL)
-%% ( http://www.latex-project.org/ ) version 1.3, and may be freely used,
-%% distributed and modified. A copy of the LPPL, version 1.3, is included
-%% in the base LaTeX documentation of all distributions of LaTeX released
-%% 2003/12/01 or later.
-%% Retain all contribution notices and credits.
-%% ** Modified files should be clearly indicated as such, including  **
-%% ** renaming them and changing author support contact information. **
-%%*************************************************************************
-
-
-% *** Authors should verify (and, if needed, correct) their LaTeX system  ***
-% *** with the testflow diagnostic prior to trusting their LaTeX platform ***
-% *** with production work. The IEEE's font choices and paper sizes can   ***
-% *** trigger bugs that do not appear when using other class files.       ***                          ***
-% The testflow support page is at:
-% http://www.michaelshell.org/tex/testflow/
-
-
-
 \documentclass[conference]{IEEEtran}
-% Some Computer Society conferences also require the compsoc mode option,
-% but others use the standard conference format.
-%
-% If IEEEtran.cls has not been installed into the LaTeX system files,
-% manually specify the path to it like:
-% \documentclass[conference]{../sty/IEEEtran}
-
-
-
-
-
-% Some very useful LaTeX packages include:
-% (uncomment the ones you want to load)
-
-
-% *** MISC UTILITY PACKAGES ***
-%
-%\usepackage{ifpdf}
-% Heiko Oberdiek's ifpdf.sty is very useful if you need conditional
-% compilation based on whether the output is pdf or dvi.
-% usage:
-% \ifpdf
-%   % pdf code
-% \else
-%   % dvi code
-% \fi
-% The latest version of ifpdf.sty can be obtained from:
-% http://www.ctan.org/pkg/ifpdf
-% Also, note that IEEEtran.cls V1.7 and later provides a builtin
-% \ifCLASSINFOpdf conditional that works the same way.
-% When switching from latex to pdflatex and vice-versa, the compiler may
-% have to be run twice to clear warning/error messages.
-
-
-
-
-
-
-% *** CITATION PACKAGES ***
-%
-%\usepackage{cite}
-% cite.sty was written by Donald Arseneau
-% V1.6 and later of IEEEtran pre-defines the format of the cite.sty package
-% \cite{} output to follow that of the IEEE. Loading the cite package will
-% result in citation numbers being automatically sorted and properly
-% "compressed/ranged". e.g., [1], [9], [2], [7], [5], [6] without using
-% cite.sty will become [1], [2], [5]--[7], [9] using cite.sty. cite.sty's
-% \cite will automatically add leading space, if needed. Use cite.sty's
-% noadjust option (cite.sty V3.8 and later) if you want to turn this off
-% such as if a citation ever needs to be enclosed in parenthesis.
-% cite.sty is already installed on most LaTeX systems. Be sure and use
-% version 5.0 (2009-03-20) and later if using hyperref.sty.
-% The latest version can be obtained at:
-% http://www.ctan.org/pkg/cite
-% The documentation is contained in the cite.sty file itself.
-
-
-
-
-
-
-% *** GRAPHICS RELATED PACKAGES ***
-%
-\usepackage{graphicx}
-\ifCLASSINFOpdf
-  % \usepackage[pdftex]{graphicx}
-  % declare the path(s) where your graphic files are
-  % \graphicspath{{../pdf/}{../jpeg/}}
-  % and their extensions so you won't have to specify these with
-  % every instance of \includegraphics
-  % \DeclareGraphicsExtensions{.pdf,.jpeg,.png}
-\else
-  % or other class option (dvipsone, dvipdf, if not using dvips). graphicx
-  % will default to the driver specified in the system graphics.cfg if no
-  % driver is specified.
-  % \usepackage[dvips]{graphicx}
-  % declare the path(s) where your graphic files are
-  % \graphicspath{{../eps/}}
-  % and their extensions so you won't have to specify these with
-  % every instance of \includegraphics
-  % \DeclareGraphicsExtensions{.eps}
-\fi
-% graphicx was written by David Carlisle and Sebastian Rahtz. It is
-% required if you want graphics, photos, etc. graphicx.sty is already
-% installed on most LaTeX systems. The latest version and documentation
-% can be obtained at: 
-% http://www.ctan.org/pkg/graphicx
-% Another good source of documentation is "Using Imported Graphics in
-% LaTeX2e" by Keith Reckdahl which can be found at:
-% http://www.ctan.org/pkg/epslatex
-%
-% latex, and pdflatex in dvi mode, support graphics in encapsulated
-% postscript (.eps) format. pdflatex in pdf mode supports graphics
-% in .pdf, .jpeg, .png and .mps (metapost) formats. Users should ensure
-% that all non-photo figures use a vector format (.eps, .pdf, .mps) and
-% not a bitmapped formats (.jpeg, .png). The IEEE frowns on bitmapped formats
-% which can result in "jaggedy"/blurry rendering of lines and letters as
-% well as large increases in file sizes.
-%
-% You can find documentation about the pdfTeX application at:
-% http://www.tug.org/applications/pdftex
-
-
-
-
-
-% *** MATH PACKAGES ***
-%
-%\usepackage{amsmath}
-% A popular package from the American Mathematical Society that provides
-% many useful and powerful commands for dealing with mathematics.
-%
-% Note that the amsmath package sets \interdisplaylinepenalty to 10000
-% thus preventing page breaks from occurring within multiline equations. Use:
-%\interdisplaylinepenalty=2500
-% after loading amsmath to restore such page breaks as IEEEtran.cls normally
-% does. amsmath.sty is already installed on most LaTeX systems. The latest
-% version and documentation can be obtained at:
-% http://www.ctan.org/pkg/amsmath
-
-
-
-
-
-% *** SPECIALIZED LIST PACKAGES ***
-%
-%\usepackage{algorithmic}
-% algorithmic.sty was written by Peter Williams and Rogerio Brito.
-% This package provides an algorithmic environment fo describing algorithms.
-% You can use the algorithmic environment in-text or within a figure
-% environment to provide for a floating algorithm. Do NOT use the algorithm
-% floating environment provided by algorithm.sty (by the same authors) or
-% algorithm2e.sty (by Christophe Fiorio) as the IEEE does not use dedicated
-% algorithm float types and packages that provide these will not provide
-% correct IEEE style captions. The latest version and documentation of
-% algorithmic.sty can be obtained at:
-% http://www.ctan.org/pkg/algorithms
-% Also of interest may be the (relatively newer and more customizable)
-% algorithmicx.sty package by Szasz Janos:
-% http://www.ctan.org/pkg/algorithmicx
-
-
-
-
-% *** ALIGNMENT PACKAGES ***
-%
-%\usepackage{array}
-% Frank Mittelbach's and David Carlisle's array.sty patches and improves
-% the standard LaTeX2e array and tabular environments to provide better
-% appearance and additional user controls. As the default LaTeX2e table
-% generation code is lacking to the point of almost being broken with
-% respect to the quality of the end results, all users are strongly
-% advised to use an enhanced (at the very least that provided by array.sty)
-% set of table tools. array.sty is already installed on most systems. The
-% latest version and documentation can be obtained at:
-% http://www.ctan.org/pkg/array
-
-
-% IEEEtran contains the IEEEeqnarray family of commands that can be used to
-% generate multiline equations as well as matrices, tables, etc., of high
-% quality.
-
-
-
-
-% *** SUBFIGURE PACKAGES ***
-%\ifCLASSOPTIONcompsoc
-%  \usepackage[caption=false,font=normalsize,labelfont=sf,textfont=sf]{subfig}
-%\else
-%  \usepackage[caption=false,font=footnotesize]{subfig}
-%\fi
-% subfig.sty, written by Steven Douglas Cochran, is the modern replacement
-% for subfigure.sty, the latter of which is no longer maintained and is
-% incompatible with some LaTeX packages including fixltx2e. However,
-% subfig.sty requires and automatically loads Axel Sommerfeldt's caption.sty
-% which will override IEEEtran.cls' handling of captions and this will result
-% in non-IEEE style figure/table captions. To prevent this problem, be sure
-% and invoke subfig.sty's "caption=false" package option (available since
-% subfig.sty version 1.3, 2005/06/28) as this is will preserve IEEEtran.cls
-% handling of captions.
-% Note that the Computer Society format requires a larger sans serif font
-% than the serif footnote size font used in traditional IEEE formatting
-% and thus the need to invoke different subfig.sty package options depending
-% on whether compsoc mode has been enabled.
-%
-% The latest version and documentation of subfig.sty can be obtained at:
-% http://www.ctan.org/pkg/subfig
-
-\usepackage{subcaption}
-
-
-% *** FLOAT PACKAGES ***
-%
-%\usepackage{fixltx2e}
-% fixltx2e, the successor to the earlier fix2col.sty, was written by
-% Frank Mittelbach and David Carlisle. This package corrects a few problems
-% in the LaTeX2e kernel, the most notable of which is that in current
-% LaTeX2e releases, the ordering of single and double column floats is not
-% guaranteed to be preserved. Thus, an unpatched LaTeX2e can allow a
-% single column figure to be placed prior to an earlier double column
-% figure.
-% Be aware that LaTeX2e kernels dated 2015 and later have fixltx2e.sty's
-% corrections already built into the system in which case a warning will
-% be issued if an attempt is made to load fixltx2e.sty as it is no longer
-% needed.
-% The latest version and documentation can be found at:
-% http://www.ctan.org/pkg/fixltx2e
-
-
-%\usepackage{stfloats}
-% stfloats.sty was written by Sigitas Tolusis. This package gives LaTeX2e
-% the ability to do double column floats at the bottom of the page as well
-% as the top. (e.g., "\begin{figure*}[!b]" is not normally possible in
-% LaTeX2e). It also provides a command:
-%\fnbelowfloat
-% to enable the placement of footnotes below bottom floats (the standard
-% LaTeX2e kernel puts them above bottom floats). This is an invasive package
-% which rewrites many portions of the LaTeX2e float routines. It may not work
-% with other packages that modify the LaTeX2e float routines. The latest
-% version and documentation can be obtained at:
-% http://www.ctan.org/pkg/stfloats
-% Do not use the stfloats baselinefloat ability as the IEEE does not allow
-% \baselineskip to stretch. Authors submitting work to the IEEE should note
-% that the IEEE rarely uses double column equations and that authors should try
-% to avoid such use. Do not be tempted to use the cuted.sty or midfloat.sty
-% packages (also by Sigitas Tolusis) as the IEEE does not format its papers in
-% such ways.
-% Do not attempt to use stfloats with fixltx2e as they are incompatible.
-% Instead, use Morten Hogholm'a dblfloatfix which combines the features
-% of both fixltx2e and stfloats:
-%
-% \usepackage{dblfloatfix}
-% The latest version can be found at:
-% http://www.ctan.org/pkg/dblfloatfix
-
-
-
-
-% *** PDF, URL AND HYPERLINK PACKAGES ***
-%
-%\usepackage{url}
-% url.sty was written by Donald Arseneau. It provides better support for
-% handling and breaking URLs. url.sty is already installed on most LaTeX
-% systems. The latest version and documentation can be obtained at:
-% http://www.ctan.org/pkg/url
-% Basically, \url{my_url_here}.
-\usepackage{url}
-
-
-
-% *** Do not adjust lengths that control margins, column widths, etc. ***
-% *** Do not use packages that alter fonts (such as pslatex).         ***
-% There should be no need to do such things with IEEEtran.cls V1.6 and later.
-% (Unless specifically asked to do so by the journal or conference you plan
-% to submit to, of course. )
-
-
-% correct bad hyphenation here
-\hyphenation{op-tical net-works semi-conduc-tor}
-
-% *** Algorithm and Algorithmic packages ***
-\usepackage{algorithm, algorithmic}
-
-% *** footnote package *** %
-\usepackage{footnote}
-\usepackage{footmisc}
-
-% *** euqation packages *** %
+\usepackage[pdftex]{graphicx}
 \usepackage{amsmath}
+\usepackage{algorithmic}
+\usepackage{array}
+\usepackage{stfloats}
+\usepackage{url}
+\usepackage{amsmath}
+\usepackage[linesnumbered,ruled]{algorithm2e}
+\usepackage{multirow}
+
+%\usepackage{subcaption}
+\usepackage[caption=false,font=footnotesize]{subfig}
 
 
 \begin{document}
@@ -342,7 +32,7 @@
 \IEEEauthorblockA{School of Engineering and Computer Science\\
 	Victoria University of Wellington,
 	PO Box 600, Wellington 6140, NEW ZEALAND}
-\IEEEauthorblockA{Emails: wangbin@myvuw.ac.nz, \{Yanan.Sun, Bing.Xue, Mengjie.Zhang\}@ecs.vuw.ac.nz}
+\IEEEauthorblockA{Emails: wangbin@myvuw.ac.nz, \{yanan.sun, bing.xue, mengjie.zhang\}@ecs.vuw.ac.nz}
 }
 
 
@@ -559,7 +249,7 @@ First of all, the length of the binary string under the IP-based encoding scheme
 In addition, the subnets for all types of CNN layers need to be defined according to the number of bits of each layer illustrated in Table \ref{table:CNNFields} and CIDR style will be used to represent the subnet. As there are three types of CNN layers, we need to define three subnets with enough capacity to represent all the types of layers. Starting with the Conv layer, 0.0 is designed as the starting IP address of the subnet; in addition, the total length of the designed 2-byte IP address is 16 and the total number of bits required by the Conv layer is 12, so the subnet mask length is 4 calculated by subtracting the total number of bits from the length of the IP address, which brings the subnet representation to 0.0/4 with the range from 0.0 to 15.255. Regarding the Pooling layer, the starting IP address is 16.0 obtained by adding 1 to the last IP address of the Conv layer, and the subnet mask length is 5 calculated in the same way as that of the Conv layer, which results in 16.0/5 with the range from 16.0 to 23.255 as the subnet representation of the Pooling layer. Similarly, the subnet 24.0/5 with the range from 24.0 to 31.255 is designed as the subnet of the Fully-connected layer. In order to make the subnets clear, all of the subnets are depicted in Table \ref{table:Subnets}. 
 
 
-As the particle length of PSO is fixed after initialisation, in order to cope with the variable-length of the architectures of CNNs, an effective way of disabling some of the layers in the encoded particle vector will be used to achieve this purpose. Therefore, another layer type called the Disabled layer and the corresponding subnet named the Disabled subnet are introduced. To achieve a comparable probability for the Disabled layer, the least total number of bits of 11 among all three types of CNN layers is set as the number of bits of the Disabled layer, so the disabled subnet comes to 32.0/5 with the range from 32.0 to 39.255, shown in Table \ref{table:Subnets}, where each layer will be encoded into an IP address of 2 bytes. Table \ref{table:IPExample} shows how the example in Table \ref{table:CNNFields} is encoded into IP addresses by combining all the binary string of each parameter of a specific layer into one binary string, filling the combined binary string with zeros until reaching the length of 2 bytes, applying the subnet mask on the binary string, and converting the final binary string to an IP address with one byte as a unit delimited by full stops. For instance, the sample binary string of the Conv layer in Table \ref{table:CNNFields} is 001 000 1111 01, which is filled to 0000 001 000 1111 01 to reach the length of 2 bytes; then 2-byte binary string - 0000 0010 and 0011 1101, can be obtained by applying the subnet mask, in which the starting IP address of the subnet is added on the binary string; Finally, the IP address of 2.61 is achieved by converting the first byte to the decimal value of 2 and the second byte to 61. 
+As the particle length of PSO is fixed after initialisation, in order to cope with the variable-length of the architectures of CNNs, an effective way of disabling some of the layers in the encoded particle vector will be used to achieve this purpose. Therefore, another layer type called the Disabled layer and the corresponding subnet named the Disabled subnet are introduced. To achieve a comparable probability for the Disabled layer, the least total number of bits of 11 among all three types of CNN layers is set as the number of bits of the Disabled layer, so the disabled subnet comes to 32.0/5 with the range from 32.0 to 39.255, shown in Table \ref{table:Subnets}, where each layer will be encoded into an IP address of 2 bytes. Table \ref{table:IPExample} shows how the example in Table \ref{table:CNNFields} is encoded into IP addresses by combining all the binary string of each parameter of a specific layer into one binary string, filling the combined binary string with zeros until reaching the length of 2 bytes, applying the subnet mask on the binary string, and converting the final binary string to an IP address with one byte as a unit delimited by full stops. For instance, the sample binary string of the Conv layer in Table \ref{table:CNNFields} is 001 000 1111 01, which is filled to 0000 001 000 1111 01 to reach the length of 2 bytes; then 2-byte binary string - 0000 0010 and 0011 1101, can be obtained by applying the subnet mask, in which the starting IP address of the subnet is added to the binary string; Finally, the IP address of 2.61 is achieved by converting the first byte to the decimal value of 2 and the second byte to 61. 
 
 
 %\begin{table}[!t]
@@ -802,7 +492,7 @@ Before performing the fitness evaluation, a proper weight initialisation method 
 In Algorithm \ref{alg:update}, as each layer is encoded into an interface with 2 bytes in the particle vector, and we want to control the acceleration coefficients for each byte, the two acceleration coefficients implemented as two float arrays with the size of 2 are required shown in Equation \ref{eq:UpdateVNew}. $v$ and $x$ are decimal values of the $i$th byte of the 2-byte IP address and its corresponding velocity, $P_{id}$ and $P_{gd}$ are decimal values of the $i$th byte of the IP address of the local best and global bet, respectively, and $w, r_{1}, r_{2}$ are the same as traditional PSO in Equation \ref{eq:UpdateV}. The major difference is how the acceleration coefficients are implemented - $c_{1}[i]$ and $c_{2}[i]$ are the acceleration coefficients for the $i$th byte of the IP address, where $i$ is 1 or 2 in the case of 2-byte IP encoding, comparing to a singular value for each of the acceleration coefficients in traditional PSO. The reason of separating the acceleration coefficients for each byte of the IP address is that different parameters may fall into different bytes of the IP address, and the ability to explore a specific parameter more than others may be needed when fine-tuning the learning process. 
 
 
-After the coefficients defined, we go through each byte in the particle, and update the velocity and position by using the corresponding coefficients for that byte. Since there are some constraints for each interface in the particle vector according to its position in the particle vector, e.g. the second interface can only be a Conv layer, Pooling layer or Disabled layer, the new interface needs to be replaced by an interface with a random IP address in a valid subnet if the new interface does not fall in a valid subnet. After all the bytes being updated, the new particle are evaluated, and the fitness value is compared with the local best and global best in order to update the two bests if needed.
+After the coefficients defined, we go through each byte in the particle and update the velocity and position by using the corresponding coefficients for that byte. Since there are some constraints for each interface in the particle vector according to its position in the particle vector, e.g. the second interface can only be a Conv layer, Pooling layer or Disabled layer, the new interface needs to be replaced by an interface with a random IP address in a valid subnet if the new interface does not fall in a valid subnet. After all the bytes being updated, the new particle is evaluated, and the fitness value is compared with the local best and global best in order to update the two bests if needed.
 
 \begin{equation}\label{eq:UpdateVNew}
 \begin{aligned}
@@ -1065,6 +755,17 @@ In terms of the accuracy distribution, first of all, we obtained the PSO vectors
 %	\label{fig:Visual3DSurface}
 %\end{figure}
 
+\begin{figure}[!htp]
+	\centering
+	\subfloat[Surface]{\includegraphics[width=0.19\textwidth]{ipec_pca_plot_2d_surface}%
+		\label{fig:Visual3DSurface}}
+	\hfil
+	\subfloat[Trajectory]{\includegraphics[width=0.19\textwidth]{trajectory-2in1}%
+		\label{fig:VisualTrajectory}}
+	
+	\caption{(\ref{fig:Visual3DSurface}): The surface of CNN accuracies after training 10 epochs with IPPSO encoding; (\ref{fig:VisualTrajectory}): PSO Trajectory.}
+\end{figure}
+
 Regarding the trajectory, the best result of the particles of each generation and the global best in each generation from one run of the experiments are obtained and plotted in blue colour and red colour, respectively, in Fig. \ref{fig:VisualTrajectory}. It can be seen that after only a few generations, the global best is found, after which the particles are still flying in the search space, but none of them can obtain a better accuracy, which means the optimum has been reached by PSO after only a few steps. Even though the surface of the optimisation task shown in Fig. \ref{fig:Visual3DSurface} is extremely complicated, the PSO method with only 30 particles can climb up to the optimum very quickly, which proves the effectiveness and efficiency of PSO on optimisation tasks. 
 
 %\begin{figure}[!t]
@@ -1074,21 +775,9 @@ Regarding the trajectory, the best result of the particles of each generation an
 %	\label{fig:VisualTrajectory}
 %\end{figure}
 
-\begin{figure}[t]
-	\begin{subfigure}[b]{0.2\textwidth}
-		\centering
-		\includegraphics[width=1.5in]{ipec_pca_plot_2d_surface}
-		\caption{Surface}
-		\label{fig:Visual3DSurface}
-	\end{subfigure}
-	\begin{subfigure}[b]{0.2\textwidth}
-		\centering
-		\includegraphics[width=1.5in]{trajectory-2in1}
-		\caption{Trajectory}
-		\label{fig:VisualTrajectory}
-	\end{subfigure}
-	\caption{(\ref{fig:Visual3DSurface}): The surface of CNN accuracies after training 10 epochs with IPPSO encoding; (\ref{fig:Visual3DSurface}): PSO Trajectory}
-\end{figure}
+
+
+
 
 
 %\section{Further discussion}\label{sec:FurtherDiscussion}
@@ -1205,7 +894,7 @@ The goal of this paper was to develop a new PSO approach with variable length to
 The most important improvement from the traditional PSO to the novel IPPSO proposed in the paper is to invent the new encoding strategy of using network interface. Since the subnet in the interface can distinguish any type of layers, any layer configurations can be encoded into the IP address and the length of the IP address can be easily extended to 4 bytes (the length of real IP addresses) or even more, the IPPSO method has the ability of encoding any type of Deep Neural Network layers. In addition, the particle length of the IPPSO method can be easily made variable by simply introducing a disabled layer which could be deemed as another major improvement as it breaks the obstacle of traditional PSO being fix-length. 
 
 
-In this paper, we have investigated the proposed IPPSO method for evolving deep CNN and it is proved of obtaining promising results. Based on this research, there are a couple of further researches that are worth doing. Firstly, as this paper is mainly to propose the novel encoding strategy of the IPPSO, it will be interesting to see how different PSO topologies\footnote{Fully-connected topology is used in this paper as it is easy to be implemented} will affect the performance of the IPPSO and design the best topology for it. Secondly, we will also investigate how the proposed IPPSO algorithm performs for evolving recurrent neural networks, which are powerful tools for addressing sequential data tasks, such as language processing problems.
+In this paper, we have investigated the proposed IPPSO method for evolving deep CNN and it is proved of obtaining promising results. Based on this research, there are a couple of further researches that are worth doing. Firstly, as this paper is mainly to propose the novel encoding strategy of the IPPSO, it will be interesting to see how different PSO topologies\footnote{Fully-connected topology is used in this paper as it is easy to be implemented.} will affect the performance of the IPPSO and design the best topology for it. Secondly, we will also investigate how the proposed IPPSO algorithm performs for evolving recurrent neural networks, which are powerful tools for addressing sequential data tasks, such as language processing problems.
 
 % conference papers do not normally have an appendix
 
